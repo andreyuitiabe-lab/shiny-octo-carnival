@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Land Flipping — Toolkit</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2129;--panel2:#222c36;--line:#2e3a46;--text:#e6edf3;
+    --muted:#8b9bab;--accent:#58a6ff;--good:#3fb950;--warn:#d29922}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .hero{padding:54px 24px 30px;text-align:center;border-bottom:1px solid var(--line);
+    background:radial-gradient(1200px 300px at 50% -40%,rgba(88,166,255,.14),transparent),linear-gradient(180deg,#161d24,#0f1419)}
+  .hero h1{margin:0;font-size:34px;letter-spacing:.3px}
+  .hero p{color:var(--muted);max-width:620px;margin:14px auto 0;font-size:15.5px}
+  .wrap{max-width:920px;margin:0 auto;padding:34px 24px 90px}
+  .lead{color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--panel);
+    border:1px solid var(--line);border-radius:14px;padding:20px;transition:.15s}
+  a.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  a.card .ico{font-size:26px}
+  a.card h3{margin:8px 0 4px;font-size:17px}
+  a.card p{margin:0;color:var(--muted);font-size:13.5px}
+  a.card .badge{display:inline-block;margin-top:10px;font-size:11.5px;font-weight:700;
+    padding:2px 9px;border-radius:20px;background:rgba(63,185,80,.14);color:var(--good)}
+  a.card .badge.b2{background:rgba(88,166,255,.14);color:var(--accent)}
+  .section{margin-top:40px}
+  .docs{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:14px}
+  .docs a{color:var(--accent);text-decoration:none}.docs a:hover{text-decoration:underline}
+  .note{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--warn);
+    border-radius:8px;padding:12px 16px;margin-top:34px;color:var(--muted);font-size:13px}
+  .foot{margin-top:34px;color:var(--muted);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>🗺️ Land Flipping Toolkit</h1>
+  <p>A data-driven model for land wholesaling: find the most liquid markets, pull &amp; pre-screen
+  vacant parcels, and price offers that respect how land actually sells. Built on free public data.</p>
+</div>
+<div class="wrap">
+
+  <p class="lead">Try the tools</p>
+  <div class="grid">
+    <a class="card" href="app/deal-analyzer.html">
+      <div class="ico">🧮</div>
+      <h3>Deal Analyzer</h3>
+      <p>Price a single parcel: acreage-decay valuation from comps, a dynamic blind offer, and a GO / CAUTION / KILL verdict.</p>
+      <span class="badge">Interactive · works right here</span>
+    </a>
+    <a class="card" href="tools/output/county-scores-report.html">
+      <div class="ico">📊</div>
+      <h3>County Scores Report</h3>
+      <p>The best starter markets (liquid + affordable + real deal flow), top rankings, and a state leaderboard.</p>
+      <span class="badge b2">Report</span>
+    </a>
+    <a class="card" href="tools/output/county-opportunities.html">
+      <div class="ico">📋</div>
+      <h3>Full County Table</h3>
+      <p>All ~2,000 U.S. counties scored on the Market Liquidity Index — sort, filter, and search.</p>
+      <span class="badge b2">Interactive</span>
+    </a>
+    <a class="card" href="methodology.html">
+      <div class="ico">📐</div>
+      <h3>Model Methodology</h3>
+      <p>The logic &amp; math behind every engine — the liquidity index, the pricing curve, the offer matrix — plus the validation.</p>
+      <span class="badge b2">Read</span>
+    </a>
+  </div>
+
+  <div class="section">
+    <p class="lead">Read more</p>
+    <div class="docs">
+      <a href="README.md">README</a>
+      <a href="METHODOLOGY.md">Methodology (Markdown)</a>
+      <a href="PROJECT-LOG.md">Project log</a>
+      <a href="study/01-operator-playbook.md">Operator playbook</a>
+      <a href="study/02-due-diligence-checklist.md">Due-diligence checklist</a>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Note:</b> the parcel-puller (Parcel Scout) and the market scanner are Python tools that run on a Mac —
+    they can't run on this static site, so this page shows their <i>output</i>. The Deal Analyzer is fully
+    self-contained and works live. Educational tools, not legal or financial advice.
+  </div>
+
+  <div class="foot">Built with free public data (Redfin, U.S. Census, NYS parcels, FEMA, USFWS, USGS).</div>
+</div>
+</body>
+</html>

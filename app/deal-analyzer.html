@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Land Deal Analyzer</title>
+<style>
+  :root {
+    --bg: #0f1419; --panel: #1a2129; --panel2: #222c36; --line: #2e3a46;
+    --text: #e6edf3; --muted: #8b9bab; --accent: #3fb950; --accent2: #58a6ff;
+    --warn: #d29922; --bad: #f85149; --good: #3fb950;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    padding: 18px 24px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    background: linear-gradient(180deg, #161d24, #0f1419);
+  }
+  header h1 { margin: 0; font-size: 20px; letter-spacing: .3px; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 24px 80px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin-bottom: 18px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 15px; text-transform: uppercase; letter-spacing: .8px; color: var(--accent2); }
+  .card .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
+  label { display: block; font-size: 12.5px; color: var(--muted); margin: 10px 0 4px; }
+  input, select {
+    width: 100%; padding: 9px 11px; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; font-size: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent2); }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  button {
+    background: var(--panel2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 14px; font-size: 14px; cursor: pointer;
+  }
+  button:hover { border-color: var(--accent2); }
+  button.primary { background: var(--accent); color: #06210d; border-color: var(--accent); font-weight: 600; }
+  button.danger { color: var(--bad); }
+  button.small { padding: 5px 10px; font-size: 12.5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  th, td { text-align: left; padding: 6px 8px; font-size: 13px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  .comp-input input { padding: 6px 8px; }
+  .gate { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .gate .name { flex: 1; font-size: 13.5px; }
+  .gate .killer { color: var(--bad); font-size: 11px; border: 1px solid var(--bad); border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+  .gate select { width: 130px; }
+  .stat { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+  .stat .v { font-weight: 600; }
+  .big { font-size: 26px; font-weight: 700; }
+  .verdict { text-align: center; padding: 22px; border-radius: 12px; font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+  .verdict.go { background: rgba(63,185,80,.12); color: var(--good); border: 1px solid var(--good); }
+  .verdict.caution { background: rgba(210,153,34,.12); color: var(--warn); border: 1px solid var(--warn); }
+  .verdict.kill { background: rgba(248,81,73,.12); color: var(--bad); border: 1px solid var(--bad); }
+  .verdict .why { display: block; font-size: 13px; font-weight: 500; margin-top: 8px; color: var(--muted); letter-spacing: 0; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
+  .saved-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .saved-item .meta { flex: 1; }
+  .saved-item .meta .t { font-weight: 600; }
+  .saved-item .meta .s { font-size: 12px; color: var(--muted); }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+  .pill.go { background: rgba(63,185,80,.15); color: var(--good); }
+  .pill.caution { background: rgba(210,153,34,.15); color: var(--warn); }
+  .pill.kill { background: rgba(248,81,73,.15); color: var(--bad); }
+  .muted { color: var(--muted); }
+  .links a { color: var(--accent2); text-decoration: none; font-size: 12.5px; }
+  .links a:hover { text-decoration: underline; }
+  .links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🗺️ Land Deal Analyzer</h1>
+    <div class="sub">Valuation · Due diligence gates · Max offer · GO / CAUTION / KILL</div>
+  </div>
+  <div class="toolbar">
+    <button class="primary" onclick="saveDeal()">💾 Save deal</button>
+    <button onclick="newDeal()">＋ New / clear</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- PARCEL -->
+  <div class="card">
+    <h2>1 · Parcel</h2>
+    <p class="hint">Identify the property. Acreage drives the valuation below.</p>
+    <div class="row">
+      <div><label>Deal name / nickname</label><input id="name" placeholder="e.g. 5ac off Hwy 12, Mohave Co" /></div>
+      <div><label>County, State</label><input id="county" placeholder="Mohave County, AZ" /></div>
+    </div>
+    <div class="row">
+      <div><label>APN (parcel number)</label><input id="apn" placeholder="123-45-678" /></div>
+      <div><label>Acreage</label><input id="acres" type="number" step="0.01" oninput="recalc()" placeholder="5" /></div>
+    </div>
+    <label>Back taxes owed ($)</label>
+    <input id="backTaxes" type="number" step="1" value="0" oninput="recalc()" />
+  </div>
+
+  <div class="grid">
+    <!-- COMPS -->
+    <div class="card">
+      <h2>2 · Comps → Market value</h2>
+      <p class="hint">Enter 3–6 recently SOLD similar parcels. Land doesn't price flat per acre — a big parcel is worth
+        less <i>per acre</i> than a small one (the <b>acreage decay curve</b>). The app re-prices each comp to
+        <i>your</i> acreage before averaging, so mixed-size comps don't skew the value.</p>
+      <table id="compsTable">
+        <thead><tr><th>Sold price ($)</th><th>Acres</th><th>$/acre</th><th>adj. $/ac</th><th></th></tr></thead>
+        <tbody id="compsBody"></tbody>
+      </table>
+      <div style="margin-top:10px"><button class="small" onclick="addComp()">＋ Add comp</button></div>
+      <div class="row" style="margin-top:14px;align-items:flex-end">
+        <div>
+          <label>Decay exponent (b) <span class="muted">— how fast $/ac falls with size</span></label>
+          <input id="decayB" type="number" step="0.01" value="-0.35" oninput="decayManual=true; recalc()" />
+        </div>
+        <div style="flex:0 0 auto"><button class="small" onclick="decayManual=false; recalc()">↺ Fit from comps</button></div>
+      </div>
+      <div class="hint" id="decayNote" style="margin-top:6px"></div>
+      <div class="stat" style="margin-top:8px"><span>Raw avg price / acre</span><span class="v" id="avgPerAcre">—</span></div>
+      <div class="stat"><span>Decay-adjusted $/acre <span class="muted" id="subjTierTag"></span></span><span class="v" id="adjPerAcre" style="color:var(--accent2)">—</span></div>
+      <label>Estimated Market Value ($) <span class="muted">— auto from decay-adjusted comps, or type your own</span></label>
+      <input id="emv" type="number" step="1" oninput="emvManual=true; recalc()" placeholder="auto" />
+      <div style="margin-top:6px"><button class="small" onclick="emvManual=false; recalc()">↺ Re-link to comps</button></div>
+    </div>
+
+    <!-- OFFER -->
+    <div class="card">
+      <h2>3 · Offer calculator</h2>
+      <p class="hint">Work backward from resale to your Maximum Allowable Offer (MAO).</p>
+      <label>Strategy</label>
+      <select id="strategy" onchange="recalc()">
+        <option value="wholesale">Wholesale (assign contract)</option>
+        <option value="flip">Flip (buy & resell)</option>
+        <option value="seller">Seller finance</option>
+      </select>
+      <label>Target resale price ($) <span class="muted">— what you'll sell for; default = market value</span></label>
+      <input id="resale" type="number" step="1" oninput="resaleManual=true; recalc()" placeholder="auto = EMV" />
+      <div class="row">
+        <div><label>Closing / title ($)</label><input id="cClose" type="number" value="1000" oninput="recalc()" /></div>
+        <div><label>Holding costs ($)</label><input id="cHold" type="number" value="300" oninput="recalc()" /></div>
+      </div>
+      <div class="row">
+        <div><label>Marketing / listing ($)</label><input id="cMkt" type="number" value="200" oninput="recalc()" /></div>
+        <div><label id="profitLabel">Desired profit ($)</label><input id="profit" type="number" value="3000" oninput="recalc()" /></div>
+      </div>
+      <div style="border-top:1px solid var(--line);margin:14px 0 0;padding-top:12px">
+        <label style="margin-top:0;color:var(--accent2)">BLIND OFFER — what you mail</label>
+        <p class="hint" style="margin:2px 0 10px">A dynamic discount off market value (the matrix auto-adjusts for parcel
+          size, market speed &amp; seller distress, clamped to 25–40%). This is your <b>opening offer</b>; the MAO above is your <b>ceiling</b>.</p>
+        <div class="row">
+          <div><label>Market days-on-market <span class="muted">(from scanner; optional)</span></label><input id="dom" type="number" step="1" oninput="recalc()" placeholder="e.g. 90" /></div>
+          <div><label>Floor $/acre <span class="muted">— never offer below</span></label><input id="floorPerAcre" type="number" step="1" value="500" oninput="recalc()" /></div>
+        </div>
+        <div class="row" style="align-items:center;margin-top:8px">
+          <div style="display:flex;align-items:center;gap:8px"><input id="taxDelinquent" type="checkbox" onchange="recalc()" style="width:auto" /><label style="margin:0">Property taxes &gt;1 yr delinquent (distress)</label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DILIGENCE -->
+  <div class="card">
+    <h2>4 · Due diligence gates</h2>
+    <p class="hint">Mark each gate. Items tagged <span style="color:var(--bad)">KILLER</span> will force a KILL if they Fail, and hold you at CAUTION while Unknown. Honest input = honest verdict.</p>
+    <div id="gates"></div>
+    <div class="links">
+      <a href="https://msc.fema.gov/portal/home" target="_blank">FEMA flood maps ↗</a>
+      <a href="https://www.fws.gov/program/national-wetlands-inventory" target="_blank">USFWS wetlands ↗</a>
+      <a href="https://www.google.com/earth/versions/" target="_blank">Google Earth ↗</a>
+      <a href="https://www.landwatch.com/" target="_blank">LandWatch comps ↗</a>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="grid">
+    <div class="card">
+      <h2>5 · The numbers</h2>
+      <div class="stat"><span>Estimated market value <span class="muted">(decay-adjusted)</span></span><span class="v" id="rEmv">—</span></div>
+      <div class="stat"><span>Blind offer — <b>mail this</b> <span class="muted" id="rDiscPct"></span></span><span class="v big" id="rBlind" style="color:var(--accent)">—</span></div>
+      <div class="hint" id="rDiscBreak" style="margin:2px 0 6px"></div>
+      <div class="stat"><span>Max Allowable Offer (MAO) <span class="muted">— ceiling</span></span><span class="v" id="rMao">—</span></div>
+      <div class="stat"><span>Recommended opening <span class="muted">(lower of blind &amp; MAO)</span></span><span class="v" id="rRec">—</span></div>
+      <div class="stat"><span>Projected profit at MAO</span><span class="v" id="rProfit">—</span></div>
+      <div class="stat"><span>Total costs</span><span class="v" id="rCosts">—</span></div>
+    </div>
+    <div class="card">
+      <h2>6 · Verdict</h2>
+      <div id="verdict" class="verdict caution">—<span class="why" id="verdictWhy"></span></div>
+      <p class="hint" style="margin-top:14px">This is a decision aid, not legal/financial advice. Always confirm title and access with a title company or attorney before closing.</p>
+    </div>
+  </div>
+
+  <!-- SAVED -->
+  <div class="card">
+    <h2>📁 Saved deals</h2>
+    <p class="hint">Stored in this browser. Click a deal to load it.</p>
+    <div id="savedList"><span class="muted">No saved deals yet.</span></div>
+  </div>
+
+</div>
+
+<script>
+/* ---------- Diligence gates definition ---------- */
+const GATES = [
+  { id: 'access',   name: 'Legal access (touches public road)', killer: true },
+  { id: 'build',    name: 'Buildable topography (not cliff/ravine)', killer: true },
+  { id: 'zoning',   name: 'Zoning allows a real use', killer: true },
+  { id: 'flood',    name: 'Flood zone OK (not all A/AE)', killer: true },
+  { id: 'wetland',  name: 'Not wetlands', killer: true },
+  { id: 'utilPower',name: 'Power available / feasible', killer: false },
+  { id: 'utilWater',name: 'Water available / well feasible', killer: false },
+  { id: 'septic',   name: 'Sewer or septic feasible', killer: false },
+  { id: 'title',    name: 'Title clear (no major liens)', killer: false },
+  { id: 'hoa',      name: 'HOA / deed restrictions acceptable', killer: false },
+];
+const STATUS = ['Unknown', 'Pass', 'Caution', 'Fail'];
+
+let emvManual = false, resaleManual = false, decayManual = false;
+
+/* ---------- Acreage decay curve + blind-offer matrix (research Module 2) ---------- */
+const TIERS = [
+  { t: 1, max: 5,        label: '1–5 ac (infill/residential)', disc: -0.04 },
+  { t: 2, max: 10,       label: '5–10 ac (suburban/exurban)',  disc:  0.00 },
+  { t: 3, max: 20,       label: '10–20 ac (recreational)',     disc:  0.02 },
+  { t: 4, max: Infinity, label: '20+ ac (ag/ranch)',           disc:  0.05 },
+];
+function tierOf(acres) { return acres > 0 ? TIERS.find(t => acres < t.max) : null; }
+
+// Fit PPA = a·acres^b  via least-squares on ln(PPA) vs ln(acres). Needs ≥3 comps
+// spanning ≥2 distinct sizes; returns null otherwise. Clamped to a sane land range.
+function fitDecayB(comps) {
+  const pts = comps.filter(c => c.p > 0 && c.a > 0)
+                   .map(c => ({ x: Math.log(c.a), y: Math.log(c.p / c.a) }));
+  if (pts.length < 3) return null;
+  if (new Set(pts.map(p => p.x.toFixed(4))).size < 2) return null;
+  const n = pts.length;
+  const mx = pts.reduce((s, p) => s + p.x, 0) / n;
+  const my = pts.reduce((s, p) => s + p.y, 0) / n;
+  let num = 0, den = 0;
+  pts.forEach(p => { num += (p.x - mx) * (p.y - my); den += (p.x - mx) ** 2; });
+  if (den === 0) return null;
+  return Math.max(-0.8, Math.min(0, num / den));
+}
+
+// Composite blind-offer discount: base 32% + tier + market-velocity + distress,
+// clamped to [25%, 40%]. Returns the discount and a plain-language breakdown.
+function blindDiscount(tier, dom, taxDelinquent) {
+  const parts = [['Base', 0.32]];
+  let d = 0.32;
+  if (tier) { d += tier.disc; if (tier.disc) parts.push([`Tier ${tier.t}`, tier.disc]); }
+  if (dom > 0 && dom < 45) { d -= 0.04; parts.push(['Fast market', -0.04]); }
+  else if (dom >= 120)     { d += 0.03; parts.push(['Slow market',  0.03]); }
+  if (taxDelinquent)       { d += 0.05; parts.push(['Tax distress', 0.05]); }
+  const clamped = Math.max(0.25, Math.min(0.40, d));
+  return { d: clamped, raw: d, parts };
+}
+
+/* ---------- Build gates UI ---------- */
+function buildGates() {
+  const c = document.getElementById('gates');
+  c.innerHTML = '';
+  GATES.forEach(g => {
+    const div = document.createElement('div');
+    div.className = 'gate';
+    div.innerHTML =
+      `<span class="name">${g.name}${g.killer ? '<span class="killer">KILLER</span>' : ''}</span>` +
+      `<select id="gate_${g.id}" onchange="recalc()">` +
+      STATUS.map(s => `<option value="${s}">${s}</option>`).join('') + `</select>`;
+    c.appendChild(div);
+  });
+}
+
+/* ---------- Comps ---------- */
+function addComp(price = '', acres = '') {
+  const tb = document.getElementById('compsBody');
+  const tr = document.createElement('tr');
+  tr.className = 'comp-input';
+  tr.innerHTML =
+    `<td><input type="number" step="1" value="${price}" oninput="recalc()" class="cPrice" /></td>` +
+    `<td><input type="number" step="0.01" value="${acres}" oninput="recalc()" class="cAcres" /></td>` +
+    `<td class="cPer">—</td>` +
+    `<td class="cAdj muted">—</td>` +
+    `<td><button class="small danger" onclick="this.closest('tr').remove(); recalc()">✕</button></td>`;
+  tb.appendChild(tr);
+  recalc();
+}
+
+function val(id) { const e = document.getElementById(id); return e ? parseFloat(e.value) || 0 : 0; }
+function money(n) { return '$' + Math.round(n).toLocaleString(); }
+
+/* ---------- Core recalc ---------- */
+function recalc() {
+  const acres = val('acres');
+  const subjTier = tierOf(acres);
+
+  // gather comps
+  const comps = [];
+  document.querySelectorAll('#compsBody tr').forEach(tr => {
+    comps.push({ tr, p: parseFloat(tr.querySelector('.cPrice').value) || 0,
+                 a: parseFloat(tr.querySelector('.cAcres').value) || 0 });
+  });
+
+  // decay exponent b: fitted from comps unless user overrode it
+  const fitted = fitDecayB(comps);
+  let b;
+  if (decayManual) b = parseFloat(document.getElementById('decayB').value);
+  else { b = (fitted !== null) ? fitted : -0.35; document.getElementById('decayB').value = b.toFixed(2); }
+  if (!isFinite(b)) b = -0.35;
+  document.getElementById('decayNote').innerHTML = decayManual
+    ? 'Using your manual exponent.' + (fitted !== null ? ` (comps suggest ${fitted.toFixed(2)})` : '')
+    : (fitted !== null ? `Fitted from your comps: b = <b>${b.toFixed(2)}</b>.`
+                       : 'Not enough comp spread to fit — using default −0.35. Add comps of different sizes for a real fit.');
+
+  // per-comp $/acre, and $/acre re-priced to the SUBJECT's acreage via the curve
+  let rawSum = 0, rawN = 0, adjSum = 0, adjN = 0;
+  comps.forEach(c => {
+    const per = (c.p > 0 && c.a > 0) ? c.p / c.a : 0;
+    c.tr.querySelector('.cPer').textContent = per ? money(per) : '—';
+    const adjCell = c.tr.querySelector('.cAdj');
+    if (per && acres > 0) {
+      const adj = per * Math.pow(acres / c.a, b);   // PPA_subject = PPA_comp·(A_subj/A_comp)^b
+      adjCell.textContent = money(adj);
+      adjCell.className = 'cAdj';
+      rawSum += per; rawN++; adjSum += adj; adjN++;
+    } else { adjCell.textContent = '—'; adjCell.className = 'cAdj muted'; }
+  });
+  const avgPerAcre = rawN ? rawSum / rawN : 0;
+  const adjPerAcre = adjN ? adjSum / adjN : 0;
+  document.getElementById('avgPerAcre').textContent = avgPerAcre ? money(avgPerAcre) : '—';
+  document.getElementById('adjPerAcre').textContent = adjPerAcre ? money(adjPerAcre) : '—';
+  document.getElementById('subjTierTag').textContent = subjTier ? `· Tier ${subjTier.t} (${subjTier.label})` : '';
+
+  // EMV (uses decay-adjusted $/acre)
+  let emv;
+  if (emvManual && val('emv') > 0) emv = val('emv');
+  else { emv = adjPerAcre * acres; if (!emvManual) document.getElementById('emv').value = emv ? Math.round(emv) : ''; }
+
+  // resale
+  let resale;
+  if (resaleManual && val('resale') > 0) resale = val('resale');
+  else { resale = emv; if (!resaleManual) document.getElementById('resale').value = resale ? Math.round(resale) : ''; }
+
+  // strategy label
+  const strat = document.getElementById('strategy').value;
+  document.getElementById('profitLabel').textContent =
+    strat === 'wholesale' ? 'Desired assignment fee ($)' : 'Desired profit ($)';
+
+  // costs & MAO (ceiling: backward from resale)
+  const costs = val('backTaxes') + val('cClose') + val('cHold') + val('cMkt');
+  const profit = val('profit');
+  const mao = resale - costs - profit;
+
+  // blind offer (opening): dynamic discount off EMV, with a $/acre floor
+  const disc = blindDiscount(subjTier, val('dom'), document.getElementById('taxDelinquent').checked);
+  let blind = emv * (1 - disc.d);
+  const floor = val('floorPerAcre') * acres;
+  if (floor > 0) blind = Math.max(blind, floor);
+
+  // recommended opening = lower of (blind offer, your ceiling)
+  const rec = mao > 0 ? Math.min(blind, mao) : blind;
+
+  document.getElementById('rEmv').textContent = emv ? money(emv) : '—';
+  document.getElementById('rBlind').textContent = (emv > 0) ? money(blind) : '—';
+  document.getElementById('rDiscPct').textContent = (emv > 0) ? `(${Math.round(disc.d * 100)}% off)` : '';
+  document.getElementById('rDiscBreak').innerHTML = (emv > 0)
+    ? disc.parts.map(([n, v]) => `${n} ${v >= 0 && n !== 'Base' ? '+' : ''}${Math.round(v * 100)}%`).join(' &nbsp;·&nbsp; ')
+      + (disc.raw !== disc.d ? ` → clamped to ${Math.round(disc.d * 100)}%` : '')
+      + (floor > 0 && blind === floor ? ' · raised to $/acre floor' : '')
+    : '';
+  document.getElementById('rMao').textContent = emv ? money(mao) : '—';
+  document.getElementById('rRec').textContent = (emv > 0) ? money(rec) : '—';
+  document.getElementById('rProfit').textContent = money(profit);
+  document.getElementById('rCosts').textContent = money(costs);
+
+  computeVerdict(mao, emv, profit, blind);
+}
+
+/* ---------- Verdict ---------- */
+function computeVerdict(mao, emv, profit, blind) {
+  let killers = [], unknowns = [], cautions = [];
+  GATES.forEach(g => {
+    const s = document.getElementById('gate_' + g.id).value;
+    if (s === 'Fail' && g.killer) killers.push(g.name);
+    if (s === 'Unknown' && g.killer) unknowns.push(g.name);
+    if (s === 'Caution' || (s === 'Fail' && !g.killer)) cautions.push(g.name);
+  });
+
+  const el = document.getElementById('verdict');
+  const why = document.getElementById('verdictWhy');
+  let verdict, cls, reason;
+
+  // thin-margin flag: your opening blind offer already exceeds your ceiling
+  const noRoom = (emv > 0 && mao > 0 && blind > 0 && blind > mao);
+
+  if (killers.length) {
+    verdict = 'KILL'; cls = 'kill';
+    reason = 'Deal-killer failed: ' + killers.join(', ') + '.';
+  } else if (mao <= 0 || emv <= 0) {
+    verdict = 'KILL'; cls = 'kill';
+    reason = emv <= 0 ? 'No market value yet — add comps.' : 'No margin: max offer is zero or negative.';
+  } else if (unknowns.length || cautions.length || noRoom) {
+    verdict = 'CAUTION'; cls = 'caution';
+    const bits = [];
+    if (noRoom) bits.push('thin margin — even your blind offer exceeds your MAO ceiling (tighten costs, comps, or walk)');
+    if (unknowns.length) bits.push('unverified deal-killers (' + unknowns.join(', ') + ')');
+    if (cautions.length) bits.push('flags on ' + cautions.join(', '));
+    reason = 'Investigate before contract: ' + bits.join('; ') + '.';
+  } else {
+    verdict = 'GO'; cls = 'caution go';
+    reason = 'All gates pass and there is room between your blind offer and your MAO ceiling. Mail the blind offer; negotiate up to the MAO at most.';
+  }
+
+  el.className = 'verdict ' + cls;
+  el.firstChild.textContent = verdict;
+  why.textContent = reason;
+}
+
+/* ---------- Save / load (localStorage) ---------- */
+const KEY = 'landDeals_v1';
+function collect() {
+  const gates = {};
+  GATES.forEach(g => gates[g.id] = document.getElementById('gate_' + g.id).value);
+  const comps = [];
+  document.querySelectorAll('#compsBody tr').forEach(tr => {
+    comps.push({ p: tr.querySelector('.cPrice').value, a: tr.querySelector('.cAcres').value });
+  });
+  return {
+    name: val2('name'), county: val2('county'), apn: val2('apn'),
+    acres: val2('acres'), backTaxes: val2('backTaxes'),
+    emv: val2('emv'), emvManual, resale: val2('resale'), resaleManual,
+    strategy: document.getElementById('strategy').value,
+    cClose: val2('cClose'), cHold: val2('cHold'), cMkt: val2('cMkt'),
+    profit: val2('profit'),
+    decayB: val2('decayB'), decayManual, dom: val2('dom'),
+    floorPerAcre: val2('floorPerAcre'), taxDelinquent: document.getElementById('taxDelinquent').checked,
+    gates, comps, savedAt: Date.now(), verdict: document.getElementById('verdict').firstChild.textContent
+  };
+}
+function val2(id) { return document.getElementById(id).value; }
+
+function saveDeal() {
+  const d = collect();
+  if (!d.name) { alert('Give the deal a name first (field 1).'); return; }
+  const all = JSON.parse(localStorage.getItem(KEY) || '[]');
+  const i = all.findIndex(x => x.name === d.name);
+  if (i >= 0) all[i] = d; else all.push(d);
+  localStorage.setItem(KEY, JSON.stringify(all));
+  renderSaved();
+  flash('Saved “' + d.name + '”');
+}
+
+function loadDeal(name) {
+  const all = JSON.parse(localStorage.getItem(KEY) || '[]');
+  const d = all.find(x => x.name === name);
+  if (!d) return;
+  ['name','county','apn','acres','backTaxes','emv','resale','cClose','cHold','cMkt','profit','decayB','dom','floorPerAcre']
+    .forEach(k => { if (document.getElementById(k)) document.getElementById(k).value = d[k] ?? ''; });
+  document.getElementById('strategy').value = d.strategy || 'wholesale';
+  document.getElementById('taxDelinquent').checked = !!d.taxDelinquent;
+  if (document.getElementById('floorPerAcre').value === '') document.getElementById('floorPerAcre').value = 500;
+  if (document.getElementById('decayB').value === '') document.getElementById('decayB').value = -0.35;
+  emvManual = !!d.emvManual; resaleManual = !!d.resaleManual; decayManual = !!d.decayManual;
+  document.getElementById('compsBody').innerHTML = '';
+  (d.comps || []).forEach(c => addComp(c.p, c.a));
+  if (!(d.comps || []).length) addComp();
+  GATES.forEach(g => { const e = document.getElementById('gate_' + g.id); if (e) e.value = (d.gates && d.gates[g.id]) || 'Unknown'; });
+  recalc();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function deleteDeal(name, ev) {
+  ev.stopPropagation();
+  if (!confirm('Delete “' + name + '”?')) return;
+  let all = JSON.parse(localStorage.getItem(KEY) || '[]');
+  all = all.filter(x => x.name !== name);
+  localStorage.setItem(KEY, JSON.stringify(all));
+  renderSaved();
+}
+
+function renderSaved() {
+  const all = JSON.parse(localStorage.getItem(KEY) || '[]').sort((a,b) => b.savedAt - a.savedAt);
+  const c = document.getElementById('savedList');
+  if (!all.length) { c.innerHTML = '<span class="muted">No saved deals yet.</span>'; return; }
+  c.innerHTML = '';
+  all.forEach(d => {
+    const v = (d.verdict || '—').toLowerCase();
+    const cls = v.includes('go') ? 'go' : v.includes('kill') ? 'kill' : 'caution';
+    const div = document.createElement('div');
+    div.className = 'saved-item';
+    div.onclick = () => loadDeal(d.name);
+    div.style.cursor = 'pointer';
+    div.innerHTML =
+      `<div class="meta"><div class="t">${d.name}</div>` +
+      `<div class="s">${d.county || ''} · ${d.acres || '?'} ac · ${d.strategy || ''}</div></div>` +
+      `<span class="pill ${cls}">${d.verdict || '—'}</span>` +
+      `<button class="small danger" onclick="deleteDeal('${d.name.replace(/'/g, "\\'")}', event)">Delete</button>`;
+    c.appendChild(div);
+  });
+}
+
+function newDeal() {
+  if (!confirm('Clear the form? (Saved deals are kept.)')) return;
+  const keep = ['cClose','cHold','cMkt','profit','backTaxes','decayB','floorPerAcre'];
+  document.querySelectorAll('input').forEach(i => {
+    if (i.type === 'checkbox') { i.checked = false; return; }
+    if (i.type === 'number' && keep.includes(i.id)) return;
+    i.value = '';
+  });
+  document.getElementById('cClose').value = 1000; document.getElementById('cHold').value = 300;
+  document.getElementById('cMkt').value = 200; document.getElementById('profit').value = 3000;
+  document.getElementById('backTaxes').value = 0;
+  document.getElementById('decayB').value = -0.35; document.getElementById('floorPerAcre').value = 500;
+  document.getElementById('strategy').value = 'wholesale';
+  emvManual = false; resaleManual = false; decayManual = false;
+  GATES.forEach(g => document.getElementById('gate_' + g.id).value = 'Unknown');
+  document.getElementById('compsBody').innerHTML = '';
+  addComp(); addComp(); addComp();
+  recalc();
+}
+
+function flash(msg) {
+  const f = document.createElement('div');
+  f.textContent = msg;
+  f.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3fb950;color:#06210d;padding:10px 18px;border-radius:8px;font-weight:600;z-index:99';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 1600);
+}
+
+/* ---------- Init ---------- */
+buildGates();
+addComp(); addComp(); addComp();
+renderSaved();
+recalc();
+</script>
+</body>
+</html>

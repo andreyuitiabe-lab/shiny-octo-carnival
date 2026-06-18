@@ -1,0 +1,10 @@
+# Large cached downloads — re-downloaded by the tools on demand (232 MB)
+tools/data/
+
+# Parcel Scout output contains REAL owner names + home mailing addresses (PII).
+# Never publish this. It stays only on your Mac.
+tools/output/parcels-*
+
+# macOS cruft
+.DS_Store
+**/.DS_Store

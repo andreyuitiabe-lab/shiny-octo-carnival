@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Land Flipping — Model Methodology</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2129;--panel2:#222c36;--line:#2e3a46;--text:#e6edf3;
+    --muted:#8b9bab;--accent:#58a6ff;--good:#3fb950;--warn:#d29922;--bad:#f85149}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{padding:26px 24px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#161d24,#0f1419)}
+  header h1{margin:0;font-size:23px}
+  header .sub{color:var(--muted);font-size:13.5px;margin-top:6px}
+  .wrap{max-width:920px;margin:0 auto;padding:8px 24px 90px}
+  nav{position:sticky;top:0;background:rgba(15,20,25,.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);padding:11px 24px;font-size:13px;z-index:10;
+    display:flex;gap:16px;flex-wrap:wrap}
+  nav a{color:var(--muted);text-decoration:none}nav a:hover{color:var(--accent)}
+  h2{font-size:19px;margin:38px 0 6px;padding-top:10px;border-top:1px solid var(--line)}
+  h2 .eng{color:var(--accent);font-size:13px;font-weight:600;display:block;letter-spacing:.6px;text-transform:uppercase}
+  h3{font-size:15px;margin:22px 0 6px;color:var(--accent)}
+  p{margin:8px 0}
+  .lead-in{color:var(--muted);font-size:14px}
+  code,.f{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .f{display:block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;margin:12px 0;font-size:13.5px;color:#cfe1ff;white-space:pre-wrap;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;background:#161d24}
+  td.n,th.n{text-align:right;font-family:ui-monospace,monospace}
+  .good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+  .muted{color:var(--muted)}
+  .callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:8px;padding:12px 16px;margin:16px 0;font-size:14px}
+  .callout.good{border-left-color:var(--good)}
+  .callout.warn{border-left-color:var(--warn)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px}
+  .pill.go{background:rgba(63,185,80,.15);color:var(--good)}
+  .pill.kill{background:rgba(248,81,73,.15);color:var(--bad)}
+  a{color:var(--accent)}
+  .foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧮 Land Flipping — Model Methodology</h1>
+  <div class="sub">The logic &amp; math behind every engine, plus the validation. All free, no-key data. &nbsp;·&nbsp; Updated 2026-06-18</div>
+</header>
+<nav>
+  <a href="#overview">Overview</a>
+  <a href="#mli">1 · Market Liquidity Index</a>
+  <a href="#pricing">2 · Parcel Pricing</a>
+  <a href="#scout">3 · Parcel Scout</a>
+  <a href="#owner">Owner data</a>
+  <a href="#sources">Data sources</a>
+  <a href="#limits">Limitations</a>
+</nav>
+<div class="wrap">
+
+<h2 id="overview">Overview</h2>
+<p class="lead-in">The model answers three questions, in order:</p>
+<table>
+  <thead><tr><th>Engine</th><th>Question</th><th>Tool</th></tr></thead>
+  <tbody>
+    <tr><td><b>1 · Market Liquidity Index</b></td><td>Where do I hunt?</td><td><code>county_scanner.py</code></td></tr>
+    <tr><td><b>3 · Parcel Scout</b></td><td>Which parcels do I mail?</td><td><code>parcel_scout.py</code></td></tr>
+    <tr><td><b>2 · Decay + Blind Offer</b></td><td>How much do I offer?</td><td><code>deal-analyzer.html</code></td></tr>
+  </tbody>
+</table>
+<div class="callout">
+  <b>Core principle:</b> optimize for <b>liquidity</b> (how fast land sells), not price appreciation.
+  This is what land flippers actually profit on — and the one thing the backtest could validate (ρ ≈ −0.75).
+</div>
+
+<h2 id="mli"><span class="eng">Engine 1</span>Market Liquidity Index (MLI) — where to play</h2>
+<p>Ranks ~2,000 U.S. counties from free Redfin market data + Census population &amp; permits.
+(Redfin residential metrics are a proxy for land demand — the best free signal.)</p>
+
+<h3>Normalization: Z-score (not percentile or min-max)</h3>
+<p>Each metric <span class="f" style="display:inline;padding:1px 5px">m</span> for county <i>i</i> is standardized against all counties:</p>
+<span class="f">z_i = (m_i − μ) / σ        winsorized to [−3, +3]</span>
+<p>Z-scores preserve the shape of the distribution and tolerate the extreme outliers common in
+real-estate data; percentile throws away magnitude, min-max is hostage to one outlier. Winsorizing
+at ±3σ stops a single freak county from dominating. A missing value scores 0 (the mean = neutral).</p>
+
+<h3>Stage 1 — the liquidity sub-index (the "king metric")</h3>
+<table>
+  <thead><tr><th>Variable</th><th class="n">Weight</th><th>Direction</th></tr></thead>
+  <tbody>
+    <tr><td>Months of inventory</td><td class="n">0.40</td><td>lower is better (−z)</td></tr>
+    <tr><td>Days on market</td><td class="n">0.40</td><td>lower is better (−z)</td></tr>
+    <tr><td>Sale-to-list ratio</td><td class="n">0.20</td><td>higher is better</td></tr>
+  </tbody>
+</table>
+<span class="f">MLI_raw = 0.40·(−z_months) + 0.40·(−z_dom) + 0.20·(z_sale_to_list)</span>
+<p class="muted">The 4th blueprint variable — Price-per-Acre Variance — needs land-level comps and is reserved for the paid phase.</p>
+
+<h3>Stage 2 — the headline Opportunity Score</h3>
+<p>Liquidity-dominant, with fundamentals + affordability as support. <b>No price/sales momentum</b>
+(the backtest showed it doesn't predict and mean-reverts → 0 weight, shown only as context):</p>
+<table>
+  <thead><tr><th>Component</th><th class="n">Weight</th><th>Direction</th></tr></thead>
+  <tbody>
+    <tr><td><b>MLI (Stage 1)</b></td><td class="n">0.60</td><td>higher is better</td></tr>
+    <tr><td>Population growth (4-yr)</td><td class="n">0.15</td><td>higher is better</td></tr>
+    <tr><td>Construction intensity (permits/1k)</td><td class="n">0.10</td><td>higher is better</td></tr>
+    <tr><td>Affordable entry (median price)</td><td class="n">0.15</td><td>lower is better</td></tr>
+  </tbody>
+</table>
+<span class="f">Score_raw = 0.60·z(MLI) + 0.15·z(pop_growth) + 0.10·z(permits) + 0.15·(−z_price)</span>
+<p>Both <code>MLI_raw</code> and <code>Score_raw</code> are shown as a readable <b>0–100 percentile</b>.</p>
+
+<h3>Validation — the important part</h3>
+<p>Walk-forward backtest (<code>backtest.py</code>): rank counties by MLI using <b>only</b> data from
+<i>N</i> months ago, then measure the <b>realized forward liquidity</b> over the next <i>N</i> months.</p>
+<table>
+  <thead><tr><th>Horizon</th><th class="n">MLI → fwd months-supply</th><th class="n">MLI → fwd DOM</th><th class="n">MLI → fwd price (contrast)</th></tr></thead>
+  <tbody>
+    <tr><td>12 months</td><td class="n good">−0.73</td><td class="n good">−0.74</td><td class="n muted">−0.03</td></tr>
+    <tr><td>24 months</td><td class="n good">−0.75</td><td class="n good">−0.76</td><td class="n muted">+0.01</td></tr>
+  </tbody>
+</table>
+<p>Negative = a high MLI today predicts a <b>faster-selling</b> market tomorrow. Top-decile MLI markets
+absorbed ~7 months faster and sold ~76 days quicker than bottom-decile. The near-zero price correlation
+is the proof of thesis: <b>liquidity persists and is forecastable; appreciation mean-reverts and is not.</b></p>
+<div class="callout warn"><b>Honest caveat:</b> liquidity is autocorrelated (tight markets stay tight), so part
+of −0.75 is persistence — which is exactly why it's a reliable basis for site selection where appreciation never was.</div>
+
+<h2 id="pricing"><span class="eng">Engine 2</span>Parcel pricing — how much to offer</h2>
+
+<h3>2a · Acreage Decay Curve (valuation)</h3>
+<p>Land doesn't price linearly per acre — a big parcel is worth less <i>per acre</i> than a small one.
+Value follows a power law (<code>b</code> is negative, the "decay exponent"):</p>
+<span class="f">PPA = a · acres^b</span>
+<p>We fit <code>b</code> from your comps by least squares on the log-log form
+(<code>ln(PPA) = ln(a) + b·ln(acres)</code>), needing ≥3 comps across ≥2 sizes; otherwise a default
+<code>b = −0.35</code>. <code>b</code> is clamped to <code>[−0.8, 0]</code>. Each comp is then
+<b>re-priced to the subject's acreage</b> before averaging:</p>
+<span class="f">PPA_subject(comp i) = PPA_i · (acres_subject / acres_i)^b
+EMV = mean_i( PPA_subject(comp i) ) · acres_subject</span>
+<div class="callout"><b>Worked example:</b> comps of 2 ac ($10k/ac), 5 ac ($7k/ac) and 40 ac ($3k/ac) all converge to
+≈ <b>$3,975/ac</b> for a 20-ac subject (EMV ≈ $79.5k) — vs a naive flat average of $6,667/ac that would
+over-value it by <b>~68%</b>.</div>
+
+<h3>2b · Blind-Offer Matrix (the offer you mail)</h3>
+<span class="f">Offer_blind = EMV · (1 − D)</span>
+<p><code>D</code> = base margin + situational modifiers, <b>clamped to [25%, 40%]</b>:</p>
+<table>
+  <thead><tr><th>Component</th><th>Condition</th><th class="n">Δ discount</th></tr></thead>
+  <tbody>
+    <tr><td>Base</td><td>every parcel</td><td class="n">+0.32</td></tr>
+    <tr><td>Acreage tier</td><td>Tier 1 (1–5 ac)</td><td class="n">−0.04</td></tr>
+    <tr><td></td><td>Tier 2 (5–10 ac)</td><td class="n">0.00</td></tr>
+    <tr><td></td><td>Tier 3 (10–20 ac)</td><td class="n">+0.02</td></tr>
+    <tr><td></td><td>Tier 4 (20+ ac)</td><td class="n">+0.05</td></tr>
+    <tr><td>Market velocity</td><td>DOM &lt; 45 days (hot)</td><td class="n">−0.04</td></tr>
+    <tr><td></td><td>DOM ≥ 120 days (slow)</td><td class="n">+0.03</td></tr>
+    <tr><td>Seller distress</td><td>taxes &gt; 1 yr delinquent</td><td class="n">+0.05</td></tr>
+  </tbody>
+</table>
+<span class="f">D = clamp( 0.32 + tier + velocity + distress,  0.25,  0.40 )
+Offer_blind = max( EMV·(1−D),  floor_$/acre · acres )</span>
+<p>Tier 1 gets a <i>smaller</i> discount (compete on small, liquid lots); Tier 4 a <i>deeper</i> one
+(more capital at risk). Hot markets compress the discount; distress widens it. A $/acre floor blocks absurd lowballs.</p>
+
+<h3>2c · Unifying the two offer philosophies</h3>
+<table>
+  <tbody>
+    <tr><td><b>Blind offer</b></td><td>what you <b>mail</b> (the opening, from the matrix above)</td></tr>
+    <tr><td><b>MAO</b> (ceiling)</td><td><code>resale − costs − target_profit</code> — your walk-away max</td></tr>
+    <tr><td><b>Recommended opening</b></td><td><code>min(Offer_blind, MAO)</code></td></tr>
+  </tbody>
+</table>
+<p>If <code>Offer_blind &gt; MAO</code>, the margin is too thin (your opening already exceeds your ceiling)
+→ verdict flags <span class="pill kill">CAUTION</span> to tighten costs/comps or walk. Killer diligence gates
+(access, topography, zoning, flood, wetlands) force <span class="pill kill">KILL</span>; clear gates + room
+between blind offer and MAO → <span class="pill go">GO</span>.</p>
+
+<h2 id="scout"><span class="eng">Engine 3</span>Parcel Scout — which parcels to mail (automation)</h2>
+<p>Pulls and pre-screens every vacant parcel in a county, free, from the NYS statewide parcel ArcGIS service
+(38 NY counties incl. top-MLI land markets: Genesee, Wayne, Livingston, Ontario, Steuben…). Vacant land is
+isolated by NYS property-class code <code>3xx</code>.</p>
+
+<h3>Lead score (prioritization, <i>not</i> a buy signal)</h3>
+<span class="f">Lead = 100 · ( 0.40·motivation + 0.25·size + 0.35·cheap )</span>
+<ul>
+  <li><b>motivation</b> = 1.0 if owner mails from out of <b>state</b>, 0.6 if out of <b>town</b>, else 0.
+    × <b>0.3 if the owner is a corporation</b> (cell towers, ag LLCs, banks, governments are rarely motivated sellers).</li>
+  <li><b>size</b> = 1.0 for the liquid 2–20 ac band, 0.5 for 20+ ac, 0.3 otherwise.</li>
+  <li><b>cheap</b> = 1 − percentile(assessed $/acre). (Assessed value is a free <i>proxy</i>; real value comes from sold comps in the Deal Analyzer.)</li>
+</ul>
+
+<h3>Auto-diligence (free, on the top N leads)</h3>
+<p>Each top parcel's centroid lat/lon is queried against three free federal layers; any failure degrades to
+<code>?</code> (gate = CHECK) rather than crashing.</p>
+<table>
+  <thead><tr><th>Gate</th><th>Source</th><th>KILL condition</th></tr></thead>
+  <tbody>
+    <tr><td>Flood</td><td>FEMA National Flood Hazard Layer</td><td>special-flood zone (A/AE/AO/V/…)</td></tr>
+    <tr><td>Wetland</td><td>USFWS National Wetlands Inventory</td><td>any wetland polygon intersects</td></tr>
+    <tr><td>Slope</td><td>USGS 3DEP elevation (4-point cross ≈110 m)</td><td>estimated slope &gt; 15°</td></tr>
+  </tbody>
+</table>
+
+<h2 id="owner">What owner data we have</h2>
+<p>From the free NYS parcel API, per parcel:</p>
+<table>
+  <thead><tr><th>Field</th><th>Contents</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td><code>PRIMARY_OWNER</code></td><td>full name ("Smith, Raymond E")</td><td>address the letter</td></tr>
+    <tr><td><code>ADD_OWNER</code></td><td>co-owner / trust</td><td>secondary contact</td></tr>
+    <tr><td><code>MAIL_ADDR</code> + PO_BOX + CITY + STATE + ZIP</td><td>full mailing address</td><td><b>direct mail — no paid tool needed</b></td></tr>
+    <tr><td><code>OWNER_TYPE</code></td><td>classification code</td><td>individual vs entity</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>Direct mail is fully free in NY</b> (name + mailing address). What's <span class="bad">missing</span>
+— phone, email, owner age — needs <b>paid skip-tracing</b> (e.g. BatchData) and is only required for SMS / cold-calling.</div>
+
+<h2 id="sources">Data sources (all free, no API key)</h2>
+<table>
+  <thead><tr><th>Source</th><th>Feeds</th><th>Coverage</th></tr></thead>
+  <tbody>
+    <tr><td>Redfin Data Center</td><td>MLI liquidity + affordability</td><td>nationwide, monthly</td></tr>
+    <tr><td>Census Population Estimates</td><td>population &amp; 4-yr growth</td><td>nationwide</td></tr>
+    <tr><td>Census Building Permits Survey</td><td>construction intensity</td><td>nationwide</td></tr>
+    <tr><td>NYS Public Parcel ArcGIS</td><td>parcel attrs, owner, mail addr</td><td>38 NY counties</td></tr>
+    <tr><td>FEMA NFHL</td><td>flood-zone diligence</td><td>nationwide</td></tr>
+    <tr><td>USFWS NWI</td><td>wetland diligence</td><td>nationwide</td></tr>
+    <tr><td>USGS 3DEP (EPQS)</td><td>slope diligence</td><td>nationwide</td></tr>
+  </tbody>
+</table>
+
+<h2 id="limits">Assumptions &amp; limitations</h2>
+<ul>
+  <li><b>Residential proxy.</b> The MLI uses residential liquidity as a stand-in for land liquidity (no free nationwide land-listing data). Validated as directional, not exact.</li>
+  <li><b>No free land comps.</b> Valuation still needs comps entered by hand; Scout's assessed-value proxy is for <i>ranking</i>, not offers.</li>
+  <li><b>Parcel data is per-county and NY-only for now.</b> National one-click parcel + skip-trace is the paid path (BatchData + PRYCD, ≈$1,200/mo).</li>
+  <li><b>Diligence is a desktop pre-screen.</b> The overlays flag likely problems; they don't replace a title search, survey, or on-the-ground check.</li>
+  <li><b>Not advice.</b> Educational tooling. Confirm title, access, and contracts with a title company or attorney before closing.</li>
+</ul>
+
+<div class="foot">
+  Companion docs: <a href="PROJECT-LOG.md">PROJECT-LOG.md</a> (what we built &amp; when) ·
+  <a href="METHODOLOGY.md">METHODOLOGY.md</a> (this page in Markdown) ·
+  <a href="deep%20research.md">deep research.md</a> (external blueprint).
+</div>
+
+</div>
+</body>
+</html>

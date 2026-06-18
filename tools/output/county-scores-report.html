@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>County Scores Report</title><style>
+:root{--bg:#0f1419;--panel:#1a2129;--panel2:#222c36;--line:#2e3a46;--text:#e6edf3;
+--muted:#8b9bab;--accent:#58a6ff;--good:#3fb950;--warn:#d29922;--bad:#f85149}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);
+font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+header{padding:26px 24px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#161d24,#0f1419)}
+header h1{margin:0;font-size:23px}header .sub{color:var(--muted);font-size:13.5px;margin-top:6px}
+.wrap{max-width:1080px;margin:0 auto;padding:14px 24px 90px}
+h2{font-size:19px;margin:34px 0 4px;padding-top:12px;border-top:1px solid var(--line)}
+h2 .tag{color:var(--accent);font-size:12.5px;font-weight:600;display:block;text-transform:uppercase;letter-spacing:.6px}
+p.intro{color:var(--muted);font-size:14px;margin:6px 0 14px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:760px){.cards{grid-template-columns:1fr}}
+.card{display:flex;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card .rank{font-size:20px;font-weight:800;color:var(--accent);min-width:34px}
+.card .title{font-weight:700;font-size:14.5px}
+.card .metrics{display:flex;flex-wrap:wrap;gap:10px;margin:7px 0;font-size:12.5px;color:var(--muted)}
+.card .metrics b{color:var(--text)}
+.card .why{font-size:12px;color:var(--warn)}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;background:#161d24}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.score{font-weight:700}.s-hi{color:var(--good)}.s-mid{color:var(--warn)}.s-lo{color:var(--muted)}
+.good{color:var(--good)}.bad{color:var(--bad)}.muted{color:var(--muted)}
+.callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+border-radius:8px;padding:11px 15px;margin:14px 0;font-size:13.5px}
+.foot{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+a{color:var(--accent)}
+</style></head><body>
+<header><h1>🗺️ County Scores Report</h1>
+<div class="sub">2,011 U.S. counties scored · Redfin data through <b>2026-05-31</b> + Census · all free sources</div>
+</header>
+<div class="wrap">
+
+<div class="callout">
+<b>Score</b> = Opportunity score (liquidity-first: MLI 60% + growth + affordability). <b>MLI</b> = Market
+Liquidity Index (how fast a market absorbs &amp; sells, validated at ρ≈−0.75). A <b>where-to-look</b> signal,
+not a buy signal — run individual parcels through the Deal Analyzer.
+<a href="../../methodology.html">Full methodology →</a>
+</div>
+
+<h2><span class="tag">Start here</span>Best starter markets &nbsp;<span class="muted" style="font-size:13px;font-weight:400">15 shortlisted: liquid + affordable (≤$400k) + real deal flow (≥30 sales/mo)</span></h2>
+<p class="intro">Top opportunity scores filtered to markets a land flipper can actually work — cheap enough for margin, liquid enough to resell, with enough volume to comp and mail.</p>
+<div class="cards">
+        <div class="card">
+          <div class="rank">#1</div>
+          <div class="body">
+            <div class="title">Monroe County, NY <span class="muted">· Rochester</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.9</b> score</span>
+              <span><b class="s-hi">100.0</b> MLI</span>
+              <span><b>$300,000</b> median</span>
+              <span><b>1.1</b> mo supply</span>
+              <span><b>8</b> DOM</span>
+              <span><b>487</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#2</div>
+          <div class="body">
+            <div class="title">Wayne County, NY <span class="muted">· Rochester</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.7</b> score</span>
+              <span><b class="s-hi">99.7</b> MLI</span>
+              <span><b>$254,900</b> median</span>
+              <span><b>2.4</b> mo supply</span>
+              <span><b>9</b> DOM</span>
+              <span><b>41</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, cheap entry</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#3</div>
+          <div class="body">
+            <div class="title">King William County, VA <span class="muted">· Richmond</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.6</b> score</span>
+              <span><b class="s-hi">92.9</b> MLI</span>
+              <span><b>$337,500</b> median</span>
+              <span><b>2.1</b> mo supply</span>
+              <span><b>21</b> DOM</span>
+              <span><b>37</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, growing</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#4</div>
+          <div class="body">
+            <div class="title">Tippecanoe County, IN <span class="muted">· Lafayette</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.5</b> score</span>
+              <span><b class="s-hi">92.5</b> MLI</span>
+              <span><b>$305,000</b> median</span>
+              <span><b>1.7</b> mo supply</span>
+              <span><b>18</b> DOM</span>
+              <span><b>197</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#5</div>
+          <div class="body">
+            <div class="title">Cumberland County, PA <span class="muted">· Harrisburg</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.4</b> score</span>
+              <span><b class="s-hi">98.0</b> MLI</span>
+              <span><b>$320,500</b> median</span>
+              <span><b>1.5</b> mo supply</span>
+              <span><b>8</b> DOM</span>
+              <span><b>258</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, growing</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#6</div>
+          <div class="body">
+            <div class="title">Livingston County, NY <span class="muted">· Rochester</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.4</b> score</span>
+              <span><b class="s-hi">99.6</b> MLI</span>
+              <span><b>$225,000</b> median</span>
+              <span><b>2.1</b> mo supply</span>
+              <span><b>14</b> DOM</span>
+              <span><b>30</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, cheap entry</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#7</div>
+          <div class="body">
+            <div class="title">Kent County, MI <span class="muted">· Grand Rapids</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.3</b> score</span>
+              <span><b class="s-hi">99.5</b> MLI</span>
+              <span><b>$365,000</b> median</span>
+              <span><b>1.2</b> mo supply</span>
+              <span><b>6</b> DOM</span>
+              <span><b>718</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#8</div>
+          <div class="body">
+            <div class="title">Sarpy County, NE <span class="muted">· Omaha</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.3</b> score</span>
+              <span><b class="s-hi">96.1</b> MLI</span>
+              <span><b>$385,990</b> median</span>
+              <span><b>1.3</b> mo supply</span>
+              <span><b>27</b> DOM</span>
+              <span><b>321</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, growing</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#9</div>
+          <div class="body">
+            <div class="title">Hendricks County, IN <span class="muted">· Indianapolis</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.2</b> score</span>
+              <span><b class="s-hi">91.7</b> MLI</span>
+              <span><b>$350,000</b> median</span>
+              <span><b>1.3</b> mo supply</span>
+              <span><b>24</b> DOM</span>
+              <span><b>302</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, growing</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#10</div>
+          <div class="body">
+            <div class="title">Staunton, VA <span class="muted">· Staunton</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.2</b> score</span>
+              <span><b class="s-hi">98.4</b> MLI</span>
+              <span><b>$334,000</b> median</span>
+              <span><b>1.6</b> mo supply</span>
+              <span><b>8</b> DOM</span>
+              <span><b>40</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#11</div>
+          <div class="body">
+            <div class="title">Berks County, PA <span class="muted">· Reading</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.1</b> score</span>
+              <span><b class="s-hi">99.3</b> MLI</span>
+              <span><b>$305,000</b> median</span>
+              <span><b>1.1</b> mo supply</span>
+              <span><b>7</b> DOM</span>
+              <span><b>393</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#12</div>
+          <div class="body">
+            <div class="title">Northampton County, PA <span class="muted">· Allentown</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.1</b> score</span>
+              <span><b class="s-hi">99.1</b> MLI</span>
+              <span><b>$386,500</b> median</span>
+              <span><b>1.2</b> mo supply</span>
+              <span><b>8</b> DOM</span>
+              <span><b>259</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, growing</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#13</div>
+          <div class="body">
+            <div class="title">York County, PA <span class="muted">· York</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.0</b> score</span>
+              <span><b class="s-hi">98.2</b> MLI</span>
+              <span><b>$299,409</b> median</span>
+              <span><b>1.3</b> mo supply</span>
+              <span><b>9</b> DOM</span>
+              <span><b>513</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, growing</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#14</div>
+          <div class="body">
+            <div class="title">Lancaster County, PA <span class="muted">· Lancaster</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">99.0</b> score</span>
+              <span><b class="s-hi">99.6</b> MLI</span>
+              <span><b>$365,000</b> median</span>
+              <span><b>1.3</b> mo supply</span>
+              <span><b>7</b> DOM</span>
+              <span><b>427</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank">#15</div>
+          <div class="body">
+            <div class="title">Sangamon County, IL <span class="muted">· Springfield</span></div>
+            <div class="metrics">
+              <span><b class="s-hi">98.8</b> score</span>
+              <span><b class="s-hi">99.4</b> MLI</span>
+              <span><b>$210,000</b> median</span>
+              <span><b>0.9</b> mo supply</span>
+              <span><b>7</b> DOM</span>
+              <span><b>245</b> sold/mo</span>
+            </div>
+            <div class="why">Why: tight inventory, sells fast, cheap entry</div>
+          </div>
+        </div></div>
+
+<h2><span class="tag">Ranking</span>Top 25 by Opportunity Score</h2>
+<table><thead><tr><th class='n'>#</th><th class='n'>Score</th><th>County</th><th>ST</th><th>Metro</th><th class='n'>Median $</th><th class='n'>Mo sup</th><th class='n'>DOM</th><th class='n'>Sale/list</th><th class='n'>Pop gr</th><th class='n'>Sold/mo</th></tr></thead><tbody><tr><td class='n'>1</td><td class='n score s-hi'>100.0</td><td>Boone County</td><td>IN</td><td class='muted'>Indianapolis</td><td class='n'>$410,300</td><td class='n'>1.2</td><td class='n'>19</td><td class='n'>0.988</td><td class='n'><span class="good">+11%</span></td><td class='n'>148</td></tr><tr><td class='n'>2</td><td class='n score s-hi'>99.9</td><td>Monroe County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$300,000</td><td class='n'>1.1</td><td class='n'>8</td><td class='n'>1.193</td><td class='n'><span class="bad">-1%</span></td><td class='n'>487</td></tr><tr><td class='n'>3</td><td class='n score s-hi'>99.9</td><td>Genesee County</td><td>NY</td><td class='muted'>Batavia</td><td class='n'>$225,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.066</td><td class='n'><span class="bad">-1%</span></td><td class='n'>26</td></tr><tr><td class='n'>4</td><td class='n score s-hi'>99.8</td><td>Hamilton County</td><td>IN</td><td class='muted'>Indianapolis</td><td class='n'>$474,900</td><td class='n'>1.2</td><td class='n'>14</td><td class='n'>0.995</td><td class='n'><span class="good">+9%</span></td><td class='n'>700</td></tr><tr><td class='n'>5</td><td class='n score s-hi'>99.8</td><td>Goochland County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$697,000</td><td class='n'>1.5</td><td class='n'>17</td><td class='n'>1.010</td><td class='n'><span class="good">+13%</span></td><td class='n'>50</td></tr><tr><td class='n'>6</td><td class='n score s-hi'>99.7</td><td>Wayne County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$254,900</td><td class='n'>2.4</td><td class='n'>9</td><td class='n'>1.113</td><td class='n'><span class="bad">-0%</span></td><td class='n'>41</td></tr><tr><td class='n'>7</td><td class='n score s-hi'>99.7</td><td>Canyon County</td><td>ID</td><td class='muted'>Boise City</td><td class='n'>$443,000</td><td class='n'>1.9</td><td class='n'>36</td><td class='n'>0.993</td><td class='n'><span class="good">+15%</span></td><td class='n'>495</td></tr><tr><td class='n'>8</td><td class='n score s-hi'>99.6</td><td>King William County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$337,500</td><td class='n'>2.1</td><td class='n'>21</td><td class='n'>1.010</td><td class='n'><span class="good">+7%</span></td><td class='n'>37</td></tr><tr><td class='n'>9</td><td class='n score s-hi'>99.6</td><td>Hartford County</td><td>CT</td><td class='muted'>Hartford</td><td class='n'>$400,500</td><td class='n'>1.7</td><td class='n'>17</td><td class='n'>1.062</td><td class='n'>—</td><td class='n'>670</td></tr><tr><td class='n'>10</td><td class='n score s-hi'>99.5</td><td>Tippecanoe County</td><td>IN</td><td class='muted'>Lafayette</td><td class='n'>$305,000</td><td class='n'>1.7</td><td class='n'>18</td><td class='n'>0.991</td><td class='n'><span class="good">+3%</span></td><td class='n'>197</td></tr><tr><td class='n'>11</td><td class='n score s-hi'>99.5</td><td>Chesterfield County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$430,000</td><td class='n'>1.2</td><td class='n'>15</td><td class='n'>1.012</td><td class='n'><span class="good">+7%</span></td><td class='n'>571</td></tr><tr><td class='n'>12</td><td class='n score s-hi'>99.4</td><td>Cumberland County</td><td>PA</td><td class='muted'>Harrisburg</td><td class='n'>$320,500</td><td class='n'>1.5</td><td class='n'>8</td><td class='n'>1.006</td><td class='n'><span class="good">+6%</span></td><td class='n'>258</td></tr><tr><td class='n'>13</td><td class='n score s-hi'>99.4</td><td>Livingston County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$225,000</td><td class='n'>2.1</td><td class='n'>14</td><td class='n'>1.072</td><td class='n'><span class="bad">-0%</span></td><td class='n'>30</td></tr><tr><td class='n'>14</td><td class='n score s-hi'>99.3</td><td>Kent County</td><td>MI</td><td class='muted'>Grand Rapids</td><td class='n'>$365,000</td><td class='n'>1.2</td><td class='n'>6</td><td class='n'>1.019</td><td class='n'><span class="good">+2%</span></td><td class='n'>718</td></tr><tr><td class='n'>15</td><td class='n score s-hi'>99.3</td><td>Sarpy County</td><td>NE</td><td class='muted'>Omaha</td><td class='n'>$385,990</td><td class='n'>1.3</td><td class='n'>27</td><td class='n'>1.016</td><td class='n'><span class="good">+7%</span></td><td class='n'>321</td></tr><tr><td class='n'>16</td><td class='n score s-hi'>99.2</td><td>Hendricks County</td><td>IN</td><td class='muted'>Indianapolis</td><td class='n'>$350,000</td><td class='n'>1.3</td><td class='n'>24</td><td class='n'>0.990</td><td class='n'><span class="good">+9%</span></td><td class='n'>302</td></tr><tr><td class='n'>17</td><td class='n score s-hi'>99.2</td><td>Staunton</td><td>VA</td><td class='muted'>Staunton</td><td class='n'>$334,000</td><td class='n'>1.6</td><td class='n'>8</td><td class='n'>1.015</td><td class='n'><span class="good">+2%</span></td><td class='n'>40</td></tr><tr><td class='n'>18</td><td class='n score s-hi'>99.1</td><td>Berks County</td><td>PA</td><td class='muted'>Reading</td><td class='n'>$305,000</td><td class='n'>1.1</td><td class='n'>7</td><td class='n'>1.013</td><td class='n'><span class="good">+2%</span></td><td class='n'>393</td></tr><tr><td class='n'>19</td><td class='n score s-hi'>99.1</td><td>Northampton County</td><td>PA</td><td class='muted'>Allentown</td><td class='n'>$386,500</td><td class='n'>1.2</td><td class='n'>8</td><td class='n'>1.016</td><td class='n'><span class="good">+3%</span></td><td class='n'>259</td></tr><tr><td class='n'>20</td><td class='n score s-hi'>99.0</td><td>York County</td><td>PA</td><td class='muted'>York</td><td class='n'>$299,409</td><td class='n'>1.3</td><td class='n'>9</td><td class='n'>1.005</td><td class='n'><span class="good">+3%</span></td><td class='n'>513</td></tr><tr><td class='n'>21</td><td class='n score s-hi'>99.0</td><td>Lancaster County</td><td>PA</td><td class='muted'>Lancaster</td><td class='n'>$365,000</td><td class='n'>1.3</td><td class='n'>7</td><td class='n'>1.024</td><td class='n'><span class="good">+2%</span></td><td class='n'>427</td></tr><tr><td class='n'>22</td><td class='n score s-hi'>98.9</td><td>Richmond City County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$426,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.028</td><td class='n'>—</td><td class='n'>304</td></tr><tr><td class='n'>23</td><td class='n score s-hi'>98.9</td><td>Lyon County</td><td>MN</td><td class='muted'>Marshall</td><td class='n'>$185,000</td><td class='n'>1.7</td><td class='n'>13</td><td class='n'>1.033</td><td class='n'><span class="good">+1%</span></td><td class='n'>23</td></tr><tr><td class='n'>24</td><td class='n score s-hi'>98.8</td><td>Grundy County</td><td>MO</td><td class='muted'>Missouri nonmetropolitan area</td><td class='n'>$165,000</td><td class='n'>1.4</td><td class='n'>3</td><td class='n'>1.008</td><td class='n'><span class="good">+0%</span></td><td class='n'>11</td></tr><tr><td class='n'>25</td><td class='n score s-hi'>98.8</td><td>Sangamon County</td><td>IL</td><td class='muted'>Springfield</td><td class='n'>$210,000</td><td class='n'>0.9</td><td class='n'>7</td><td class='n'>1.010</td><td class='n'><span class="bad">-1%</span></td><td class='n'>245</td></tr></tbody></table>
+
+<h2><span class="tag">Ranking</span>Top 25 by Market Liquidity (MLI)</h2>
+<p class="intro">The pure liquidity index — fastest-selling markets, before affordability/growth weighting. Some are pricey metros; cross-check the median price column.</p>
+<table><thead><tr><th class='n'>#</th><th class='n'>MLI</th><th>County</th><th>ST</th><th>Metro</th><th class='n'>Median $</th><th class='n'>Mo sup</th><th class='n'>DOM</th><th class='n'>Sale/list</th><th class='n'>Pop gr</th><th class='n'>Sold/mo</th></tr></thead><tbody><tr><td class='n'>1</td><td class='n score s-hi'>100.0</td><td>Monroe County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$300,000</td><td class='n'>1.1</td><td class='n'>8</td><td class='n'>1.193</td><td class='n'><span class="bad">-1%</span></td><td class='n'>487</td></tr><tr><td class='n'>2</td><td class='n score s-hi'>99.9</td><td>Genesee County</td><td>NY</td><td class='muted'>Batavia</td><td class='n'>$225,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.066</td><td class='n'><span class="bad">-1%</span></td><td class='n'>26</td></tr><tr><td class='n'>3</td><td class='n score s-hi'>99.9</td><td>San Francisco County</td><td>CA</td><td class='muted'>San Francisco</td><td class='n'>$1,770,000</td><td class='n'>1.6</td><td class='n'>16</td><td class='n'>1.156</td><td class='n'><span class="bad">-5%</span></td><td class='n'>561</td></tr><tr><td class='n'>4</td><td class='n score s-hi'>99.8</td><td>Falls Church</td><td>VA</td><td class='muted'>Washington</td><td class='n'>$1,200,000</td><td class='n'>1.3</td><td class='n'>5</td><td class='n'>1.032</td><td class='n'><span class="good">+2%</span></td><td class='n'>19</td></tr><tr><td class='n'>5</td><td class='n score s-hi'>99.8</td><td>San Mateo County</td><td>CA</td><td class='muted'>San Francisco</td><td class='n'>$1,800,000</td><td class='n'>1.6</td><td class='n'>14</td><td class='n'>1.056</td><td class='n'><span class="bad">-3%</span></td><td class='n'>483</td></tr><tr><td class='n'>6</td><td class='n score s-hi'>99.7</td><td>Wayne County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$254,900</td><td class='n'>2.4</td><td class='n'>9</td><td class='n'>1.113</td><td class='n'><span class="bad">-0%</span></td><td class='n'>41</td></tr><tr><td class='n'>7</td><td class='n score s-hi'>99.7</td><td>Hartford County</td><td>CT</td><td class='muted'>Hartford</td><td class='n'>$400,500</td><td class='n'>1.7</td><td class='n'>17</td><td class='n'>1.062</td><td class='n'>—</td><td class='n'>670</td></tr><tr><td class='n'>8</td><td class='n score s-hi'>99.6</td><td>Livingston County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$225,000</td><td class='n'>2.1</td><td class='n'>14</td><td class='n'>1.072</td><td class='n'><span class="bad">-0%</span></td><td class='n'>30</td></tr><tr><td class='n'>9</td><td class='n score s-hi'>99.6</td><td>Lancaster County</td><td>PA</td><td class='muted'>Lancaster</td><td class='n'>$365,000</td><td class='n'>1.3</td><td class='n'>7</td><td class='n'>1.024</td><td class='n'><span class="good">+2%</span></td><td class='n'>427</td></tr><tr><td class='n'>10</td><td class='n score s-hi'>99.5</td><td>Kent County</td><td>MI</td><td class='muted'>Grand Rapids</td><td class='n'>$365,000</td><td class='n'>1.2</td><td class='n'>6</td><td class='n'>1.019</td><td class='n'><span class="good">+2%</span></td><td class='n'>718</td></tr><tr><td class='n'>11</td><td class='n score s-hi'>99.5</td><td>Morris County</td><td>NJ</td><td class='muted'>Newark</td><td class='n'>$750,000</td><td class='n'>2.0</td><td class='n'>16</td><td class='n'>1.058</td><td class='n'><span class="good">+3%</span></td><td class='n'>408</td></tr><tr><td class='n'>12</td><td class='n score s-hi'>99.4</td><td>Richmond City County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$426,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.028</td><td class='n'>—</td><td class='n'>304</td></tr><tr><td class='n'>13</td><td class='n score s-hi'>99.4</td><td>Sangamon County</td><td>IL</td><td class='muted'>Springfield</td><td class='n'>$210,000</td><td class='n'>0.9</td><td class='n'>7</td><td class='n'>1.010</td><td class='n'><span class="bad">-1%</span></td><td class='n'>245</td></tr><tr><td class='n'>14</td><td class='n score s-hi'>99.3</td><td>Berks County</td><td>PA</td><td class='muted'>Reading</td><td class='n'>$305,000</td><td class='n'>1.1</td><td class='n'>7</td><td class='n'>1.013</td><td class='n'><span class="good">+2%</span></td><td class='n'>393</td></tr><tr><td class='n'>15</td><td class='n score s-hi'>99.3</td><td>Tazewell County</td><td>IL</td><td class='muted'>Peoria</td><td class='n'>$186,750</td><td class='n'>1.0</td><td class='n'>8</td><td class='n'>1.012</td><td class='n'><span class="bad">-1%</span></td><td class='n'>164</td></tr><tr><td class='n'>16</td><td class='n score s-hi'>99.2</td><td>La Crosse County</td><td>WI</td><td class='muted'>La Crosse</td><td class='n'>$315,000</td><td class='n'>1.3</td><td class='n'>9</td><td class='n'>1.021</td><td class='n'><span class="good">+0%</span></td><td class='n'>127</td></tr><tr><td class='n'>17</td><td class='n score s-hi'>99.2</td><td>Alameda County</td><td>CA</td><td class='muted'>Oakland</td><td class='n'>$1,225,000</td><td class='n'>2.3</td><td class='n'>17</td><td class='n'>1.084</td><td class='n'><span class="bad">-2%</span></td><td class='n'>955</td></tr><tr><td class='n'>18</td><td class='n score s-hi'>99.1</td><td>Northampton County</td><td>PA</td><td class='muted'>Allentown</td><td class='n'>$386,500</td><td class='n'>1.2</td><td class='n'>8</td><td class='n'>1.016</td><td class='n'><span class="good">+3%</span></td><td class='n'>259</td></tr><tr><td class='n'>19</td><td class='n score s-hi'>99.1</td><td>Schenectady County</td><td>NY</td><td class='muted'>Albany</td><td class='n'>$300,000</td><td class='n'>1.9</td><td class='n'>7</td><td class='n'>1.033</td><td class='n'><span class="good">+2%</span></td><td class='n'>117</td></tr><tr><td class='n'>20</td><td class='n score s-hi'>99.0</td><td>Erie County</td><td>NY</td><td class='muted'>Buffalo</td><td class='n'>$282,813</td><td class='n'>2.5</td><td class='n'>11</td><td class='n'>1.053</td><td class='n'><span class="bad">-0%</span></td><td class='n'>506</td></tr><tr><td class='n'>21</td><td class='n score s-hi'>99.0</td><td>Los Alamos County</td><td>NM</td><td class='muted'>Los Alamos</td><td class='n'>$547,500</td><td class='n'>1.0</td><td class='n'>8</td><td class='n'>1.009</td><td class='n'><span class="good">+1%</span></td><td class='n'>34</td></tr><tr><td class='n'>22</td><td class='n score s-hi'>98.9</td><td>Grundy County</td><td>MO</td><td class='muted'>Missouri nonmetropolitan area</td><td class='n'>$165,000</td><td class='n'>1.4</td><td class='n'>3</td><td class='n'>1.008</td><td class='n'><span class="good">+0%</span></td><td class='n'>11</td></tr><tr><td class='n'>23</td><td class='n score s-hi'>98.9</td><td>Tolland County</td><td>CT</td><td class='muted'>Hartford</td><td class='n'>$422,000</td><td class='n'>2.0</td><td class='n'>19</td><td class='n'>1.054</td><td class='n'>—</td><td class='n'>113</td></tr><tr><td class='n'>24</td><td class='n score s-hi'>98.8</td><td>Lyon County</td><td>MN</td><td class='muted'>Marshall</td><td class='n'>$185,000</td><td class='n'>1.7</td><td class='n'>13</td><td class='n'>1.033</td><td class='n'><span class="good">+1%</span></td><td class='n'>23</td></tr><tr><td class='n'>25</td><td class='n score s-hi'>98.8</td><td>Lehigh County</td><td>PA</td><td class='muted'>Allentown</td><td class='n'>$365,000</td><td class='n'>1.2</td><td class='n'>9</td><td class='n'>1.013</td><td class='n'><span class="good">+3%</span></td><td class='n'>309</td></tr></tbody></table>
+
+<h2><span class="tag">Geography</span>State leaderboard</h2>
+<p class="intro">Ranked by how many of the national top-100 counties each state holds, then by average score.</p>
+<table><thead><tr><th>State</th><th class="n">In top 100</th><th class="n">Avg score</th><th class="n">Counties</th><th>Best county</th></tr></thead>
+<tbody><tr><td>VA</td><td class='n'>17</td><td class='n'>65.2</td><td class='n'>109</td><td>Goochland County <span class='muted'>(99.8)</span></td></tr><tr><td>NY</td><td class='n'>10</td><td class='n'>44.6</td><td class='n'>61</td><td>Monroe County <span class='muted'>(99.9)</span></td></tr><tr><td>IN</td><td class='n'>9</td><td class='n'>69.9</td><td class='n'>84</td><td>Boone County <span class='muted'>(100.0)</span></td></tr><tr><td>PA</td><td class='n'>9</td><td class='n'>58.5</td><td class='n'>58</td><td>Cumberland County <span class='muted'>(99.4)</span></td></tr><tr><td>MN</td><td class='n'>7</td><td class='n'>72.7</td><td class='n'>58</td><td>Lyon County <span class='muted'>(98.9)</span></td></tr><tr><td>MO</td><td class='n'>6</td><td class='n'>59.4</td><td class='n'>75</td><td>Grundy County <span class='muted'>(98.8)</span></td></tr><tr><td>IL</td><td class='n'>6</td><td class='n'>54.7</td><td class='n'>68</td><td>Sangamon County <span class='muted'>(98.8)</span></td></tr><tr><td>KS</td><td class='n'>5</td><td class='n'>72.4</td><td class='n'>36</td><td>Butler County <span class='muted'>(96.4)</span></td></tr><tr><td>MI</td><td class='n'>5</td><td class='n'>56.1</td><td class='n'>75</td><td>Kent County <span class='muted'>(99.3)</span></td></tr><tr><td>NE</td><td class='n'>4</td><td class='n'>77.3</td><td class='n'>20</td><td>Sarpy County <span class='muted'>(99.3)</span></td></tr><tr><td>IA</td><td class='n'>4</td><td class='n'>60.4</td><td class='n'>61</td><td>Linn County <span class='muted'>(97.7)</span></td></tr><tr><td>CT</td><td class='n'>3</td><td class='n'>84.7</td><td class='n'>8</td><td>Hartford County <span class='muted'>(99.6)</span></td></tr><tr><td>ID</td><td class='n'>3</td><td class='n'>63.1</td><td class='n'>30</td><td>Canyon County <span class='muted'>(99.7)</span></td></tr><tr><td>KY</td><td class='n'>3</td><td class='n'>46.0</td><td class='n'>65</td><td>Grant County <span class='muted'>(98.6)</span></td></tr><tr><td>OH</td><td class='n'>2</td><td class='n'>60.7</td><td class='n'>80</td><td>Medina County <span class='muted'>(96.8)</span></td></tr></tbody></table>
+
+<div class="foot">
+Generated from <code>county-opportunities.csv</code>. Open <a href="county-opportunities.html">the full interactive table</a>
+to sort/filter all 2,011 counties · <a href="../../methodology.html">methodology</a> · <a href="../../PROJECT-LOG.md">project log</a>.
+</div>
+</div></body></html>
