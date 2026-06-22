@@ -377,6 +377,8 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 <b>Absentee</b>: <span class="tag oos">OOS</span> owner mails from out of state · <span class="tag oot">OOT</span> out of town = likely motivated.
 <b>Gate</b> (top __NDILIG__ only): <span class="g-pass">PASS</span> / <span class="g-kill">KILL</span> (flood/wetland/steep) / <span class="g-check">CHECK</span>.
 Assessed value is a free proxy — confirm real value with sold comps in the Deal Analyzer before offering.
+<br><b>⚠️ NY wholesaling:</b> market the <i>assignable contract interest</i>, not the property itself (no public ads of
+property you don't own). Use "and/or assigns". <b>Not legal advice</b> — verify with a local attorney.
 </div>
 <div class="controls">
 <input id="q" placeholder="Search owner / address / town..." oninput="render()" style="min-width:240px">

@@ -61,10 +61,15 @@ Land Flipping/
      state leaderboard. Start here.
    - **`county-opportunities.html`** — the full interactive table of all ~2,000
      counties (linked from the report) to sort/filter/search yourself.
-4. In the table, sort by **MLI** (how fast a market sells) or the **Opportunity
-   Score** (liquidity-first: MLI 60% + growth + affordability), filter by
-   **state**, or search a county. High MLI = land sells fast there. (Validated:
-   the MLI predicts forward liquidity at ρ≈−0.75 — run `backtest.py` to see it.)
+4. In the table, sort by the **Land-Flip Score** (population growth 40% + builder
+   activity 35% + cheap entry 25% — where the spread lives), or by **Hidden
+   Opportunity** to *escape the obvious* — counties with real demand but **low
+   competition** (the "next ring out" of growing metros, where you're not fighting
+   hedge funds). Filter by **state**, **legal status**, or **⭐ under-the-radar
+   picks**. The **MLI** column is a secondary "is the market frozen?" check, *not*
+   the land-flip signal. (The MLI is validated vs forward
+   liquidity at ρ≈−0.75; the Land-Flip Score is thesis-driven, pending land-data
+   validation — see [METHODOLOGY.md](METHODOLOGY.md).)
 
 > The scanner uses *housing-market* health as a proxy for land demand (it's the
 > best free signal). It tells you WHERE to look. The **Deal Analyzer** tells you

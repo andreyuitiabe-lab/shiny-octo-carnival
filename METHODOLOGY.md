@@ -7,18 +7,19 @@
 
 The model answers three questions, in order:
 
-1. **Where do I hunt?** → *Market Liquidity Index* (Engine 1)
+1. **Where do I hunt?** → *Land-Flip Score* (Engine 1)
 2. **Which parcels do I mail?** → *Parcel Scout* lead scoring + auto-diligence (Engine 3)
 3. **How much do I offer?** → *Acreage Decay Curve + Blind-Offer Matrix* (Engine 2)
 
 Everything below is built on **free, no-key data** and runs on the Python/browser
-that ship with macOS. The design principle throughout: **optimize for liquidity
-(how fast land sells), not price appreciation** — this is what land flippers
-actually profit on, and it is the one thing our backtest could validate.
+that ship with macOS. The design principle throughout: **rank markets for the
+land-flip spread (cheap land + active builders + population growth), not for how
+fast existing homes resell** — resale velocity is nearly the opposite of land-flip
+opportunity (mature metros resell fast but have no spread).
 
 ---
 
-## Engine 1 — Market Liquidity Index (MLI): *where to play*
+## Engine 1 — Land-Flip Score: *where to play*
 
 Ranks ~2,000 U.S. counties. Implemented in [`tools/county_scanner.py`](tools/county_scanner.py).
 
@@ -40,60 +41,92 @@ percentile ranking throws away magnitude, and min-max is hostage to one outlier.
 Winsorizing at ±3σ stops a single freak county from dominating. A missing value
 scores 0 (the mean = neutral).
 
-### Stage 1 — the liquidity sub-index (the "king metric")
-Pure liquidity, weighted toward absorption and velocity:
+### Headline — the Land-Flip Score (path of growth)
+Land flipping profits on the **spread you capture in the path of growth** — buying
+cheap raw land where development is pushing outward — *not* on existing homes
+reselling fast. So the headline is built from the three drivers of that spread:
 
-| Variable | Weight | Direction | Blueprint name |
-|----------|-------:|-----------|----------------|
-| Months of inventory | 0.40 | lower is better (inverted z) | Months of Inventory |
-| Days on market | 0.40 | lower is better (inverted z) | Days on Market |
-| Sale-to-list ratio | 0.20 | higher is better | List-to-Sale Ratio (proxy) |
+| Component | Weight | Direction | Why |
+|-----------|-------:|-----------|-----|
+| Population growth (4-yr) | 0.40 | higher is better | in-migration = the demand engine |
+| Builder / construction activity (permits/1k) | 0.35 | higher is better | active builders absorbing land |
+| Cheap entry (median price) | 0.25 | lower is better | margin needs a low basis |
+
+```
+LandFlip_raw = 0.40·z(pop_growth) + 0.35·z(permits/1k) + 0.25·(−z_price)
+```
+
+**Why not lead with liquidity?** An earlier version made the residential MLI 60%
+of the headline — but that surfaced mature metros (e.g. Monroe Co NY: top MLI,
+yet **−0.7% population growth**) which have little cheap land and no development
+spread. Resale velocity is almost the *opposite* of land-flip opportunity. The
+headline was rebuilt around the path-of-growth thesis; the Sun-Belt exurbs it now
+ranks first (Horry SC, Bastrop/Hays/Montgomery TX, Sumter/Flagler FL, Pinal AZ)
+are the classic land-flip markets.
+
+### Secondary — the Market Liquidity Index (MLI)
+Residential resale liquidity, kept as a **secondary column** — a "is this market
+frozen or transacting?" sanity check, not the land-flip signal. Z-scored:
+
+| Variable | Weight | Direction |
+|----------|-------:|-----------|
+| Months of inventory | 0.40 | lower is better (inverted z) |
+| Days on market | 0.40 | lower is better (inverted z) |
+| Sale-to-list ratio | 0.20 | higher is better |
 
 ```
 MLI_raw = 0.40·(−z_months) + 0.40·(−z_dom) + 0.20·(z_sale_to_list)
 ```
 
-The 4th blueprint variable — **Price-per-Acre Variance (CoV)** — needs land-level
-comps and is reserved for the paid phase.
+Both composites are converted to a readable **0–100 percentile** for display.
 
-### Stage 2 — the headline Opportunity Score
-Liquidity-dominant, with fundamentals and affordability as support. **No price/
-sales momentum** — the backtest showed momentum doesn't predict and mean-reverts,
-so it earns 0 weight (it is still *displayed* as context):
-
-| Component | Weight | Direction |
-|-----------|-------:|-----------|
-| **MLI (Stage 1)** | **0.60** | higher is better |
-| Population growth (4-yr) | 0.15 | higher is better |
-| Construction intensity (permits/1k pop) | 0.10 | higher is better |
-| Affordable entry (median price) | 0.15 | lower is better |
+### Third lens — Hidden Opportunity Score (escape the obvious)
+The Land-Flip headline rewards exactly the signals *every* land investor uses
+(growth + builders + cheap), so its top is the most **crowded** geography (Phoenix
+exurbs, Tampa/Orlando rings, Austin). The Hidden Opportunity lens finds real
+demand the crowd is missing:
 
 ```
-Score_raw = 0.60·z(MLI) + 0.15·z(pop_growth) + 0.10·z(permits) + 0.15·(−z_price)
+Hidden = LandFlip_demand − Competition − ExitPenalty
 ```
+- **Competition** (proxy, 0–100 percentile) = market **size/visibility**:
+  `ln(population) + ln(homes_sold)`. Bigger, busier markets draw more investors.
+  *(This is a proxy. True competition — investor purchase share, mail volume —
+  needs paid data: ATTOM "investor purchases", PropStream.)*
+- **ExitPenalty** = `max(0, 3 − permits_per_1k) · 6` — a soft penalty for thin
+  builder activity, so we don't surface markets with no buyer (the "Custer trap":
+  low competition but nobody to sell to).
 
-Both `MLI_raw` and `Score_raw` are converted to a readable **0–100 percentile**
-for display and sorting.
+A county flagged ⭐ **under-the-radar pick** has demand ≥ 70, competition ≤ 40, and
+a real exit. In practice these are the **"next ring out"** from growing metros
+(Trousdale TN↔Nashville, Gilchrist FL↔Gainesville, Linn KS↔Kansas City) plus
+overlooked rural growers — strong fundamentals, competition 1–15 vs the obvious
+top's 70–98.
 
-### Validation (this is the important part)
-Walk-forward backtest in [`tools/backtest.py`](tools/backtest.py): rank counties
-by MLI using **only** data available *N* months ago, then measure the **realized
-forward liquidity** (average months-of-supply and days-on-market over the next *N*
-months). Result on Redfin's 173-month history:
+> **Next step (logged):** a cleaner version is the **metro-ring model** — explicitly
+> score small counties *adjacent* to a growing metro using free Census
+> county-adjacency data, to catch the spillover before the crowd arrives.
 
-| Horizon | MLI → forward months-supply | MLI → forward DOM | MLI → forward *price* (contrast) |
-|---------|----------------------------:|------------------:|---------------------------------:|
-| 12 mo   | **−0.73** (Spearman ρ) | **−0.74** | −0.03 |
-| 24 mo   | **−0.75** | **−0.76** | +0.01 |
+### Validation status — read this carefully
+- **The MLI (secondary) IS validated** as a *liquidity-persistence* signal. A
+  walk-forward backtest ([`tools/backtest.py`](tools/backtest.py)) ranks counties
+  by MLI using only past data, then measures realized forward liquidity:
 
-Negative = a high MLI today predicts a **faster-selling** market tomorrow. Top-
-decile MLI markets absorbed ~7 months faster and sold ~76 days quicker than
-bottom-decile. The near-zero price correlation is the proof of thesis:
-**liquidity persists and is forecastable; appreciation mean-reverts and is not.**
+  | Horizon | MLI → fwd months-supply | MLI → fwd DOM | MLI → fwd *price* (contrast) |
+  |---------|------------------------:|--------------:|-----------------------------:|
+  | 12 mo   | **−0.73** (ρ) | **−0.74** | −0.03 |
+  | 24 mo   | **−0.75** | **−0.76** | +0.01 |
 
-*Honest caveat:* liquidity is autocorrelated (tight markets tend to stay tight),
-so part of −0.75 is persistence — which is exactly why it makes a reliable basis
-for site selection where appreciation never did.
+  High MLI predicts faster-selling markets; the ~0 price correlation shows
+  liquidity persists while appreciation mean-reverts. *Caveat:* liquidity is
+  autocorrelated, so part of −0.75 is persistence.
+
+- **The Land-Flip Score (headline) is NOT yet empirically validated.** It is
+  *thesis-driven* — it encodes how experienced land investors actually pick
+  markets (cheap + builders + growth) — but we have not yet measured it against
+  realized **land** outcomes, because that needs land-specific sale data (land
+  STR / DOM), which is the paid/scraped next step. Treat it as a well-reasoned
+  prior, not a proven predictor, until validated against land transactions.
 
 ---
 
@@ -210,6 +243,31 @@ crashing:
 
 Output is a sortable HTML report + CSV; gate-passing, individually-owned,
 out-of-state leads float to the top, ready for the Deal Analyzer.
+
+---
+
+## State legal layer (compliance flag) — *not legal advice*
+
+Wholesaling is regulated at the **state** level, and the rules changed sharply in
+2024–2025. The model attaches a legal-status badge to every county from its state
+(a **flag, not a score input** — a great market in a restrictive state still shows
+its true score, just badged so you verify with a local attorney). Snapshot,
+mid-2026:
+
+| Tier | States | Meaning |
+|------|--------|---------|
+| ⛔ **License req'd** | IL, OK, NC, KY, NE | A real-estate license is effectively required to wholesale |
+| 🟧 **Register** | CT, OR | Must register with a state agency first |
+| 🟨 **Disclosure** | OH, MD, IN, TX | Written seller disclosure required or the contract is voidable |
+| ◐ **Marketing limits** | SC, MI, NY, CA, GA, IA, NJ, UT, WA | Can't publicly advertise a property you don't own; private assignment OK |
+| ✅ **Clear** | all others | Generally permitted (use "and/or assigns", market privately) |
+
+The scanner table and the County Scores Report show the badge and let you filter
+out restrictive states; the data lives in `LEGAL` at the top of
+`county_scanner.py` (easy to update as laws change). This implements the
+"exclusion zones" idea from Module 5 of the blueprint. **These laws change fast
+and edge cases are contested — always confirm with a licensed attorney in the
+target state before operating.**
 
 ---
 

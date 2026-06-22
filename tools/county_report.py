@@ -19,9 +19,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CSV = os.path.join(HERE, "output", "county-opportunities.csv")
 OUT = os.path.join(HERE, "output", "county-scores-report.html")
 
-# "Starter market" filter: liquid + affordable + enough deal flow to comp & mail.
-AFFORDABLE_MAX = 400000   # residential median price ceiling (proxy for cheap entry)
-MIN_DEAL_FLOW = 30        # homes sold/mo — enough comps & mail targets
+# "Starter market" filter: the land-flip profile — affordable + actually growing
+# (path of growth), ranked by Land-Flip Score.
+AFFORDABLE_MAX = 400000   # median price ceiling (proxy for cheap entry)
+MIN_GROWTH = 0.03         # >=3% population growth (4yr) — real in-migration
+MIN_DEAL_FLOW = 20        # homes sold/mo — enough activity to comp
 STARTER_COUNT = 15
 
 
@@ -44,7 +46,9 @@ def load():
     for r in csv.DictReader(open(CSV)):
         rows.append({
             "score": fnum(r["score"]) or 0, "mli": fnum(r["mli"]) or 0,
+            "hidden": fnum(r.get("hidden")) or 0, "comp": fnum(r.get("competition")) or 0,
             "county": clean_county(r["county"]), "state": r["state"],
+            "legal": r.get("legal", "Clear"), "legalNote": r.get("legal_note", ""),
             "metro": clean_county(r.get("metro", "")),
             "homes": fnum(r["homes_sold"]) or 0, "pop": fnum(r["population"]),
             "popg": fnum(r["pop_growth_4yr"]), "permitsK": fnum(r["permits_per_1k"]),
@@ -70,12 +74,27 @@ def num(v, d=1):
     return f"{v:.{d}f}" if v is not None else "—"
 
 
+LEGAL_MAP = {
+    "License req'd": ("lg-license", "⛔ License"),
+    "Register": ("lg-register", "🟧 Register"),
+    "Disclosure": ("lg-disclose", "🟨 Disclosure"),
+    "Mktg limits": ("lg-marketing", "◐ Mktg limits"),
+    "Clear": ("lg-clear", "✅ Clear"),
+}
+
+
+def legal_badge(r):
+    cls, lbl = LEGAL_MAP.get(r["legal"], ("lg-clear", r["legal"]))
+    note = (r.get("legalNote") or "").replace('"', "")
+    return f'<span class="lg {cls}" title="{note}">{lbl}</span>'
+
+
 def rank_rows(rows, key, label_html):
     out = []
     for i, r in enumerate(rows, 1):
         out.append(
             f"<tr><td class='n'>{i}</td><td class='n score {scls(r[key])}'>{num(r[key])}</td>"
-            f"<td>{r['county']}</td><td>{r['state']}</td><td class='muted'>{r['metro']}</td>"
+            f"<td>{r['county']}</td><td>{r['state']}</td><td>{legal_badge(r)}</td><td class='muted'>{r['metro']}</td>"
             f"<td class='n'>{money(r['price'])}</td><td class='n'>{num(r['supply'])}</td>"
             f"<td class='n'>{num(r['dom'],0)}</td><td class='n'>{num(r['stl'],3)}</td>"
             f"<td class='n'>{pct(r['popg'])}</td><td class='n'>{int(r['homes']):,}</td></tr>")
@@ -95,10 +114,23 @@ def build():
     by_score = sorted(rows, key=lambda r: r["score"], reverse=True)
     by_mli = sorted(rows, key=lambda r: r["mli"], reverse=True)
 
-    # Starter markets: affordable + liquid + real deal flow, ranked by score.
+    # Starter markets: the land-flip profile — cheap + actually growing + some
+    # activity — ranked by Land-Flip Score.
     starters = [r for r in rows
-                if r["price"] and r["price"] <= AFFORDABLE_MAX and r["homes"] >= MIN_DEAL_FLOW]
+                if r["price"] and r["price"] <= AFFORDABLE_MAX
+                and r["popg"] is not None and r["popg"] >= MIN_GROWTH
+                and r["homes"] >= MIN_DEAL_FLOW]
     starters = sorted(starters, key=lambda r: r["score"], reverse=True)[:STARTER_COUNT]
+
+    # Under-the-radar picks: real demand the crowd is missing — strong Land-Flip,
+    # LOW competition, with an exit (builders), affordable, and legally workable.
+    radar = [r for r in rows
+             if r["score"] >= 70 and r["comp"] <= 40
+             and r["price"] and r["price"] <= AFFORDABLE_MAX
+             and r["popg"] is not None and r["popg"] >= MIN_GROWTH
+             and (r["permitsK"] or 0) >= 3                     # exit: active builders
+             and r["legal"] in ("Clear", "Mktg limits")]      # avoid license/register states
+    radar = sorted(radar, key=lambda r: r["hidden"], reverse=True)[:STARTER_COUNT]
 
     # State leaderboard: avg score, # counties, # in national top 100.
     top100 = set(id(r) for r in by_score[:100])
@@ -116,25 +148,50 @@ def build():
     starter_html = ""
     for i, r in enumerate(starters, 1):
         reasons = []
-        if r["supply"] is not None and r["supply"] <= 3: reasons.append("tight inventory")
-        if r["dom"] is not None and r["dom"] <= 30: reasons.append("sells fast")
-        if r["price"] and r["price"] <= 275000: reasons.append("cheap entry")
-        if r["popg"] is not None and r["popg"] >= 0.03: reasons.append("growing")
-        why = ", ".join(reasons) or "balanced liquidity & price"
+        if r["popg"] is not None and r["popg"] >= 0.10: reasons.append("booming growth")
+        elif r["popg"] is not None and r["popg"] >= 0.05: reasons.append("strong growth")
+        if r["permitsK"] is not None and r["permitsK"] >= 8: reasons.append("very active builders")
+        elif r["permitsK"] is not None and r["permitsK"] >= 4: reasons.append("active builders")
+        if r["price"] and r["price"] <= 300000: reasons.append("cheap entry")
+        why = ", ".join(reasons) or "path-of-growth profile"
+        pg = f"+{r['popg']*100:.0f}%" if r["popg"] is not None else "—"
+        pk = num(r["permitsK"]) if r["permitsK"] is not None else "—"
         starter_html += f"""
         <div class="card">
           <div class="rank">#{i}</div>
           <div class="body">
-            <div class="title">{r['county']}, {r['state']} <span class="muted">· {r['metro']}</span></div>
+            <div class="title">{r['county']}, {r['state']} {legal_badge(r)} <span class="muted">· {r['metro']}</span></div>
             <div class="metrics">
-              <span><b class="{scls(r['score'])}">{num(r['score'])}</b> score</span>
-              <span><b class="{scls(r['mli'])}">{num(r['mli'])}</b> MLI</span>
+              <span><b class="{scls(r['score'])}">{num(r['score'])}</b> Land-Flip</span>
+              <span><b>{pg}</b> growth</span>
+              <span><b>{pk}</b> permits/1k</span>
               <span><b>{money(r['price'])}</b> median</span>
-              <span><b>{num(r['supply'])}</b> mo supply</span>
-              <span><b>{num(r['dom'],0)}</b> DOM</span>
-              <span><b>{int(r['homes']):,}</b> sold/mo</span>
+              <span><b class="{scls(r['mli'])}">{num(r['mli'])}</b> MLI</span>
             </div>
             <div class="why">Why: {why}</div>
+          </div>
+        </div>"""
+
+    # ---- under-the-radar cards ----
+    radar_html = ""
+    for i, r in enumerate(radar, 1):
+        pg = f"+{r['popg']*100:.0f}%" if r["popg"] is not None else "—"
+        pk = num(r["permitsK"]) if r["permitsK"] is not None else "—"
+        ring = f"near {r['metro']}" if r["metro"] else "rural grower"
+        radar_html += f"""
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#{i}</div>
+          <div class="body">
+            <div class="title">{r['county']}, {r['state']} {legal_badge(r)} <span class="muted">· {ring}</span></div>
+            <div class="metrics">
+              <span><b class="warn">{num(r['hidden'])}</b> Hidden</span>
+              <span><b>{num(r['comp'])}</b>/100 competition</span>
+              <span><b class="{scls(r['score'])}">{num(r['score'])}</b> Land-Flip</span>
+              <span><b>{pg}</b> growth</span>
+              <span><b>{pk}</b> permits/1k</span>
+              <span><b>{money(r['price'])}</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition ({num(r['comp'])}/100) — the crowd is on the big metros</div>
           </div>
         </div>"""
 
@@ -145,13 +202,15 @@ def build():
                        f"<td class='n'>{s['sum']/s['n']:.1f}</td><td class='n'>{s['n']}</td>"
                        f"<td>{b['county']} <span class='muted'>({num(b['score'])})</span></td></tr>")
 
-    cols = ("<th class='n'>#</th><th class='n'>{m}</th><th>County</th><th>ST</th><th>Metro</th>"
+    cols = ("<th class='n'>#</th><th class='n'>{m}</th><th>County</th><th>ST</th><th>Legal</th><th>Metro</th>"
             "<th class='n'>Median $</th><th class='n'>Mo sup</th><th class='n'>DOM</th>"
             "<th class='n'>Sale/list</th><th class='n'>Pop gr</th><th class='n'>Sold/mo</th>")
 
     html = HTML.replace("__PERIOD__", period).replace("__N__", f"{n:,}") \
         .replace("__NSTART__", str(len(starters))) \
+        .replace("__NRADAR__", str(len(radar))) \
         .replace("__STARTERS__", starter_html) \
+        .replace("__RADAR__", radar_html) \
         .replace("__SCORE_COLS__", cols.format(m="Score")) \
         .replace("__SCORE_ROWS__", rank_rows(by_score[:25], "score", "Score")) \
         .replace("__MLI_COLS__", cols.format(m="MLI")) \
@@ -190,7 +249,13 @@ th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);white-
 th{color:var(--muted);font-weight:600;background:#161d24}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .score{font-weight:700}.s-hi{color:var(--good)}.s-mid{color:var(--warn)}.s-lo{color:var(--muted)}
-.good{color:var(--good)}.bad{color:var(--bad)}.muted{color:var(--muted)}
+.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}.muted{color:var(--muted)}
+.lg{font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:10px;white-space:nowrap}
+.lg-license{background:rgba(248,81,73,.16);color:var(--bad)}
+.lg-register{background:rgba(210,153,34,.18);color:var(--warn)}
+.lg-disclose{background:rgba(210,153,34,.12);color:var(--warn)}
+.lg-marketing{background:rgba(139,155,171,.16);color:var(--muted)}
+.lg-clear{background:rgba(63,185,80,.14);color:var(--good)}
 .callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
 border-radius:8px;padding:11px 15px;margin:14px 0;font-size:13.5px}
 .foot{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
@@ -202,25 +267,37 @@ a{color:var(--accent)}
 <div class="wrap">
 
 <div class="callout">
-<b>Score</b> = Opportunity score (liquidity-first: MLI 60% + growth + affordability). <b>MLI</b> = Market
-Liquidity Index (how fast a market absorbs &amp; sells, validated at ρ≈−0.75). A <b>where-to-look</b> signal,
-not a buy signal — run individual parcels through the Deal Analyzer.
-<a href="../../methodology.html">Full methodology →</a>
-</div>
+<b>Land-Flip Score</b> (headline) = where the land-flip spread lives: <b>Population growth 40% + Builder/construction
+activity 35% + Cheap entry 25%</b>. Land flipping profits on the <i>path of growth</i> (cheap land + active builders +
+in-migration), not on existing homes reselling fast. <b>MLI</b> = residential resale liquidity, kept as a secondary
+"is the market frozen or transacting?" check — a high-MLI / low-growth metro is a poor land flip. A <b>where-to-look</b>
+signal, not a buy signal. <a href="../../methodology.html">Full methodology →</a>
+<br><br><b>Legal</b> badges show each state's wholesaling status (mid-2026 snapshot, <b>not legal advice</b>):
+<span class="lg lg-license">⛔ License</span> license effectively required ·
+<span class="lg lg-register">🟧 Register</span> register with the state ·
+<span class="lg lg-disclose">🟨 Disclosure</span> written seller disclosure ·
+<span class="lg lg-marketing">◐ Mktg limits</span> can't advertise the property (private assignment OK) ·
+<span class="lg lg-clear">✅ Clear</span>. Verify with a local attorney before operating.</div>
 
-<h2><span class="tag">Start here</span>Best starter markets &nbsp;<span class="muted" style="font-size:13px;font-weight:400">__NSTART__ shortlisted: liquid + affordable (≤$400k) + real deal flow (≥30 sales/mo)</span></h2>
-<p class="intro">Top opportunity scores filtered to markets a land flipper can actually work — cheap enough for margin, liquid enough to resell, with enough volume to comp and mail.</p>
+<h2><span class="tag">Start here</span>Best starter markets &nbsp;<span class="muted" style="font-size:13px;font-weight:400">__NSTART__ shortlisted: the land-flip profile — cheap (≤$400k) + growing (≥3%) + active</span></h2>
+<p class="intro">Top Land-Flip Scores filtered to the path-of-growth profile: cheap land + population growth + active builders — where the 3–5× spread actually lives. Check the legal badge before you commit to a state.</p>
 <div class="cards">__STARTERS__</div>
 
-<h2><span class="tag">Ranking</span>Top 25 by Opportunity Score</h2>
+<h2><span class="tag" style="color:#d29922">Escape the obvious</span>Under-the-radar picks &nbsp;<span class="muted" style="font-size:13px;font-weight:400">__NRADAR__ found: real demand + LOW competition + an exit</span></h2>
+<p class="intro">The whole list above is where <i>everyone</i> is mailing. These are counties with strong Land-Flip demand but <b>low competition</b>
+(competition ≤ 40/100, proxied by market size) — the "next ring out" from growing metros + overlooked rural growers, where you're not fighting hedge funds for the same parcels. Each still has active builders (an exit) and is legally workable.</p>
+<div class="cards">__RADAR__</div>
+
+<h2><span class="tag">Ranking</span>Top 25 by Land-Flip Score</h2>
+<p class="intro">The headline ranking — cheap + growing + builders. The land-flip markets (Sun Belt exurbs, Texas, Florida, Carolinas, Arizona).</p>
 <table><thead><tr>__SCORE_COLS__</tr></thead><tbody>__SCORE_ROWS__</tbody></table>
 
-<h2><span class="tag">Ranking</span>Top 25 by Market Liquidity (MLI)</h2>
-<p class="intro">The pure liquidity index — fastest-selling markets, before affordability/growth weighting. Some are pricey metros; cross-check the median price column.</p>
+<h2><span class="tag">Secondary</span>Top 25 by Market Liquidity (MLI) — resale speed</h2>
+<p class="intro">The <i>secondary</i> lens: how fast existing homes resell. NOT the land-flip signal — many of these are mature metros with little cheap land. Use it only to check a market isn't frozen. Note how different this list is from the one above.</p>
 <table><thead><tr>__MLI_COLS__</tr></thead><tbody>__MLI_ROWS__</tbody></table>
 
 <h2><span class="tag">Geography</span>State leaderboard</h2>
-<p class="intro">Ranked by how many of the national top-100 counties each state holds, then by average score.</p>
+<p class="intro">Ranked by how many of the national top-100 (by Land-Flip Score) counties each state holds, then by average score.</p>
 <table><thead><tr><th>State</th><th class="n">In top 100</th><th class="n">Avg score</th><th class="n">Counties</th><th>Best county</th></tr></thead>
 <tbody>__STATE_ROWS__</tbody></table>
 

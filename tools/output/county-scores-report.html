@@ -24,7 +24,13 @@ th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);white-
 th{color:var(--muted);font-weight:600;background:#161d24}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .score{font-weight:700}.s-hi{color:var(--good)}.s-mid{color:var(--warn)}.s-lo{color:var(--muted)}
-.good{color:var(--good)}.bad{color:var(--bad)}.muted{color:var(--muted)}
+.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}.muted{color:var(--muted)}
+.lg{font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:10px;white-space:nowrap}
+.lg-license{background:rgba(248,81,73,.16);color:var(--bad)}
+.lg-register{background:rgba(210,153,34,.18);color:var(--warn)}
+.lg-disclose{background:rgba(210,153,34,.12);color:var(--warn)}
+.lg-marketing{background:rgba(139,155,171,.16);color:var(--muted)}
+.lg-clear{background:rgba(63,185,80,.14);color:var(--good)}
 .callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
 border-radius:8px;padding:11px 15px;margin:14px 0;font-size:13.5px}
 .foot{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
@@ -36,252 +42,474 @@ a{color:var(--accent)}
 <div class="wrap">
 
 <div class="callout">
-<b>Score</b> = Opportunity score (liquidity-first: MLI 60% + growth + affordability). <b>MLI</b> = Market
-Liquidity Index (how fast a market absorbs &amp; sells, validated at ρ≈−0.75). A <b>where-to-look</b> signal,
-not a buy signal — run individual parcels through the Deal Analyzer.
-<a href="../../methodology.html">Full methodology →</a>
-</div>
+<b>Land-Flip Score</b> (headline) = where the land-flip spread lives: <b>Population growth 40% + Builder/construction
+activity 35% + Cheap entry 25%</b>. Land flipping profits on the <i>path of growth</i> (cheap land + active builders +
+in-migration), not on existing homes reselling fast. <b>MLI</b> = residential resale liquidity, kept as a secondary
+"is the market frozen or transacting?" check — a high-MLI / low-growth metro is a poor land flip. A <b>where-to-look</b>
+signal, not a buy signal. <a href="../../methodology.html">Full methodology →</a>
+<br><br><b>Legal</b> badges show each state's wholesaling status (mid-2026 snapshot, <b>not legal advice</b>):
+<span class="lg lg-license">⛔ License</span> license effectively required ·
+<span class="lg lg-register">🟧 Register</span> register with the state ·
+<span class="lg lg-disclose">🟨 Disclosure</span> written seller disclosure ·
+<span class="lg lg-marketing">◐ Mktg limits</span> can't advertise the property (private assignment OK) ·
+<span class="lg lg-clear">✅ Clear</span>. Verify with a local attorney before operating.</div>
 
-<h2><span class="tag">Start here</span>Best starter markets &nbsp;<span class="muted" style="font-size:13px;font-weight:400">15 shortlisted: liquid + affordable (≤$400k) + real deal flow (≥30 sales/mo)</span></h2>
-<p class="intro">Top opportunity scores filtered to markets a land flipper can actually work — cheap enough for margin, liquid enough to resell, with enough volume to comp and mail.</p>
+<h2><span class="tag">Start here</span>Best starter markets &nbsp;<span class="muted" style="font-size:13px;font-weight:400">15 shortlisted: the land-flip profile — cheap (≤$400k) + growing (≥3%) + active</span></h2>
+<p class="intro">Top Land-Flip Scores filtered to the path-of-growth profile: cheap land + population growth + active builders — where the 3–5× spread actually lives. Check the legal badge before you commit to a state.</p>
 <div class="cards">
         <div class="card">
           <div class="rank">#1</div>
           <div class="body">
-            <div class="title">Monroe County, NY <span class="muted">· Rochester</span></div>
+            <div class="title">Horry County, SC <span class="lg lg-marketing" title="HB 4754: no advertising property you don't own">◐ Mktg limits</span> <span class="muted">· Myrtle Beach</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.9</b> score</span>
-              <span><b class="s-hi">100.0</b> MLI</span>
-              <span><b>$300,000</b> median</span>
-              <span><b>1.1</b> mo supply</span>
-              <span><b>8</b> DOM</span>
-              <span><b>487</b> sold/mo</span>
+              <span><b class="s-hi">100.0</b> Land-Flip</span>
+              <span><b>+17%</b> growth</span>
+              <span><b>15.8</b> permits/1k</span>
+              <span><b>$325,000</b> median</span>
+              <span><b class="s-lo">7.3</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#2</div>
           <div class="body">
-            <div class="title">Wayne County, NY <span class="muted">· Rochester</span></div>
+            <div class="title">Bastrop County, TX <span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span> <span class="muted">· Austin</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.7</b> score</span>
-              <span><b class="s-hi">99.7</b> MLI</span>
-              <span><b>$254,900</b> median</span>
-              <span><b>2.4</b> mo supply</span>
-              <span><b>9</b> DOM</span>
-              <span><b>41</b> sold/mo</span>
+              <span><b class="s-hi">99.9</b> Land-Flip</span>
+              <span><b>+17%</b> growth</span>
+              <span><b>19.7</b> permits/1k</span>
+              <span><b>$341,000</b> median</span>
+              <span><b class="s-lo">6.0</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, cheap entry</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#3</div>
           <div class="body">
-            <div class="title">King William County, VA <span class="muted">· Richmond</span></div>
+            <div class="title">Sumter County, FL <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· The Villages</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.6</b> score</span>
-              <span><b class="s-hi">92.9</b> MLI</span>
-              <span><b>$337,500</b> median</span>
-              <span><b>2.1</b> mo supply</span>
-              <span><b>21</b> DOM</span>
-              <span><b>37</b> sold/mo</span>
+              <span><b class="s-hi">99.9</b> Land-Flip</span>
+              <span><b>+19%</b> growth</span>
+              <span><b>22.7</b> permits/1k</span>
+              <span><b>$345,000</b> median</span>
+              <span><b class="s-mid">47.9</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, growing</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#4</div>
           <div class="body">
-            <div class="title">Tippecanoe County, IN <span class="muted">· Lafayette</span></div>
+            <div class="title">Flagler County, FL <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· Deltona</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.5</b> score</span>
-              <span><b class="s-hi">92.5</b> MLI</span>
-              <span><b>$305,000</b> median</span>
-              <span><b>1.7</b> mo supply</span>
-              <span><b>18</b> DOM</span>
-              <span><b>197</b> sold/mo</span>
+              <span><b class="s-hi">99.8</b> Land-Flip</span>
+              <span><b>+18%</b> growth</span>
+              <span><b>18.9</b> permits/1k</span>
+              <span><b>$365,000</b> median</span>
+              <span><b class="s-lo">24.9</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#5</div>
           <div class="body">
-            <div class="title">Cumberland County, PA <span class="muted">· Harrisburg</span></div>
+            <div class="title">Montgomery County, TX <span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span> <span class="muted">· Houston</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.4</b> score</span>
-              <span><b class="s-hi">98.0</b> MLI</span>
-              <span><b>$320,500</b> median</span>
-              <span><b>1.5</b> mo supply</span>
-              <span><b>8</b> DOM</span>
-              <span><b>258</b> sold/mo</span>
+              <span><b class="s-hi">99.8</b> Land-Flip</span>
+              <span><b>+20%</b> growth</span>
+              <span><b>18.2</b> permits/1k</span>
+              <span><b>$346,740</b> median</span>
+              <span><b class="s-lo">38.2</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, growing</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#6</div>
           <div class="body">
-            <div class="title">Livingston County, NY <span class="muted">· Rochester</span></div>
+            <div class="title">Hays County, TX <span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span> <span class="muted">· Austin</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.4</b> score</span>
-              <span><b class="s-hi">99.6</b> MLI</span>
-              <span><b>$225,000</b> median</span>
-              <span><b>2.1</b> mo supply</span>
-              <span><b>14</b> DOM</span>
-              <span><b>30</b> sold/mo</span>
+              <span><b class="s-hi">99.7</b> Land-Flip</span>
+              <span><b>+20%</b> growth</span>
+              <span><b>15.7</b> permits/1k</span>
+              <span><b>$371,540</b> median</span>
+              <span><b class="s-lo">24.5</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, cheap entry</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#7</div>
           <div class="body">
-            <div class="title">Kent County, MI <span class="muted">· Grand Rapids</span></div>
+            <div class="title">Pinal County, AZ <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· Phoenix</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.3</b> score</span>
-              <span><b class="s-hi">99.5</b> MLI</span>
-              <span><b>$365,000</b> median</span>
-              <span><b>1.2</b> mo supply</span>
-              <span><b>6</b> DOM</span>
-              <span><b>718</b> sold/mo</span>
+              <span><b class="s-hi">99.7</b> Land-Flip</span>
+              <span><b>+19%</b> growth</span>
+              <span><b>15.7</b> permits/1k</span>
+              <span><b>$385,000</b> median</span>
+              <span><b class="s-lo">36.2</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#8</div>
           <div class="body">
-            <div class="title">Sarpy County, NE <span class="muted">· Omaha</span></div>
+            <div class="title">Brunswick County, NC <span class="lg lg-license" title="HB 707 (Oct 2025): wholesaling defined as brokerage">⛔ License</span> <span class="muted">· Myrtle Beach</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.3</b> score</span>
-              <span><b class="s-hi">96.1</b> MLI</span>
-              <span><b>$385,990</b> median</span>
-              <span><b>1.3</b> mo supply</span>
-              <span><b>27</b> DOM</span>
-              <span><b>321</b> sold/mo</span>
+              <span><b class="s-hi">99.6</b> Land-Flip</span>
+              <span><b>+21%</b> growth</span>
+              <span><b>26.7</b> permits/1k</span>
+              <span><b>$396,900</b> median</span>
+              <span><b class="s-lo">17.3</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, growing</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#9</div>
           <div class="body">
-            <div class="title">Hendricks County, IN <span class="muted">· Indianapolis</span></div>
+            <div class="title">Osceola County, FL <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· Orlando</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.2</b> score</span>
-              <span><b class="s-hi">91.7</b> MLI</span>
-              <span><b>$350,000</b> median</span>
-              <span><b>1.3</b> mo supply</span>
-              <span><b>24</b> DOM</span>
-              <span><b>302</b> sold/mo</span>
+              <span><b class="s-hi">99.6</b> Land-Flip</span>
+              <span><b>+20%</b> growth</span>
+              <span><b>15.7</b> permits/1k</span>
+              <span><b>$385,510</b> median</span>
+              <span><b class="s-lo">22.7</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, growing</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#10</div>
           <div class="body">
-            <div class="title">Staunton, VA <span class="muted">· Staunton</span></div>
+            <div class="title">Long County, GA <span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span> <span class="muted">· Hinesville</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.2</b> score</span>
-              <span><b class="s-hi">98.4</b> MLI</span>
-              <span><b>$334,000</b> median</span>
-              <span><b>1.6</b> mo supply</span>
-              <span><b>8</b> DOM</span>
-              <span><b>40</b> sold/mo</span>
+              <span><b class="s-hi">99.4</b> Land-Flip</span>
+              <span><b>+26%</b> growth</span>
+              <span><b>13.4</b> permits/1k</span>
+              <span><b>$293,500</b> median</span>
+              <span><b class="s-lo">12.5</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast</div>
+            <div class="why">Why: booming growth, very active builders, cheap entry</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#11</div>
           <div class="body">
-            <div class="title">Berks County, PA <span class="muted">· Reading</span></div>
+            <div class="title">Barrow County, GA <span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span> <span class="muted">· Atlanta</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.1</b> score</span>
-              <span><b class="s-hi">99.3</b> MLI</span>
-              <span><b>$305,000</b> median</span>
-              <span><b>1.1</b> mo supply</span>
-              <span><b>7</b> DOM</span>
-              <span><b>393</b> sold/mo</span>
+              <span><b class="s-hi">99.3</b> Land-Flip</span>
+              <span><b>+15%</b> growth</span>
+              <span><b>16.4</b> permits/1k</span>
+              <span><b>$359,900</b> median</span>
+              <span><b class="s-mid">59.3</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#12</div>
           <div class="body">
-            <div class="title">Northampton County, PA <span class="muted">· Allentown</span></div>
+            <div class="title">Marion County, FL <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· Ocala</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.1</b> score</span>
-              <span><b class="s-hi">99.1</b> MLI</span>
-              <span><b>$386,500</b> median</span>
-              <span><b>1.2</b> mo supply</span>
-              <span><b>8</b> DOM</span>
-              <span><b>259</b> sold/mo</span>
+              <span><b class="s-hi">99.1</b> Land-Flip</span>
+              <span><b>+14%</b> growth</span>
+              <span><b>13.9</b> permits/1k</span>
+              <span><b>$279,990</b> median</span>
+              <span><b class="s-lo">34.4</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, growing</div>
+            <div class="why">Why: booming growth, very active builders, cheap entry</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#13</div>
           <div class="body">
-            <div class="title">York County, PA <span class="muted">· York</span></div>
+            <div class="title">Fort Bend County, TX <span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span> <span class="muted">· Houston</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.0</b> score</span>
-              <span><b class="s-hi">98.2</b> MLI</span>
-              <span><b>$299,409</b> median</span>
-              <span><b>1.3</b> mo supply</span>
-              <span><b>9</b> DOM</span>
-              <span><b>513</b> sold/mo</span>
+              <span><b class="s-hi">99.0</b> Land-Flip</span>
+              <span><b>+16%</b> growth</span>
+              <span><b>13.0</b> permits/1k</span>
+              <span><b>$399,872</b> median</span>
+              <span><b class="s-mid">40.8</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, growing</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#14</div>
           <div class="body">
-            <div class="title">Lancaster County, PA <span class="muted">· Lancaster</span></div>
+            <div class="title">Lee County, FL <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· Cape Coral</span></div>
             <div class="metrics">
-              <span><b class="s-hi">99.0</b> score</span>
-              <span><b class="s-hi">99.6</b> MLI</span>
-              <span><b>$365,000</b> median</span>
-              <span><b>1.3</b> mo supply</span>
-              <span><b>7</b> DOM</span>
-              <span><b>427</b> sold/mo</span>
+              <span><b class="s-hi">98.9</b> Land-Flip</span>
+              <span><b>+12%</b> growth</span>
+              <span><b>15.7</b> permits/1k</span>
+              <span><b>$360,000</b> median</span>
+              <span><b class="s-lo">21.1</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div>
         <div class="card">
           <div class="rank">#15</div>
           <div class="body">
-            <div class="title">Sangamon County, IL <span class="muted">· Springfield</span></div>
+            <div class="title">Pasco County, FL <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· Tampa</span></div>
             <div class="metrics">
-              <span><b class="s-hi">98.8</b> score</span>
-              <span><b class="s-hi">99.4</b> MLI</span>
-              <span><b>$210,000</b> median</span>
-              <span><b>0.9</b> mo supply</span>
-              <span><b>7</b> DOM</span>
-              <span><b>245</b> sold/mo</span>
+              <span><b class="s-hi">98.9</b> Land-Flip</span>
+              <span><b>+16%</b> growth</span>
+              <span><b>11.9</b> permits/1k</span>
+              <span><b>$365,000</b> median</span>
+              <span><b class="s-mid">48.9</b> MLI</span>
             </div>
-            <div class="why">Why: tight inventory, sells fast, cheap entry</div>
+            <div class="why">Why: booming growth, very active builders</div>
           </div>
         </div></div>
 
-<h2><span class="tag">Ranking</span>Top 25 by Opportunity Score</h2>
-<table><thead><tr><th class='n'>#</th><th class='n'>Score</th><th>County</th><th>ST</th><th>Metro</th><th class='n'>Median $</th><th class='n'>Mo sup</th><th class='n'>DOM</th><th class='n'>Sale/list</th><th class='n'>Pop gr</th><th class='n'>Sold/mo</th></tr></thead><tbody><tr><td class='n'>1</td><td class='n score s-hi'>100.0</td><td>Boone County</td><td>IN</td><td class='muted'>Indianapolis</td><td class='n'>$410,300</td><td class='n'>1.2</td><td class='n'>19</td><td class='n'>0.988</td><td class='n'><span class="good">+11%</span></td><td class='n'>148</td></tr><tr><td class='n'>2</td><td class='n score s-hi'>99.9</td><td>Monroe County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$300,000</td><td class='n'>1.1</td><td class='n'>8</td><td class='n'>1.193</td><td class='n'><span class="bad">-1%</span></td><td class='n'>487</td></tr><tr><td class='n'>3</td><td class='n score s-hi'>99.9</td><td>Genesee County</td><td>NY</td><td class='muted'>Batavia</td><td class='n'>$225,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.066</td><td class='n'><span class="bad">-1%</span></td><td class='n'>26</td></tr><tr><td class='n'>4</td><td class='n score s-hi'>99.8</td><td>Hamilton County</td><td>IN</td><td class='muted'>Indianapolis</td><td class='n'>$474,900</td><td class='n'>1.2</td><td class='n'>14</td><td class='n'>0.995</td><td class='n'><span class="good">+9%</span></td><td class='n'>700</td></tr><tr><td class='n'>5</td><td class='n score s-hi'>99.8</td><td>Goochland County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$697,000</td><td class='n'>1.5</td><td class='n'>17</td><td class='n'>1.010</td><td class='n'><span class="good">+13%</span></td><td class='n'>50</td></tr><tr><td class='n'>6</td><td class='n score s-hi'>99.7</td><td>Wayne County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$254,900</td><td class='n'>2.4</td><td class='n'>9</td><td class='n'>1.113</td><td class='n'><span class="bad">-0%</span></td><td class='n'>41</td></tr><tr><td class='n'>7</td><td class='n score s-hi'>99.7</td><td>Canyon County</td><td>ID</td><td class='muted'>Boise City</td><td class='n'>$443,000</td><td class='n'>1.9</td><td class='n'>36</td><td class='n'>0.993</td><td class='n'><span class="good">+15%</span></td><td class='n'>495</td></tr><tr><td class='n'>8</td><td class='n score s-hi'>99.6</td><td>King William County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$337,500</td><td class='n'>2.1</td><td class='n'>21</td><td class='n'>1.010</td><td class='n'><span class="good">+7%</span></td><td class='n'>37</td></tr><tr><td class='n'>9</td><td class='n score s-hi'>99.6</td><td>Hartford County</td><td>CT</td><td class='muted'>Hartford</td><td class='n'>$400,500</td><td class='n'>1.7</td><td class='n'>17</td><td class='n'>1.062</td><td class='n'>—</td><td class='n'>670</td></tr><tr><td class='n'>10</td><td class='n score s-hi'>99.5</td><td>Tippecanoe County</td><td>IN</td><td class='muted'>Lafayette</td><td class='n'>$305,000</td><td class='n'>1.7</td><td class='n'>18</td><td class='n'>0.991</td><td class='n'><span class="good">+3%</span></td><td class='n'>197</td></tr><tr><td class='n'>11</td><td class='n score s-hi'>99.5</td><td>Chesterfield County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$430,000</td><td class='n'>1.2</td><td class='n'>15</td><td class='n'>1.012</td><td class='n'><span class="good">+7%</span></td><td class='n'>571</td></tr><tr><td class='n'>12</td><td class='n score s-hi'>99.4</td><td>Cumberland County</td><td>PA</td><td class='muted'>Harrisburg</td><td class='n'>$320,500</td><td class='n'>1.5</td><td class='n'>8</td><td class='n'>1.006</td><td class='n'><span class="good">+6%</span></td><td class='n'>258</td></tr><tr><td class='n'>13</td><td class='n score s-hi'>99.4</td><td>Livingston County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$225,000</td><td class='n'>2.1</td><td class='n'>14</td><td class='n'>1.072</td><td class='n'><span class="bad">-0%</span></td><td class='n'>30</td></tr><tr><td class='n'>14</td><td class='n score s-hi'>99.3</td><td>Kent County</td><td>MI</td><td class='muted'>Grand Rapids</td><td class='n'>$365,000</td><td class='n'>1.2</td><td class='n'>6</td><td class='n'>1.019</td><td class='n'><span class="good">+2%</span></td><td class='n'>718</td></tr><tr><td class='n'>15</td><td class='n score s-hi'>99.3</td><td>Sarpy County</td><td>NE</td><td class='muted'>Omaha</td><td class='n'>$385,990</td><td class='n'>1.3</td><td class='n'>27</td><td class='n'>1.016</td><td class='n'><span class="good">+7%</span></td><td class='n'>321</td></tr><tr><td class='n'>16</td><td class='n score s-hi'>99.2</td><td>Hendricks County</td><td>IN</td><td class='muted'>Indianapolis</td><td class='n'>$350,000</td><td class='n'>1.3</td><td class='n'>24</td><td class='n'>0.990</td><td class='n'><span class="good">+9%</span></td><td class='n'>302</td></tr><tr><td class='n'>17</td><td class='n score s-hi'>99.2</td><td>Staunton</td><td>VA</td><td class='muted'>Staunton</td><td class='n'>$334,000</td><td class='n'>1.6</td><td class='n'>8</td><td class='n'>1.015</td><td class='n'><span class="good">+2%</span></td><td class='n'>40</td></tr><tr><td class='n'>18</td><td class='n score s-hi'>99.1</td><td>Berks County</td><td>PA</td><td class='muted'>Reading</td><td class='n'>$305,000</td><td class='n'>1.1</td><td class='n'>7</td><td class='n'>1.013</td><td class='n'><span class="good">+2%</span></td><td class='n'>393</td></tr><tr><td class='n'>19</td><td class='n score s-hi'>99.1</td><td>Northampton County</td><td>PA</td><td class='muted'>Allentown</td><td class='n'>$386,500</td><td class='n'>1.2</td><td class='n'>8</td><td class='n'>1.016</td><td class='n'><span class="good">+3%</span></td><td class='n'>259</td></tr><tr><td class='n'>20</td><td class='n score s-hi'>99.0</td><td>York County</td><td>PA</td><td class='muted'>York</td><td class='n'>$299,409</td><td class='n'>1.3</td><td class='n'>9</td><td class='n'>1.005</td><td class='n'><span class="good">+3%</span></td><td class='n'>513</td></tr><tr><td class='n'>21</td><td class='n score s-hi'>99.0</td><td>Lancaster County</td><td>PA</td><td class='muted'>Lancaster</td><td class='n'>$365,000</td><td class='n'>1.3</td><td class='n'>7</td><td class='n'>1.024</td><td class='n'><span class="good">+2%</span></td><td class='n'>427</td></tr><tr><td class='n'>22</td><td class='n score s-hi'>98.9</td><td>Richmond City County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$426,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.028</td><td class='n'>—</td><td class='n'>304</td></tr><tr><td class='n'>23</td><td class='n score s-hi'>98.9</td><td>Lyon County</td><td>MN</td><td class='muted'>Marshall</td><td class='n'>$185,000</td><td class='n'>1.7</td><td class='n'>13</td><td class='n'>1.033</td><td class='n'><span class="good">+1%</span></td><td class='n'>23</td></tr><tr><td class='n'>24</td><td class='n score s-hi'>98.8</td><td>Grundy County</td><td>MO</td><td class='muted'>Missouri nonmetropolitan area</td><td class='n'>$165,000</td><td class='n'>1.4</td><td class='n'>3</td><td class='n'>1.008</td><td class='n'><span class="good">+0%</span></td><td class='n'>11</td></tr><tr><td class='n'>25</td><td class='n score s-hi'>98.8</td><td>Sangamon County</td><td>IL</td><td class='muted'>Springfield</td><td class='n'>$210,000</td><td class='n'>0.9</td><td class='n'>7</td><td class='n'>1.010</td><td class='n'><span class="bad">-1%</span></td><td class='n'>245</td></tr></tbody></table>
+<h2><span class="tag" style="color:#d29922">Escape the obvious</span>Under-the-radar picks &nbsp;<span class="muted" style="font-size:13px;font-weight:400">15 found: real demand + LOW competition + an exit</span></h2>
+<p class="intro">The whole list above is where <i>everyone</i> is mailing. These are counties with strong Land-Flip demand but <b>low competition</b>
+(competition ≤ 40/100, proxied by market size) — the "next ring out" from growing metros + overlooked rural growers, where you're not fighting hedge funds for the same parcels. Each still has active builders (an exit) and is legally workable.</p>
+<div class="cards">
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#1</div>
+          <div class="body">
+            <div class="title">Custer County, CO <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· near Colorado nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">98.5</b> Hidden</span>
+              <span><b>0.7</b>/100 competition</span>
+              <span><b class="s-hi">99.2</b> Land-Flip</span>
+              <span><b>+18%</b> growth</span>
+              <span><b>14.1</b> permits/1k</span>
+              <span><b>$357,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (0.7/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#2</div>
+          <div class="body">
+            <div class="title">McCormick County, SC <span class="lg lg-marketing" title="HB 4754: no advertising property you don't own">◐ Mktg limits</span> <span class="muted">· near South Carolina nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">89.0</b> Hidden</span>
+              <span><b>3.5</b>/100 competition</span>
+              <span><b class="s-hi">92.5</b> Land-Flip</span>
+              <span><b>+5%</b> growth</span>
+              <span><b>11.9</b> permits/1k</span>
+              <span><b>$359,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (3.5/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#3</div>
+          <div class="body">
+            <div class="title">Cook County, GA <span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span> <span class="muted">· near Georgia nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">88.3</b> Hidden</span>
+              <span><b>7.8</b>/100 competition</span>
+              <span><b class="s-hi">96.1</b> Land-Flip</span>
+              <span><b>+4%</b> growth</span>
+              <span><b>15.5</b> permits/1k</span>
+              <span><b>$235,500</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (7.8/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#4</div>
+          <div class="body">
+            <div class="title">Benewah County, ID <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· near Idaho nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">87.2</b> Hidden</span>
+              <span><b>3.9</b>/100 competition</span>
+              <span><b class="s-hi">91.1</b> Land-Flip</span>
+              <span><b>+10%</b> growth</span>
+              <span><b>5.4</b> permits/1k</span>
+              <span><b>$330,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (3.9/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#5</div>
+          <div class="body">
+            <div class="title">McIntosh County, GA <span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span> <span class="muted">· near Brunswick</span></div>
+            <div class="metrics">
+              <span><b class="warn">85.8</b> Hidden</span>
+              <span><b>6.3</b>/100 competition</span>
+              <span><b class="s-hi">92.1</b> Land-Flip</span>
+              <span><b>+7%</b> growth</span>
+              <span><b>9.0</b> permits/1k</span>
+              <span><b>$355,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (6.3/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#6</div>
+          <div class="body">
+            <div class="title">Meigs County, TN <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· near Tennessee nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">84.5</b> Hidden</span>
+              <span><b>6.4</b>/100 competition</span>
+              <span><b class="s-hi">90.9</b> Land-Flip</span>
+              <span><b>+9%</b> growth</span>
+              <span><b>6.5</b> permits/1k</span>
+              <span><b>$339,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (6.4/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#7</div>
+          <div class="body">
+            <div class="title">Heard County, GA <span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span> <span class="muted">· near Atlanta</span></div>
+            <div class="metrics">
+              <span><b class="warn">80.4</b> Hidden</span>
+              <span><b>3.0</b>/100 competition</span>
+              <span><b class="s-hi">83.4</b> Land-Flip</span>
+              <span><b>+6%</b> growth</span>
+              <span><b>4.5</b> permits/1k</span>
+              <span><b>$258,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (3.0/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#8</div>
+          <div class="body">
+            <div class="title">Cumberland County, VA <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· near Virginia nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">79.5</b> Hidden</span>
+              <span><b>2.9</b>/100 competition</span>
+              <span><b class="s-hi">82.4</b> Land-Flip</span>
+              <span><b>+4%</b> growth</span>
+              <span><b>7.0</b> permits/1k</span>
+              <span><b>$327,250</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (2.9/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#9</div>
+          <div class="body">
+            <div class="title">Gilchrist County, FL <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· near Gainesville</span></div>
+            <div class="metrics">
+              <span><b class="warn">79.2</b> Hidden</span>
+              <span><b>14.6</b>/100 competition</span>
+              <span><b class="s-hi">93.8</b> Land-Flip</span>
+              <span><b>+13%</b> growth</span>
+              <span><b>4.7</b> permits/1k</span>
+              <span><b>$345,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (14.6/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#10</div>
+          <div class="body">
+            <div class="title">Henry County, AL <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· near Dothan</span></div>
+            <div class="metrics">
+              <span><b class="warn">77.3</b> Hidden</span>
+              <span><b>8.1</b>/100 competition</span>
+              <span><b class="s-hi">85.4</b> Land-Flip</span>
+              <span><b>+6%</b> growth</span>
+              <span><b>5.5</b> permits/1k</span>
+              <span><b>$267,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (8.1/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#11</div>
+          <div class="body">
+            <div class="title">Lanier County, GA <span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span> <span class="muted">· near Valdosta</span></div>
+            <div class="metrics">
+              <span><b class="warn">77.3</b> Hidden</span>
+              <span><b>2.2</b>/100 competition</span>
+              <span><b class="s-hi">79.5</b> Land-Flip</span>
+              <span><b>+5%</b> growth</span>
+              <span><b>3.7</b> permits/1k</span>
+              <span><b>$267,500</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (2.2/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#12</div>
+          <div class="body">
+            <div class="title">Alcona County, MI <span class="lg lg-marketing" title="Market the contract interest, not the property">◐ Mktg limits</span> <span class="muted">· near Michigan nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">75.7</b> Hidden</span>
+              <span><b>3.3</b>/100 competition</span>
+              <span><b class="s-hi">79.0</b> Land-Flip</span>
+              <span><b>+4%</b> growth</span>
+              <span><b>4.5</b> permits/1k</span>
+              <span><b>$257,500</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (3.3/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#13</div>
+          <div class="body">
+            <div class="title">Jasper County, GA <span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span> <span class="muted">· near Atlanta</span></div>
+            <div class="metrics">
+              <span><b class="warn">74.8</b> Hidden</span>
+              <span><b>22.5</b>/100 competition</span>
+              <span><b class="s-hi">97.3</b> Land-Flip</span>
+              <span><b>+17%</b> growth</span>
+              <span><b>7.2</b> permits/1k</span>
+              <span><b>$299,950</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (22.5/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#14</div>
+          <div class="body">
+            <div class="title">Marion County, AR <span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span> <span class="muted">· near Arkansas nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">74.5</b> Hidden</span>
+              <span><b>18.7</b>/100 competition</span>
+              <span><b class="s-hi">93.2</b> Land-Flip</span>
+              <span><b>+4%</b> growth</span>
+              <span><b>10.8</b> permits/1k</span>
+              <span><b>$200,000</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (18.7/100) — the crowd is on the big metros</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="rank" style="color:var(--warn)">#15</div>
+          <div class="body">
+            <div class="title">Banks County, GA <span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span> <span class="muted">· near Georgia nonmetropolitan area</span></div>
+            <div class="metrics">
+              <span><b class="warn">73.6</b> Hidden</span>
+              <span><b>19.1</b>/100 competition</span>
+              <span><b class="s-hi">92.7</b> Land-Flip</span>
+              <span><b>+12%</b> growth</span>
+              <span><b>5.4</b> permits/1k</span>
+              <span><b>$384,900</b> median</span>
+            </div>
+            <div class="why">Why: real demand, low competition (19.1/100) — the crowd is on the big metros</div>
+          </div>
+        </div></div>
 
-<h2><span class="tag">Ranking</span>Top 25 by Market Liquidity (MLI)</h2>
-<p class="intro">The pure liquidity index — fastest-selling markets, before affordability/growth weighting. Some are pricey metros; cross-check the median price column.</p>
-<table><thead><tr><th class='n'>#</th><th class='n'>MLI</th><th>County</th><th>ST</th><th>Metro</th><th class='n'>Median $</th><th class='n'>Mo sup</th><th class='n'>DOM</th><th class='n'>Sale/list</th><th class='n'>Pop gr</th><th class='n'>Sold/mo</th></tr></thead><tbody><tr><td class='n'>1</td><td class='n score s-hi'>100.0</td><td>Monroe County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$300,000</td><td class='n'>1.1</td><td class='n'>8</td><td class='n'>1.193</td><td class='n'><span class="bad">-1%</span></td><td class='n'>487</td></tr><tr><td class='n'>2</td><td class='n score s-hi'>99.9</td><td>Genesee County</td><td>NY</td><td class='muted'>Batavia</td><td class='n'>$225,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.066</td><td class='n'><span class="bad">-1%</span></td><td class='n'>26</td></tr><tr><td class='n'>3</td><td class='n score s-hi'>99.9</td><td>San Francisco County</td><td>CA</td><td class='muted'>San Francisco</td><td class='n'>$1,770,000</td><td class='n'>1.6</td><td class='n'>16</td><td class='n'>1.156</td><td class='n'><span class="bad">-5%</span></td><td class='n'>561</td></tr><tr><td class='n'>4</td><td class='n score s-hi'>99.8</td><td>Falls Church</td><td>VA</td><td class='muted'>Washington</td><td class='n'>$1,200,000</td><td class='n'>1.3</td><td class='n'>5</td><td class='n'>1.032</td><td class='n'><span class="good">+2%</span></td><td class='n'>19</td></tr><tr><td class='n'>5</td><td class='n score s-hi'>99.8</td><td>San Mateo County</td><td>CA</td><td class='muted'>San Francisco</td><td class='n'>$1,800,000</td><td class='n'>1.6</td><td class='n'>14</td><td class='n'>1.056</td><td class='n'><span class="bad">-3%</span></td><td class='n'>483</td></tr><tr><td class='n'>6</td><td class='n score s-hi'>99.7</td><td>Wayne County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$254,900</td><td class='n'>2.4</td><td class='n'>9</td><td class='n'>1.113</td><td class='n'><span class="bad">-0%</span></td><td class='n'>41</td></tr><tr><td class='n'>7</td><td class='n score s-hi'>99.7</td><td>Hartford County</td><td>CT</td><td class='muted'>Hartford</td><td class='n'>$400,500</td><td class='n'>1.7</td><td class='n'>17</td><td class='n'>1.062</td><td class='n'>—</td><td class='n'>670</td></tr><tr><td class='n'>8</td><td class='n score s-hi'>99.6</td><td>Livingston County</td><td>NY</td><td class='muted'>Rochester</td><td class='n'>$225,000</td><td class='n'>2.1</td><td class='n'>14</td><td class='n'>1.072</td><td class='n'><span class="bad">-0%</span></td><td class='n'>30</td></tr><tr><td class='n'>9</td><td class='n score s-hi'>99.6</td><td>Lancaster County</td><td>PA</td><td class='muted'>Lancaster</td><td class='n'>$365,000</td><td class='n'>1.3</td><td class='n'>7</td><td class='n'>1.024</td><td class='n'><span class="good">+2%</span></td><td class='n'>427</td></tr><tr><td class='n'>10</td><td class='n score s-hi'>99.5</td><td>Kent County</td><td>MI</td><td class='muted'>Grand Rapids</td><td class='n'>$365,000</td><td class='n'>1.2</td><td class='n'>6</td><td class='n'>1.019</td><td class='n'><span class="good">+2%</span></td><td class='n'>718</td></tr><tr><td class='n'>11</td><td class='n score s-hi'>99.5</td><td>Morris County</td><td>NJ</td><td class='muted'>Newark</td><td class='n'>$750,000</td><td class='n'>2.0</td><td class='n'>16</td><td class='n'>1.058</td><td class='n'><span class="good">+3%</span></td><td class='n'>408</td></tr><tr><td class='n'>12</td><td class='n score s-hi'>99.4</td><td>Richmond City County</td><td>VA</td><td class='muted'>Richmond</td><td class='n'>$426,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.028</td><td class='n'>—</td><td class='n'>304</td></tr><tr><td class='n'>13</td><td class='n score s-hi'>99.4</td><td>Sangamon County</td><td>IL</td><td class='muted'>Springfield</td><td class='n'>$210,000</td><td class='n'>0.9</td><td class='n'>7</td><td class='n'>1.010</td><td class='n'><span class="bad">-1%</span></td><td class='n'>245</td></tr><tr><td class='n'>14</td><td class='n score s-hi'>99.3</td><td>Berks County</td><td>PA</td><td class='muted'>Reading</td><td class='n'>$305,000</td><td class='n'>1.1</td><td class='n'>7</td><td class='n'>1.013</td><td class='n'><span class="good">+2%</span></td><td class='n'>393</td></tr><tr><td class='n'>15</td><td class='n score s-hi'>99.3</td><td>Tazewell County</td><td>IL</td><td class='muted'>Peoria</td><td class='n'>$186,750</td><td class='n'>1.0</td><td class='n'>8</td><td class='n'>1.012</td><td class='n'><span class="bad">-1%</span></td><td class='n'>164</td></tr><tr><td class='n'>16</td><td class='n score s-hi'>99.2</td><td>La Crosse County</td><td>WI</td><td class='muted'>La Crosse</td><td class='n'>$315,000</td><td class='n'>1.3</td><td class='n'>9</td><td class='n'>1.021</td><td class='n'><span class="good">+0%</span></td><td class='n'>127</td></tr><tr><td class='n'>17</td><td class='n score s-hi'>99.2</td><td>Alameda County</td><td>CA</td><td class='muted'>Oakland</td><td class='n'>$1,225,000</td><td class='n'>2.3</td><td class='n'>17</td><td class='n'>1.084</td><td class='n'><span class="bad">-2%</span></td><td class='n'>955</td></tr><tr><td class='n'>18</td><td class='n score s-hi'>99.1</td><td>Northampton County</td><td>PA</td><td class='muted'>Allentown</td><td class='n'>$386,500</td><td class='n'>1.2</td><td class='n'>8</td><td class='n'>1.016</td><td class='n'><span class="good">+3%</span></td><td class='n'>259</td></tr><tr><td class='n'>19</td><td class='n score s-hi'>99.1</td><td>Schenectady County</td><td>NY</td><td class='muted'>Albany</td><td class='n'>$300,000</td><td class='n'>1.9</td><td class='n'>7</td><td class='n'>1.033</td><td class='n'><span class="good">+2%</span></td><td class='n'>117</td></tr><tr><td class='n'>20</td><td class='n score s-hi'>99.0</td><td>Erie County</td><td>NY</td><td class='muted'>Buffalo</td><td class='n'>$282,813</td><td class='n'>2.5</td><td class='n'>11</td><td class='n'>1.053</td><td class='n'><span class="bad">-0%</span></td><td class='n'>506</td></tr><tr><td class='n'>21</td><td class='n score s-hi'>99.0</td><td>Los Alamos County</td><td>NM</td><td class='muted'>Los Alamos</td><td class='n'>$547,500</td><td class='n'>1.0</td><td class='n'>8</td><td class='n'>1.009</td><td class='n'><span class="good">+1%</span></td><td class='n'>34</td></tr><tr><td class='n'>22</td><td class='n score s-hi'>98.9</td><td>Grundy County</td><td>MO</td><td class='muted'>Missouri nonmetropolitan area</td><td class='n'>$165,000</td><td class='n'>1.4</td><td class='n'>3</td><td class='n'>1.008</td><td class='n'><span class="good">+0%</span></td><td class='n'>11</td></tr><tr><td class='n'>23</td><td class='n score s-hi'>98.9</td><td>Tolland County</td><td>CT</td><td class='muted'>Hartford</td><td class='n'>$422,000</td><td class='n'>2.0</td><td class='n'>19</td><td class='n'>1.054</td><td class='n'>—</td><td class='n'>113</td></tr><tr><td class='n'>24</td><td class='n score s-hi'>98.8</td><td>Lyon County</td><td>MN</td><td class='muted'>Marshall</td><td class='n'>$185,000</td><td class='n'>1.7</td><td class='n'>13</td><td class='n'>1.033</td><td class='n'><span class="good">+1%</span></td><td class='n'>23</td></tr><tr><td class='n'>25</td><td class='n score s-hi'>98.8</td><td>Lehigh County</td><td>PA</td><td class='muted'>Allentown</td><td class='n'>$365,000</td><td class='n'>1.2</td><td class='n'>9</td><td class='n'>1.013</td><td class='n'><span class="good">+3%</span></td><td class='n'>309</td></tr></tbody></table>
+<h2><span class="tag">Ranking</span>Top 25 by Land-Flip Score</h2>
+<p class="intro">The headline ranking — cheap + growing + builders. The land-flip markets (Sun Belt exurbs, Texas, Florida, Carolinas, Arizona).</p>
+<table><thead><tr><th class='n'>#</th><th class='n'>Score</th><th>County</th><th>ST</th><th>Legal</th><th>Metro</th><th class='n'>Median $</th><th class='n'>Mo sup</th><th class='n'>DOM</th><th class='n'>Sale/list</th><th class='n'>Pop gr</th><th class='n'>Sold/mo</th></tr></thead><tbody><tr><td class='n'>1</td><td class='n score s-hi'>100.0</td><td>Horry County</td><td>SC</td><td><span class="lg lg-marketing" title="HB 4754: no advertising property you don't own">◐ Mktg limits</span></td><td class='muted'>Myrtle Beach</td><td class='n'>$325,000</td><td class='n'>6.3</td><td class='n'>101</td><td class='n'>0.973</td><td class='n'><span class="good">+17%</span></td><td class='n'>1,301</td></tr><tr><td class='n'>2</td><td class='n score s-hi'>99.9</td><td>Bastrop County</td><td>TX</td><td><span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span></td><td class='muted'>Austin</td><td class='n'>$341,000</td><td class='n'>7.2</td><td class='n'>95</td><td class='n'>0.965</td><td class='n'><span class="good">+17%</span></td><td class='n'>108</td></tr><tr><td class='n'>3</td><td class='n score s-hi'>99.9</td><td>Sumter County</td><td>FL</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>The Villages</td><td class='n'>$345,000</td><td class='n'>3.1</td><td class='n'>53</td><td class='n'>0.967</td><td class='n'><span class="good">+19%</span></td><td class='n'>205</td></tr><tr><td class='n'>4</td><td class='n score s-hi'>99.8</td><td>Flagler County</td><td>FL</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Deltona</td><td class='n'>$365,000</td><td class='n'>4.3</td><td class='n'>75</td><td class='n'>0.974</td><td class='n'><span class="good">+18%</span></td><td class='n'>335</td></tr><tr><td class='n'>5</td><td class='n score s-hi'>99.8</td><td>Montgomery County</td><td>TX</td><td><span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span></td><td class='muted'>Houston</td><td class='n'>$346,740</td><td class='n'>3.6</td><td class='n'>56</td><td class='n'>0.962</td><td class='n'><span class="good">+20%</span></td><td class='n'>1,457</td></tr><tr><td class='n'>6</td><td class='n score s-hi'>99.7</td><td>Hays County</td><td>TX</td><td><span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span></td><td class='muted'>Austin</td><td class='n'>$371,540</td><td class='n'>5.5</td><td class='n'>60</td><td class='n'>0.976</td><td class='n'><span class="good">+20%</span></td><td class='n'>395</td></tr><tr><td class='n'>7</td><td class='n score s-hi'>99.7</td><td>Pinal County</td><td>AZ</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Phoenix</td><td class='n'>$385,000</td><td class='n'>3.6</td><td class='n'>71</td><td class='n'>0.984</td><td class='n'><span class="good">+19%</span></td><td class='n'>955</td></tr><tr><td class='n'>8</td><td class='n score s-hi'>99.6</td><td>Brunswick County</td><td>NC</td><td><span class="lg lg-license" title="HB 707 (Oct 2025): wholesaling defined as brokerage">⛔ License</span></td><td class='muted'>Myrtle Beach</td><td class='n'>$396,900</td><td class='n'>4.6</td><td class='n'>92</td><td class='n'>0.979</td><td class='n'><span class="good">+21%</span></td><td class='n'>637</td></tr><tr><td class='n'>9</td><td class='n score s-hi'>99.6</td><td>Osceola County</td><td>FL</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Orlando</td><td class='n'>$385,510</td><td class='n'>5.6</td><td class='n'>62</td><td class='n'>0.976</td><td class='n'><span class="good">+20%</span></td><td class='n'>698</td></tr><tr><td class='n'>10</td><td class='n score s-hi'>99.5</td><td>Jasper County</td><td>SC</td><td><span class="lg lg-marketing" title="HB 4754: no advertising property you don't own">◐ Mktg limits</span></td><td class='muted'>Hilton Head Island</td><td class='n'>$416,240</td><td class='n'>3.7</td><td class='n'>57</td><td class='n'>0.986</td><td class='n'><span class="good">+22%</span></td><td class='n'>113</td></tr><tr><td class='n'>11</td><td class='n score s-hi'>99.5</td><td>Ellis County</td><td>TX</td><td><span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span></td><td class='muted'>Dallas</td><td class='n'>$409,445</td><td class='n'>3.8</td><td class='n'>59</td><td class='n'>0.986</td><td class='n'><span class="good">+20%</span></td><td class='n'>326</td></tr><tr><td class='n'>12</td><td class='n score s-hi'>99.4</td><td>Long County</td><td>GA</td><td><span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span></td><td class='muted'>Hinesville</td><td class='n'>$293,500</td><td class='n'>8.0</td><td class='n'>72</td><td class='n'>1.000</td><td class='n'><span class="good">+26%</span></td><td class='n'>40</td></tr><tr><td class='n'>13</td><td class='n score s-hi'>99.4</td><td>Jackson County</td><td>GA</td><td><span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span></td><td class='muted'>Jefferson</td><td class='n'>$423,245</td><td class='n'>4.6</td><td class='n'>63</td><td class='n'>0.989</td><td class='n'><span class="good">+22%</span></td><td class='n'>164</td></tr><tr><td class='n'>14</td><td class='n score s-hi'>99.3</td><td>Dawson County</td><td>GA</td><td><span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span></td><td class='muted'>Atlanta</td><td class='n'>$442,000</td><td class='n'>6.2</td><td class='n'>49</td><td class='n'>0.979</td><td class='n'><span class="good">+25%</span></td><td class='n'>48</td></tr><tr><td class='n'>15</td><td class='n score s-hi'>99.3</td><td>Barrow County</td><td>GA</td><td><span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span></td><td class='muted'>Atlanta</td><td class='n'>$359,900</td><td class='n'>3.6</td><td class='n'>41</td><td class='n'>0.987</td><td class='n'><span class="good">+15%</span></td><td class='n'>151</td></tr><tr><td class='n'>16</td><td class='n score s-hi'>99.2</td><td>Collin County</td><td>TX</td><td><span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span></td><td class='muted'>Dallas</td><td class='n'>$476,000</td><td class='n'>4.1</td><td class='n'>49</td><td class='n'>0.975</td><td class='n'><span class="good">+17%</span></td><td class='n'>1,603</td></tr><tr><td class='n'>17</td><td class='n score s-hi'>99.2</td><td>Custer County</td><td>CO</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Colorado nonmetropolitan area</td><td class='n'>$357,000</td><td class='n'>13.7</td><td class='n'>183</td><td class='n'>0.954</td><td class='n'><span class="good">+18%</span></td><td class='n'>11</td></tr><tr><td class='n'>18</td><td class='n score s-hi'>99.1</td><td>Marion County</td><td>FL</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Ocala</td><td class='n'>$279,990</td><td class='n'>4.1</td><td class='n'>63</td><td class='n'>0.977</td><td class='n'><span class="good">+14%</span></td><td class='n'>893</td></tr><tr><td class='n'>19</td><td class='n score s-hi'>99.1</td><td>Manatee County</td><td>FL</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>North Port</td><td class='n'>$414,535</td><td class='n'>3.7</td><td class='n'>64</td><td class='n'>0.967</td><td class='n'><span class="good">+14%</span></td><td class='n'>1,066</td></tr><tr><td class='n'>20</td><td class='n score s-hi'>99.0</td><td>Fort Bend County</td><td>TX</td><td><span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span></td><td class='muted'>Houston</td><td class='n'>$399,872</td><td class='n'>4.1</td><td class='n'>50</td><td class='n'>0.971</td><td class='n'><span class="good">+16%</span></td><td class='n'>1,037</td></tr><tr><td class='n'>21</td><td class='n score s-hi'>99.0</td><td>Canyon County</td><td>ID</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Boise City</td><td class='n'>$443,000</td><td class='n'>1.9</td><td class='n'>36</td><td class='n'>0.993</td><td class='n'><span class="good">+15%</span></td><td class='n'>495</td></tr><tr><td class='n'>22</td><td class='n score s-hi'>98.9</td><td>Lee County</td><td>FL</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Cape Coral</td><td class='n'>$360,000</td><td class='n'>4.9</td><td class='n'>67</td><td class='n'>0.961</td><td class='n'><span class="good">+12%</span></td><td class='n'>2,001</td></tr><tr><td class='n'>23</td><td class='n score s-hi'>98.9</td><td>Pasco County</td><td>FL</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Tampa</td><td class='n'>$365,000</td><td class='n'>3.7</td><td class='n'>47</td><td class='n'>0.975</td><td class='n'><span class="good">+16%</span></td><td class='n'>1,048</td></tr><tr><td class='n'>24</td><td class='n score s-hi'>98.8</td><td>St. Johns County</td><td>FL</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Jacksonville</td><td class='n'>$517,000</td><td class='n'>3.6</td><td class='n'>65</td><td class='n'>0.977</td><td class='n'><span class="good">+21%</span></td><td class='n'>819</td></tr><tr><td class='n'>25</td><td class='n score s-hi'>98.8</td><td>Johnson County</td><td>TX</td><td><span class="lg lg-disclose" title="Must disclose equitable interest when marketing">🟨 Disclosure</span></td><td class='muted'>Fort Worth</td><td class='n'>$335,000</td><td class='n'>3.9</td><td class='n'>68</td><td class='n'>0.986</td><td class='n'><span class="good">+16%</span></td><td class='n'>279</td></tr></tbody></table>
+
+<h2><span class="tag">Secondary</span>Top 25 by Market Liquidity (MLI) — resale speed</h2>
+<p class="intro">The <i>secondary</i> lens: how fast existing homes resell. NOT the land-flip signal — many of these are mature metros with little cheap land. Use it only to check a market isn't frozen. Note how different this list is from the one above.</p>
+<table><thead><tr><th class='n'>#</th><th class='n'>MLI</th><th>County</th><th>ST</th><th>Legal</th><th>Metro</th><th class='n'>Median $</th><th class='n'>Mo sup</th><th class='n'>DOM</th><th class='n'>Sale/list</th><th class='n'>Pop gr</th><th class='n'>Sold/mo</th></tr></thead><tbody><tr><td class='n'>1</td><td class='n score s-hi'>100.0</td><td>Monroe County</td><td>NY</td><td><span class="lg lg-marketing" title="Market the assignable interest, not the property">◐ Mktg limits</span></td><td class='muted'>Rochester</td><td class='n'>$300,000</td><td class='n'>1.1</td><td class='n'>8</td><td class='n'>1.193</td><td class='n'><span class="bad">-1%</span></td><td class='n'>487</td></tr><tr><td class='n'>2</td><td class='n score s-hi'>99.9</td><td>Genesee County</td><td>NY</td><td><span class="lg lg-marketing" title="Market the assignable interest, not the property">◐ Mktg limits</span></td><td class='muted'>Batavia</td><td class='n'>$225,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.066</td><td class='n'><span class="bad">-1%</span></td><td class='n'>26</td></tr><tr><td class='n'>3</td><td class='n score s-hi'>99.9</td><td>San Francisco County</td><td>CA</td><td><span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span></td><td class='muted'>San Francisco</td><td class='n'>$1,770,000</td><td class='n'>1.6</td><td class='n'>16</td><td class='n'>1.156</td><td class='n'><span class="bad">-5%</span></td><td class='n'>561</td></tr><tr><td class='n'>4</td><td class='n score s-hi'>99.8</td><td>Falls Church</td><td>VA</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Washington</td><td class='n'>$1,200,000</td><td class='n'>1.3</td><td class='n'>5</td><td class='n'>1.032</td><td class='n'><span class="good">+2%</span></td><td class='n'>19</td></tr><tr><td class='n'>5</td><td class='n score s-hi'>99.8</td><td>San Mateo County</td><td>CA</td><td><span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span></td><td class='muted'>San Francisco</td><td class='n'>$1,800,000</td><td class='n'>1.6</td><td class='n'>14</td><td class='n'>1.056</td><td class='n'><span class="bad">-3%</span></td><td class='n'>483</td></tr><tr><td class='n'>6</td><td class='n score s-hi'>99.7</td><td>Hartford County</td><td>CT</td><td><span class="lg lg-register" title="PA 25-168: register with DCP (effective Jul 2026)">🟧 Register</span></td><td class='muted'>Hartford</td><td class='n'>$400,500</td><td class='n'>1.7</td><td class='n'>17</td><td class='n'>1.062</td><td class='n'>—</td><td class='n'>670</td></tr><tr><td class='n'>7</td><td class='n score s-hi'>99.7</td><td>Wayne County</td><td>NY</td><td><span class="lg lg-marketing" title="Market the assignable interest, not the property">◐ Mktg limits</span></td><td class='muted'>Rochester</td><td class='n'>$254,900</td><td class='n'>2.4</td><td class='n'>9</td><td class='n'>1.113</td><td class='n'><span class="bad">-0%</span></td><td class='n'>41</td></tr><tr><td class='n'>8</td><td class='n score s-hi'>99.6</td><td>Lancaster County</td><td>PA</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Lancaster</td><td class='n'>$365,000</td><td class='n'>1.3</td><td class='n'>7</td><td class='n'>1.024</td><td class='n'><span class="good">+2%</span></td><td class='n'>427</td></tr><tr><td class='n'>9</td><td class='n score s-hi'>99.6</td><td>Livingston County</td><td>NY</td><td><span class="lg lg-marketing" title="Market the assignable interest, not the property">◐ Mktg limits</span></td><td class='muted'>Rochester</td><td class='n'>$225,000</td><td class='n'>2.1</td><td class='n'>14</td><td class='n'>1.072</td><td class='n'><span class="bad">-0%</span></td><td class='n'>30</td></tr><tr><td class='n'>10</td><td class='n score s-hi'>99.5</td><td>Kent County</td><td>MI</td><td><span class="lg lg-marketing" title="Market the contract interest, not the property">◐ Mktg limits</span></td><td class='muted'>Grand Rapids</td><td class='n'>$365,000</td><td class='n'>1.2</td><td class='n'>6</td><td class='n'>1.019</td><td class='n'><span class="good">+2%</span></td><td class='n'>718</td></tr><tr><td class='n'>11</td><td class='n score s-hi'>99.5</td><td>Morris County</td><td>NJ</td><td><span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span></td><td class='muted'>Newark</td><td class='n'>$750,000</td><td class='n'>2.0</td><td class='n'>16</td><td class='n'>1.058</td><td class='n'><span class="good">+3%</span></td><td class='n'>408</td></tr><tr><td class='n'>12</td><td class='n score s-hi'>99.4</td><td>Richmond City County</td><td>VA</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Richmond</td><td class='n'>$426,000</td><td class='n'>1.2</td><td class='n'>12</td><td class='n'>1.028</td><td class='n'>—</td><td class='n'>304</td></tr><tr><td class='n'>13</td><td class='n score s-hi'>99.4</td><td>Sangamon County</td><td>IL</td><td><span class="lg lg-license" title="Only 1 deal / 12 mo without a broker license (RELA)">⛔ License</span></td><td class='muted'>Springfield</td><td class='n'>$210,000</td><td class='n'>0.9</td><td class='n'>7</td><td class='n'>1.010</td><td class='n'><span class="bad">-1%</span></td><td class='n'>245</td></tr><tr><td class='n'>14</td><td class='n score s-hi'>99.3</td><td>Berks County</td><td>PA</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Reading</td><td class='n'>$305,000</td><td class='n'>1.1</td><td class='n'>7</td><td class='n'>1.013</td><td class='n'><span class="good">+2%</span></td><td class='n'>393</td></tr><tr><td class='n'>15</td><td class='n score s-hi'>99.3</td><td>Tazewell County</td><td>IL</td><td><span class="lg lg-license" title="Only 1 deal / 12 mo without a broker license (RELA)">⛔ License</span></td><td class='muted'>Peoria</td><td class='n'>$186,750</td><td class='n'>1.0</td><td class='n'>8</td><td class='n'>1.012</td><td class='n'><span class="bad">-1%</span></td><td class='n'>164</td></tr><tr><td class='n'>16</td><td class='n score s-hi'>99.2</td><td>La Crosse County</td><td>WI</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>La Crosse</td><td class='n'>$315,000</td><td class='n'>1.3</td><td class='n'>9</td><td class='n'>1.021</td><td class='n'><span class="good">+0%</span></td><td class='n'>127</td></tr><tr><td class='n'>17</td><td class='n score s-hi'>99.2</td><td>Alameda County</td><td>CA</td><td><span class="lg lg-marketing" title="No public property ads without ownership/license">◐ Mktg limits</span></td><td class='muted'>Oakland</td><td class='n'>$1,225,000</td><td class='n'>2.3</td><td class='n'>17</td><td class='n'>1.084</td><td class='n'><span class="bad">-2%</span></td><td class='n'>955</td></tr><tr><td class='n'>18</td><td class='n score s-hi'>99.1</td><td>Northampton County</td><td>PA</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Allentown</td><td class='n'>$386,500</td><td class='n'>1.2</td><td class='n'>8</td><td class='n'>1.016</td><td class='n'><span class="good">+3%</span></td><td class='n'>259</td></tr><tr><td class='n'>19</td><td class='n score s-hi'>99.1</td><td>Schenectady County</td><td>NY</td><td><span class="lg lg-marketing" title="Market the assignable interest, not the property">◐ Mktg limits</span></td><td class='muted'>Albany</td><td class='n'>$300,000</td><td class='n'>1.9</td><td class='n'>7</td><td class='n'>1.033</td><td class='n'><span class="good">+2%</span></td><td class='n'>117</td></tr><tr><td class='n'>20</td><td class='n score s-hi'>99.0</td><td>Erie County</td><td>NY</td><td><span class="lg lg-marketing" title="Market the assignable interest, not the property">◐ Mktg limits</span></td><td class='muted'>Buffalo</td><td class='n'>$282,813</td><td class='n'>2.5</td><td class='n'>11</td><td class='n'>1.053</td><td class='n'><span class="bad">-0%</span></td><td class='n'>506</td></tr><tr><td class='n'>21</td><td class='n score s-hi'>99.0</td><td>Los Alamos County</td><td>NM</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Los Alamos</td><td class='n'>$547,500</td><td class='n'>1.0</td><td class='n'>8</td><td class='n'>1.009</td><td class='n'><span class="good">+1%</span></td><td class='n'>34</td></tr><tr><td class='n'>22</td><td class='n score s-hi'>98.9</td><td>Tolland County</td><td>CT</td><td><span class="lg lg-register" title="PA 25-168: register with DCP (effective Jul 2026)">🟧 Register</span></td><td class='muted'>Hartford</td><td class='n'>$422,000</td><td class='n'>2.0</td><td class='n'>19</td><td class='n'>1.054</td><td class='n'>—</td><td class='n'>113</td></tr><tr><td class='n'>23</td><td class='n score s-hi'>98.9</td><td>Grundy County</td><td>MO</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Missouri nonmetropolitan area</td><td class='n'>$165,000</td><td class='n'>1.4</td><td class='n'>3</td><td class='n'>1.008</td><td class='n'><span class="good">+0%</span></td><td class='n'>11</td></tr><tr><td class='n'>24</td><td class='n score s-hi'>98.8</td><td>Lyon County</td><td>MN</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Marshall</td><td class='n'>$185,000</td><td class='n'>1.7</td><td class='n'>13</td><td class='n'>1.033</td><td class='n'><span class="good">+1%</span></td><td class='n'>23</td></tr><tr><td class='n'>25</td><td class='n score s-hi'>98.8</td><td>Lehigh County</td><td>PA</td><td><span class="lg lg-clear" title="Generally permitted; use 'and/or assigns', market privately">✅ Clear</span></td><td class='muted'>Allentown</td><td class='n'>$365,000</td><td class='n'>1.2</td><td class='n'>9</td><td class='n'>1.013</td><td class='n'><span class="good">+3%</span></td><td class='n'>309</td></tr></tbody></table>
 
 <h2><span class="tag">Geography</span>State leaderboard</h2>
-<p class="intro">Ranked by how many of the national top-100 counties each state holds, then by average score.</p>
+<p class="intro">Ranked by how many of the national top-100 (by Land-Flip Score) counties each state holds, then by average score.</p>
 <table><thead><tr><th>State</th><th class="n">In top 100</th><th class="n">Avg score</th><th class="n">Counties</th><th>Best county</th></tr></thead>
-<tbody><tr><td>VA</td><td class='n'>17</td><td class='n'>65.2</td><td class='n'>109</td><td>Goochland County <span class='muted'>(99.8)</span></td></tr><tr><td>NY</td><td class='n'>10</td><td class='n'>44.6</td><td class='n'>61</td><td>Monroe County <span class='muted'>(99.9)</span></td></tr><tr><td>IN</td><td class='n'>9</td><td class='n'>69.9</td><td class='n'>84</td><td>Boone County <span class='muted'>(100.0)</span></td></tr><tr><td>PA</td><td class='n'>9</td><td class='n'>58.5</td><td class='n'>58</td><td>Cumberland County <span class='muted'>(99.4)</span></td></tr><tr><td>MN</td><td class='n'>7</td><td class='n'>72.7</td><td class='n'>58</td><td>Lyon County <span class='muted'>(98.9)</span></td></tr><tr><td>MO</td><td class='n'>6</td><td class='n'>59.4</td><td class='n'>75</td><td>Grundy County <span class='muted'>(98.8)</span></td></tr><tr><td>IL</td><td class='n'>6</td><td class='n'>54.7</td><td class='n'>68</td><td>Sangamon County <span class='muted'>(98.8)</span></td></tr><tr><td>KS</td><td class='n'>5</td><td class='n'>72.4</td><td class='n'>36</td><td>Butler County <span class='muted'>(96.4)</span></td></tr><tr><td>MI</td><td class='n'>5</td><td class='n'>56.1</td><td class='n'>75</td><td>Kent County <span class='muted'>(99.3)</span></td></tr><tr><td>NE</td><td class='n'>4</td><td class='n'>77.3</td><td class='n'>20</td><td>Sarpy County <span class='muted'>(99.3)</span></td></tr><tr><td>IA</td><td class='n'>4</td><td class='n'>60.4</td><td class='n'>61</td><td>Linn County <span class='muted'>(97.7)</span></td></tr><tr><td>CT</td><td class='n'>3</td><td class='n'>84.7</td><td class='n'>8</td><td>Hartford County <span class='muted'>(99.6)</span></td></tr><tr><td>ID</td><td class='n'>3</td><td class='n'>63.1</td><td class='n'>30</td><td>Canyon County <span class='muted'>(99.7)</span></td></tr><tr><td>KY</td><td class='n'>3</td><td class='n'>46.0</td><td class='n'>65</td><td>Grant County <span class='muted'>(98.6)</span></td></tr><tr><td>OH</td><td class='n'>2</td><td class='n'>60.7</td><td class='n'>80</td><td>Medina County <span class='muted'>(96.8)</span></td></tr></tbody></table>
+<tbody><tr><td>TX</td><td class='n'>22</td><td class='n'>70.2</td><td class='n'>120</td><td>Bastrop County <span class='muted'>(99.9)</span></td></tr><tr><td>FL</td><td class='n'>21</td><td class='n'>81.4</td><td class='n'>58</td><td>Sumter County <span class='muted'>(99.9)</span></td></tr><tr><td>GA</td><td class='n'>10</td><td class='n'>73.8</td><td class='n'>92</td><td>Long County <span class='muted'>(99.4)</span></td></tr><tr><td>NC</td><td class='n'>8</td><td class='n'>69.6</td><td class='n'>90</td><td>Brunswick County <span class='muted'>(99.6)</span></td></tr><tr><td>SC</td><td class='n'>6</td><td class='n'>73.2</td><td class='n'>33</td><td>Horry County <span class='muted'>(100.0)</span></td></tr><tr><td>TN</td><td class='n'>6</td><td class='n'>68.4</td><td class='n'>77</td><td>Wilson County <span class='muted'>(97.1)</span></td></tr><tr><td>UT</td><td class='n'>4</td><td class='n'>80.3</td><td class='n'>18</td><td>Washington County <span class='muted'>(97.9)</span></td></tr><tr><td>VA</td><td class='n'>4</td><td class='n'>48.2</td><td class='n'>109</td><td>New Kent County <span class='muted'>(98.0)</span></td></tr><tr><td>ID</td><td class='n'>3</td><td class='n'>81.3</td><td class='n'>30</td><td>Canyon County <span class='muted'>(99.0)</span></td></tr><tr><td>OK</td><td class='n'>3</td><td class='n'>52.4</td><td class='n'>42</td><td>McClain County <span class='muted'>(97.7)</span></td></tr><tr><td>KY</td><td class='n'>2</td><td class='n'>55.3</td><td class='n'>65</td><td>Simpson County <span class='muted'>(96.0)</span></td></tr><tr><td>IN</td><td class='n'>2</td><td class='n'>50.3</td><td class='n'>84</td><td>Boone County <span class='muted'>(97.9)</span></td></tr><tr><td>WV</td><td class='n'>2</td><td class='n'>25.0</td><td class='n'>24</td><td>Jefferson County <span class='muted'>(95.8)</span></td></tr><tr><td>AZ</td><td class='n'>1</td><td class='n'>60.0</td><td class='n'>12</td><td>Pinal County <span class='muted'>(99.7)</span></td></tr><tr><td>AL</td><td class='n'>1</td><td class='n'>50.9</td><td class='n'>43</td><td>Baldwin County <span class='muted'>(96.2)</span></td></tr></tbody></table>
 
 <div class="foot">
 Generated from <code>county-opportunities.csv</code>. Open <a href="county-opportunities.html">the full interactive table</a>

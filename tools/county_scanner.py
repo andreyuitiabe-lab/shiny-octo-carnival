@@ -26,7 +26,7 @@ NOTE: the score is an expert-weighted heuristic. To check whether it actually
 predicts outcomes, run  backtest.py  (calibrates against historical results).
 """
 
-import csv, gzip, os, sys, time, unicodedata, urllib.request
+import csv, gzip, math, os, sys, time, unicodedata, urllib.request
 from bisect import bisect_left
 
 # ---------------------------------------------------------------------------
@@ -45,15 +45,14 @@ PERMITS_URL = "https://www2.census.gov/econ/bps/County/co{year}a.txt"
 POP_URL = ("https://www2.census.gov/programs-surveys/popest/datasets/"
            "2020-2024/counties/totals/co-est2024-alldata.csv")
 
-# --- Scoring model (v3 — liquidity-first) ----------------------------------
-# Two stages, both Z-score standardized (the blueprint's method: preserves the
-# shape of the distribution and handles real-estate outliers far better than
-# percentile or min-max scaling).
+# --- Scoring model (v4 — Land-Flip headline) -------------------------------
+# Both stages Z-score standardized (preserves distribution shape, handles
+# real-estate outliers far better than percentile or min-max; winsorized ±3).
 #
-# Stage 1 — MARKET LIQUIDITY INDEX (MLI): the research's core index. PURE
-# liquidity, weighted toward absorption (months of inventory) and velocity (days
-# on market), with sale-to-list as the List-to-Sale-Ratio proxy. This is the
-# "king metric" land flippers actually sell on.
+# SECONDARY — MARKET LIQUIDITY INDEX (MLI): residential resale liquidity, kept as
+# an "is the market frozen or transacting?" check — NOT the land-flip signal.
+# Weighted toward absorption (months of inventory) and velocity (days on market),
+# with sale-to-list as the List-to-Sale-Ratio proxy.
 #   (key, weight, higher_is_better, label)
 LIQUIDITY_METRICS = [
     ("months_supply", 0.40, False, "Months of inventory"),
@@ -61,15 +60,17 @@ LIQUIDITY_METRICS = [
     ("sale_to_list",  0.20, True,  "Sale-to-list ratio"),
 ]
 
-# Stage 2 — OPPORTUNITY SCORE (headline): liquidity-dominant, with demand
-# fundamentals + affordability as supporting context. NO price/sales momentum:
-# our own backtest showed momentum does NOT predict outcomes (it mean-reverts),
-# so it earns 0 weight here. 'mli' = the Stage-1 liquidity composite.
-OPPORTUNITY_METRICS = [
-    ("mli",            0.60, True,  "Market liquidity"),
-    ("pop_growth",     0.15, True,  "Population growth (4yr)"),
-    ("permits_per_1k", 0.10, True,  "Construction intensity"),
-    ("price",          0.15, False, "Affordable entry"),
+# Stage 2 — LAND-FLIP SCORE (headline): land flipping profits on the "path of
+# growth" spread, NOT on existing-home resale speed. The margin comes from cheap
+# land + active builders + population growth (development pressure). So the
+# headline is built from exactly those, and the residential MLI is demoted to a
+# secondary "is this market frozen or transacting?" column.
+#   Why not MLI-led: e.g. Monroe Co NY tops the MLI (tight resale) but has
+#   NEGATIVE population growth — a mature city with no land-flip spread.
+LANDFLIP_METRICS = [
+    ("pop_growth",     0.40, True,  "Population growth (4yr)"),
+    ("permits_per_1k", 0.35, True,  "Builder / construction activity"),
+    ("price",          0.25, False, "Cheap entry"),
 ]
 
 STATE_FIPS_TO_ABBR = {
@@ -80,6 +81,47 @@ STATE_FIPS_TO_ABBR = {
     "36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI",
     "45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA",
     "54":"WV","55":"WI","56":"WY","72":"PR",
+}
+
+# ---------------------------------------------------------------------------
+# State wholesaling legal status — SNAPSHOT (mid-2026). NOT LEGAL ADVICE; these
+# laws are changing fast and edge cases are contested. This is a FLAG layer, not
+# a score input — a great market in a restrictive state still shows its real
+# score, just badged so you verify with a local attorney before operating.
+# Tiers (worst -> best): license > register > disclose > marketing > clear.
+LEGAL = {
+    # tier "license" — a real-estate license is effectively required to wholesale
+    "IL": ("license",  "Only 1 deal / 12 mo without a broker license (RELA)"),
+    "OK": ("license",  "SB 1075 (Nov 2025) closed the double-close loophole"),
+    "NC": ("license",  "HB 707 (Oct 2025): wholesaling defined as brokerage"),
+    "KY": ("license",  "HB 62: marketing an equitable interest = brokerage"),
+    "NE": ("license",  "LB 860 (2024): publicly marketing needs a license"),
+    # tier "register" — must register with a state agency first
+    "CT": ("register", "PA 25-168: register with DCP (effective Jul 2026)"),
+    "OR": ("register", "HB 4058: register with the OR Real Estate Agency"),
+    # tier "disclose" — written seller disclosure required or contract is voidable
+    "OH": ("disclose", "SB 155: bold written disclosure or seller can cancel"),
+    "MD": ("disclose", "HB 124/SB 160: assignment disclosure or rescission"),
+    "IN": ("disclose", "Assignment disclosure required; else 'deceptive act'"),
+    "TX": ("disclose", "Must disclose equitable interest when marketing"),
+    # tier "marketing" — can't advertise a property you don't own; private assignment OK
+    "SC": ("marketing","HB 4754: no advertising property you don't own"),
+    "MI": ("marketing","Market the contract interest, not the property"),
+    "NY": ("marketing","Market the assignable interest, not the property"),
+    "CA": ("marketing","No public property ads without ownership/license"),
+    "GA": ("marketing","No public property ads without ownership/license"),
+    "IA": ("marketing","No public property ads without ownership/license"),
+    "NJ": ("marketing","No public property ads without ownership/license"),
+    "UT": ("marketing","No public property ads without ownership/license"),
+    "WA": ("marketing","No public property ads without ownership/license"),
+}
+LEGAL_DEFAULT = ("clear", "Generally permitted; use 'and/or assigns', market privately")
+LEGAL_LABEL = {
+    "license":  "License req'd",
+    "register": "Register",
+    "disclose": "Disclosure",
+    "marketing":"Mktg limits",
+    "clear":    "Clear",
 }
 
 
@@ -237,10 +279,12 @@ def build_records(refresh):
         if fips and (pop or pnow is not None):
             matched += 1
         popv = pop.get("pop")
+        legal_tier, legal_note = LEGAL.get(state, LEGAL_DEFAULT)
         rec = {
             "county": region, "state": state,
             "metro": row.get("PARENT_METRO_REGION", ""), "period": row.get("PERIOD_END", ""),
             "homes_sold": homes, "fips": fips or "",
+            "legal_tier": legal_tier, "legal_note": legal_note,
             "m": {
                 "price":         fnum(row, "MEDIAN_SALE_PRICE"),
                 "price_yoy":     fnum(row, "MEDIAN_SALE_PRICE_YOY"),
@@ -267,21 +311,37 @@ def build_records(refresh):
             comp += w * (z if higher else -z)
         r["m"]["mli"] = comp          # raw z-composite; feeds Stage 2
 
-    # --- Stage 2: Opportunity score (liquidity-dominant, Z-scored) -----------
-    opp_z = {k: zscorer([r["m"][k] for r in records]) for k, _w, _h, _l in OPPORTUNITY_METRICS}
+    # --- Stage 2: Land-Flip Score (path-of-growth, Z-scored) -----------------
+    lf_z = {k: zscorer([r["m"][k] for r in records]) for k, _w, _h, _l in LANDFLIP_METRICS}
     for r in records:
         comp = 0.0
-        for key, w, higher, _lbl in OPPORTUNITY_METRICS:
-            z = opp_z[key](r["m"][key])
+        for key, w, higher, _lbl in LANDFLIP_METRICS:
+            z = lf_z[key](r["m"][key])
             comp += w * (z if higher else -z)
-        r["opp_raw"] = comp
+        r["lf_raw"] = comp
 
     # --- Convert both composites to readable 0-100 percentiles ---------------
     mli_rank = percentile_ranker(sorted(r["m"]["mli"] for r in records))
-    opp_rank = percentile_ranker(sorted(r["opp_raw"] for r in records))
+    lf_rank = percentile_ranker(sorted(r["lf_raw"] for r in records))
     for r in records:
         r["mli"] = round(mli_rank(r["m"]["mli"]) * 100, 1)
-        r["score"] = round(opp_rank(r["opp_raw"]) * 100, 1)
+        r["score"] = round(lf_rank(r["lf_raw"]) * 100, 1)   # headline = Land-Flip
+
+    # --- Stage 3: Hidden Opportunity (escape the obvious) --------------------
+    # Competition proxy = market SIZE/visibility (bigger, busier markets draw more
+    # land investors). Hidden = demand (Land-Flip) − competition, with a soft
+    # EXIT penalty for thin builder activity (avoid the "no buyer" trap).
+    # NOTE (future): a cleaner version is the "metro-ring" model — small counties
+    # ADJACENT to a growing metro (Census county-adjacency, free). Logged as next step.
+    for r in records:
+        r["_comp_raw"] = math.log(max(r["pop"] or 1, 1)) + math.log(max(r["homes_sold"] or 1, 1))
+    comp_rank = percentile_ranker(sorted(r["_comp_raw"] for r in records))
+    for r in records:
+        r["comp"] = round(comp_rank(r["_comp_raw"]) * 100, 1)
+        pk = r["m"]["permits_per_1k"] or 0.0
+        exit_pen = max(0.0, 3.0 - pk) * 6.0            # 0 if ≥3 permits/1k; up to 18 at 0
+        r["hidden"] = round(r["score"] - r["comp"] - exit_pen, 1)
+        r["exit_ok"] = (pk >= 3.0) or ((r["homes_sold"] or 0) >= 25)
 
     records.sort(key=lambda x: x["score"], reverse=True)
     for i, r in enumerate(records, 1):
@@ -290,15 +350,17 @@ def build_records(refresh):
 
 
 def write_csv(records):
-    cols = ["rank", "score", "mli", "county", "state", "metro", "homes_sold", "population",
-            "pop_growth_4yr", "permits_2025", "permits_per_1k",
-            "median_price", "months_supply", "median_dom", "sale_to_list",
-            "price_yoy", "sales_yoy", "period"]
+    cols = ["rank", "score", "hidden", "competition", "mli", "county", "state", "metro",
+            "legal", "legal_note", "homes_sold", "population", "pop_growth_4yr",
+            "permits_2025", "permits_per_1k", "median_price", "months_supply",
+            "median_dom", "sale_to_list", "price_yoy", "sales_yoy", "period"]
     with open(OUT_CSV, "w", newline="") as f:
         w = csv.writer(f); w.writerow(cols)
         for r in records:
             m = r["m"]
-            w.writerow([r["rank"], r["score"], r["mli"], r["county"], r["state"], r["metro"],
+            w.writerow([r["rank"], r["score"], r["hidden"], r["comp"], r["mli"],
+                        r["county"], r["state"], r["metro"],
+                        LEGAL_LABEL[r["legal_tier"]], r["legal_note"],
                         int(r["homes_sold"]), int(r["pop"]) if r["pop"] else "",
                         m["pop_growth"], r["permits"] if r["permits"] is not None else "",
                         round(m["permits_per_1k"], 2) if m["permits_per_1k"] is not None else "",
@@ -313,7 +375,9 @@ def write_html(records):
     states = sorted({r["state"] for r in records if r["state"]})
     data = [{
         "rank": r["rank"], "score": r["score"], "mli": r["mli"],
+        "hidden": r["hidden"], "comp": r["comp"], "exitOk": r["exit_ok"],
         "county": r["county"], "state": r["state"],
+        "legal": r["legal_tier"], "legalNote": r["legal_note"],
         "metro": r["metro"], "homes": int(r["homes_sold"]),
         "pop": int(r["pop"]) if r["pop"] else None, "popGrowth": r["m"]["pop_growth"],
         "permits": r["permits"], "permitsK": r["m"]["permits_per_1k"],
@@ -351,6 +415,12 @@ th:hover{color:var(--text)}tr:hover td{background:#161d24}
 .pos{color:var(--good)}.neg{color:var(--bad)}
 .bar{display:inline-block;height:8px;border-radius:4px;background:var(--accent);vertical-align:middle}
 .legend{font-size:12px;color:var(--muted);margin:8px 0 16px;line-height:1.7}
+.lg{font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px;white-space:nowrap}
+.lg-license{background:rgba(248,81,73,.16);color:var(--bad)}
+.lg-register{background:rgba(210,153,34,.18);color:var(--warn)}
+.lg-disclose{background:rgba(210,153,34,.12);color:var(--warn)}
+.lg-marketing{background:rgba(139,155,171,.16);color:var(--muted)}
+.lg-clear{background:rgba(63,185,80,.14);color:var(--good)}
 a{color:var(--accent)}
 </style></head><body>
 <header><h1>🗺️ County Opportunity Scanner</h1>
@@ -358,21 +428,43 @@ a{color:var(--accent)}
 </header>
 <div class="wrap">
 <div class="legend">
-<b>MLI</b> = Market Liquidity Index (0–100): how fast a market absorbs &amp; sells — Z-scored from
-Months of inventory 40% · Days on market 40% · Sale-to-list 20%. <i>This is the metric land flippers sell on.</i>
-<br><b>Score</b> = Opportunity score (0–100), liquidity-first: <b>MLI 60%</b> · Population growth 15% · Construction intensity 10% · Affordable entry 15%.
-Price/sales momentum is shown for context but earns <b>0 weight</b> — our backtest showed it doesn't predict outcomes.
-<br><b>A where-to-look signal, not a buy signal.</b> Always run individual parcels through the Deal Analyzer + diligence checklist.
-Currently uses <i>residential</i> data as a free proxy for land demand; run <code>backtest.py</code> to see how well the MLI predicts forward liquidity.
+<b>Land-Flip Score</b> (0–100, the headline) = where the land-flip spread lives: <b>Population growth 40%</b> ·
+<b>Builder/construction activity 35%</b> (permits/1k) · <b>Cheap entry 25%</b>. Land flipping profits on the
+<i>path of growth</i> — cheap land + active builders + in-migration — not on existing homes reselling fast.
+<br><b>MLI</b> = Market Liquidity Index (secondary): residential resale speed (months supply 40% · DOM 40% · sale-to-list 20%) —
+a <i>"is this market frozen or transacting?"</i> check, NOT the land-flip signal. (A high-MLI / low-growth county like a mature
+metro is a poor land flip.)
+<br><b>Hidden</b> = Hidden Opportunity Score: <b>Land-Flip demand − competition</b>, where competition is proxied by market
+size/visibility (bigger, busier markets draw more land investors), with a penalty for thin builder activity (so there's still
+a buyer). <b>High Hidden = real demand the crowd is missing.</b> <b>Comp</b> = competition proxy (0–100; higher = more crowded).
+<br><b>A where-to-look signal, not a buy signal.</b> Run individual parcels through the Deal Analyzer + diligence checklist.
+Uses <i>residential</i> data as a free proxy; true land liquidity (land STR) + real competition data need land/investor data — see the methodology.
+<br><b>Legal</b> = state wholesaling status (mid-2026 snapshot, <b>not legal advice</b>):
+<span class="lg lg-license">⛔ License req'd</span> <span class="lg lg-register">🟧 Register</span>
+<span class="lg lg-disclose">🟨 Disclosure</span> <span class="lg lg-marketing">◐ Mktg limits</span>
+<span class="lg lg-clear">✅ Clear</span>. A flag, not part of the score — verify with a local attorney.
 </div>
 <div class="controls">
 <input id="q" placeholder="Search county or metro..." oninput="render()" style="min-width:220px">
 <select id="state" onchange="render()"><option value="">All states</option></select>
+<select id="legal" onchange="render()">
+<option value="">All legal statuses</option>
+<option value="ok">Clear + marketing-only (no license)</option>
+<option value="clear">✅ Clear states only</option>
+<option value="nolicense">Hide ⛔ license-required states</option>
+</select>
+<select id="hide" onchange="render()">
+<option value="">All counties</option>
+<option value="lowcomp">Low competition only (Comp ≤ 40)</option>
+<option value="picks">⭐ Under-the-radar picks (demand≥70 · comp≤40 · has exit)</option>
+</select>
 <select id="sort" onchange="render()">
-<option value="score">Sort: Opportunity score</option>
-<option value="mli">Sort: Market Liquidity Index</option>
+<option value="score">Sort: Land-Flip score</option>
+<option value="hidden">Sort: Hidden Opportunity (escape the obvious)</option>
+<option value="comp">Sort: Lowest competition</option>
+<option value="mli">Sort: Market Liquidity Index (resale)</option>
 <option value="popGrowth">Sort: Population growth</option>
-<option value="permitsK">Sort: Construction intensity</option>
+<option value="permitsK">Sort: Builder activity (permits/1k)</option>
 <option value="supply">Sort: Lowest inventory</option>
 <option value="dom">Sort: Fastest selling</option>
 <option value="saleToList">Sort: Sale-to-list ratio</option>
@@ -383,7 +475,8 @@ Currently uses <i>residential</i> data as a free proxy for land demand; run <cod
 <span class="muted" id="count"></span>
 </div>
 <table><thead><tr>
-<th onclick="sortBy('score')">Score</th><th onclick="sortBy('mli')">MLI</th><th onclick="sortBy('county')">County</th><th onclick="sortBy('state')">ST</th>
+<th onclick="sortBy('score')">Land-Flip</th><th onclick="sortBy('hidden')">Hidden</th><th onclick="sortBy('comp')">Comp</th><th onclick="sortBy('mli')">MLI</th><th onclick="sortBy('county')">County</th><th onclick="sortBy('state')">ST</th>
+<th onclick="sortBy('legal')">Legal</th>
 <th onclick="sortBy('supply')">Mo. supply</th><th onclick="sortBy('dom')">DOM</th><th onclick="sortBy('saleToList')">Sale/list</th>
 <th onclick="sortBy('popGrowth')">Pop growth</th><th onclick="sortBy('permitsK')">Permits/1k</th>
 <th onclick="sortBy('price')">Median $</th><th onclick="sortBy('priceYoy')">Price YoY</th><th onclick="sortBy('soldYoy')">Sales YoY</th>
@@ -400,18 +493,36 @@ const money=(v)=>v==null?'<span class="muted">—</span>':'$'+Math.round(v).toLo
 const num=(v,d=1)=>v==null?'<span class="muted">—</span>':(+v).toFixed(d);
 const intc=(v)=>v==null?'<span class="muted">—</span>':Math.round(v).toLocaleString();
 const scoreClass=(s)=>s>=66?'s-hi':s>=40?'s-mid':'s-lo';
-const LOWER=['supply','dom','price'];
+const LEGAL_LBL={license:"⛔ License",register:"🟧 Register",disclose:"🟨 Disclose",marketing:"◐ Mktg",clear:"✅ Clear"};
+const LEGAL_ORD={license:0,register:1,disclose:2,marketing:3,clear:4};
+const legalCell=(r)=>`<span class="lg lg-${r.legal}" title="${(r.legalNote||'').replace(/"/g,'')}">${LEGAL_LBL[r.legal]||r.legal}</span>`;
+const LOWER=['supply','dom','price','comp'];
 function sortBy(k){ if(sortKey===k)sortDir*=-1; else{sortKey=k;sortDir=LOWER.includes(k)?1:-1;} document.getElementById('sort').value=document.querySelector(`#sort option[value="${k}"]`)?k:'score'; render(); }
 function render(){
-  const q=document.getElementById('q').value.toLowerCase(), st=stEl.value, k=document.getElementById('sort').value;
+  const q=document.getElementById('q').value.toLowerCase(), st=stEl.value, lf=document.getElementById('legal').value, hide=document.getElementById('hide').value, k=document.getElementById('sort').value;
   if(k!==sortKey){sortKey=k;sortDir=LOWER.includes(k)?1:-1;}
-  let rows=DATA.filter(r=>(!st||r.state===st)&&(!q||(r.county+' '+(r.metro||'')).toLowerCase().includes(q)));
-  rows.sort((a,b)=>{let x=a[sortKey],y=b[sortKey];if(x==null)x=sortDir>0?1e18:-1e18;if(y==null)y=sortDir>0?1e18:-1e18;if(typeof x==='string')return sortDir*x.localeCompare(y);return sortDir*(x-y);});
+  let rows=DATA.filter(r=>{
+    if(st&&r.state!==st)return false;
+    if(q&&!(r.county+' '+(r.metro||'')).toLowerCase().includes(q))return false;
+    if(lf==='clear'&&r.legal!=='clear')return false;
+    if(lf==='ok'&&!(r.legal==='clear'||r.legal==='marketing'))return false;
+    if(lf==='nolicense'&&r.legal==='license')return false;
+    if(hide==='lowcomp'&&r.comp>40)return false;
+    if(hide==='picks'&&!(r.score>=70&&r.comp<=40&&r.exitOk))return false;
+    return true;
+  });
+  rows.sort((a,b)=>{
+    let x=sortKey==='legal'?LEGAL_ORD[a.legal]:a[sortKey], y=sortKey==='legal'?LEGAL_ORD[b.legal]:b[sortKey];
+    if(x==null)x=sortDir>0?1e18:-1e18;if(y==null)y=sortDir>0?1e18:-1e18;
+    if(typeof x==='string')return sortDir*x.localeCompare(y);return sortDir*(x-y);});
   document.getElementById('count').textContent=rows.length+' counties';
   document.getElementById('rows').innerHTML=rows.slice(0,500).map(r=>`<tr>
     <td class="score ${scoreClass(r.score)}">${r.score} <span class="bar" style="width:${Math.max(2,r.score/2)}px"></span></td>
+    <td class="score ${r.hidden>=40?'s-hi':r.hidden>=15?'s-mid':'s-lo'}">${r.hidden}${(r.score>=70&&r.comp<=40&&r.exitOk)?' ⭐':''}</td>
+    <td>${r.comp}</td>
     <td class="score ${scoreClass(r.mli)}">${r.mli}</td>
     <td>${r.county.replace(/, [A-Z]{2}$/,'')}</td><td>${r.state}</td>
+    <td>${legalCell(r)}</td>
     <td>${num(r.supply)}</td><td>${num(r.dom,0)}</td><td>${num(r.saleToList,3)}</td>
     <td>${pct(r.popGrowth)}</td><td>${num(r.permitsK)}</td>
     <td>${money(r.price)}</td><td>${pct(r.priceYoy)}</td><td>${pct(r.soldYoy)}</td>

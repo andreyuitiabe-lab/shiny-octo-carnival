@@ -114,41 +114,36 @@ forced with `python3 county_scanner.py --refresh`.
 
 ---
 
-## 4. The scoring model (current — v3, liquidity-first) ✅ VALIDATED
+## 4. The scoring model (current — v4, Land-Flip headline)
 
-Rebuilt 2026-06-17 to match the blueprint's **Market Liquidity Index** and our
-own backtest finding (§5). **Z-score standardized** (the blueprint's method —
-preserves distribution shape, handles outliers far better than percentile/
-min-max; winsorized to ±3 sd so one county can't dominate). **Two stages:**
+Rebuilt 2026-06-18 after the realization (confirmed with data) that the v3
+liquidity-led score was measuring the **wrong thing for land flipping**: it
+surfaced mature metros that resell houses fast but have no land-flip spread
+(e.g. Monroe Co NY — top MLI, yet −0.7% population growth). Land flipping profits
+on the **path of growth**, so the headline now targets that. **Z-score
+standardized** (winsorized ±3). **Headline + secondary:**
 
-**Stage 1 — Market Liquidity Index (MLI):** pure liquidity, the "king metric"
-land flippers sell on. Weighted toward absorption + velocity:
+**Headline — Land-Flip Score:** where the land-flip spread lives.
 
-| MLI metric | Weight | Better when | Source | Blueprint variable |
-|------------|-------:|-------------|--------|--------------------|
-| Months of inventory | 40% | lower | Redfin | Months of Inventory (MOI) |
-| Days on market | 40% | lower | Redfin | Days on Market (DOM) |
-| Sale-to-list ratio | 20% | higher | Redfin | List-to-Sale Ratio (LSR) proxy |
+| Component | Weight | Better when | Source |
+|-----------|-------:|-------------|--------|
+| Population growth (4yr) | 40% | higher | Census pop |
+| Builder/construction activity (permits/1k) | 35% | higher | Census permits |
+| Cheap entry (median price) | 25% | lower | Redfin |
 
-**Stage 2 — Opportunity score (headline):** liquidity-dominant, fundamentals +
-affordability as support. **No momentum** (price/sales growth, heat = 0 weight)
-— §5 proved it doesn't predict.
+**Secondary — Market Liquidity Index (MLI):** residential resale liquidity
+(months supply 40% · DOM 40% · sale-to-list 20%), kept as a "is the market frozen
+or transacting?" check — **not** the land-flip signal. Validated as a
+liquidity-persistence signal (§5); the Land-Flip headline is **thesis-driven, not
+yet validated** against land sales (needs land-STR data — the paid/scraped step).
 
-| Score metric | Weight | Better when | Source |
-|--------------|-------:|-------------|--------|
-| **Market Liquidity Index (Stage 1)** | **60%** | higher | (above) |
-| Population growth (4yr) | 15% | higher | Census pop |
-| Construction intensity (permits/1k) | 10% | higher | Census permits |
-| Affordable entry (median price) | 15% | lower | Redfin |
+Both composites are reported as 0–100 percentiles. Weights live in
+`LANDFLIP_METRICS` / `LIQUIDITY_METRICS` at the top of `county_scanner.py`.
+The top of the Land-Flip ranking is now the classic land-flip geography
+(Horry SC, Bastrop/Hays/Montgomery TX, Sumter/Flagler/Pasco FL, Pinal AZ).
 
-Both composites are reported as readable 0–100 percentiles. Weights live at the
-top of `county_scanner.py`. **Dropped vs v2:** price YoY, sales YoY, market heat
-(momentum, mean-reverting), and permit growth (noisy small-sample) — all now
-shown as *context* columns but earning **0 score weight**.
-
-**Still a residential proxy.** The one remaining MLI variable we can't yet build
-free is **Price-per-Acre Variance** (needs land comps) — reserved for the paid
-phase.
+**Still a residential proxy** for the demand side; true land liquidity
+(Price-per-Acre Variance / land STR) needs land comps — reserved for the paid phase.
 
 ---
 
@@ -282,7 +277,13 @@ data layer (residential → land-specific) and the 4th variable (CoV).
 4. ✅ **DONE (2026-06-18)** — **L4 auto-diligence** built into Parcel Scout:
    auto-flags flood (FEMA), wetland (USFWS), and slope (USGS) on the top leads.
    Landlock check (OSM roads) still to add.
-5. **CRM / pipeline** to track leads through the funnel.
+5. **Metro-ring model** (logged 2026-06-19) — refine the Hidden Opportunity lens
+   by explicitly scoring small counties *adjacent* to a growing metro, using free
+   Census county-adjacency data, to catch path-of-growth spillover before the
+   crowd arrives. The cleanest version of "escape the obvious."
+6. **Competition data (paid)** — replace the size proxy with real investor
+   activity (ATTOM investor-purchase share / PropStream) for a true competition signal.
+7. **CRM / pipeline** to track leads through the funnel.
 
 **When scaling (paid):**
 6. **Land-specific listing + sales data** (Regrid/ATTOM/PRYCD) → true land STR,
@@ -335,3 +336,33 @@ data layer (residential → land-specific) and the 4th variable (CoV).
   starter-market shortlist + rankings + state leaderboard from the scanner CSV,
   auto-generated after each scan. Top starters (Monroe/Wayne/Livingston NY,
   Tippecanoe IN, Cumberland PA, Kent MI) align with the Parcel Scout coverage.
+- **2026-06-19** — Added a **third lens: Hidden Opportunity Score** ("escape the
+  obvious"). The Land-Flip headline rewards the signals every investor uses, so its
+  top is the most *crowded* geography. Hidden = Land-Flip demand − competition −
+  exit-penalty, where competition is proxied (free) by market size/visibility
+  (`ln(pop)+ln(homes_sold)`) and the exit-penalty avoids the "Custer trap" (no
+  buyer). Surfaces the "next ring out" of growing metros (Trousdale TN↔Nashville,
+  Gilchrist FL↔Gainesville, Linn KS↔KC) — competition 1–15 vs the obvious top's
+  70–98. New scanner columns (Hidden, Comp) + "under-the-radar picks" filter +
+  report section. **Honest limits:** competition is a size proxy (real data is
+  paid — ATTOM investor purchases); chosen design = sweet-spot (low comp WITH
+  exit floor). **Logged next step (user-requested): the metro-ring model** — score
+  small counties adjacent to a growing metro via free Census county-adjacency data.
+- **2026-06-18** — **Rebuilt the headline to a Land-Flip Score** (v4). A critique
+  (from a friend's Claude) + our own data showed the v3 liquidity-led score ranked
+  *mature metros* (Monroe NY: top MLI but −0.7% growth) — resale velocity is nearly
+  the opposite of land-flip opportunity. New headline = pop growth 40% + builder
+  activity (permits/1k) 35% + cheap entry 25%; MLI demoted to a secondary column.
+  Verified: top markets became the classic land-flip geography (Horry SC, TX/FL
+  exurbs, Pinal AZ), and the friend's hand-picked builder counties jumped into the
+  top 3–27% (Pasco FL #23, Kaufman TX #70, Guadalupe TX #75). Honest status: the
+  Land-Flip Score is **thesis-driven, not yet validated** vs land sales (the MLI
+  backtest validates only the secondary metric).
+- **2026-06-18** — Added a **state wholesaling legal layer** (research Module 5).
+  Web-researched current (mid-2026) state laws and encoded a 5-tier flag in
+  `county_scanner.py` (`LEGAL` dict): ⛔ license (IL/OK/NC/KY/NE), 🟧 register
+  (CT/OR), 🟨 disclosure (OH/MD/IN/TX), ◐ marketing-limits (SC/MI/NY/CA/GA/IA/
+  NJ/UT/WA), ✅ clear. Shown + filterable in the scanner table and the scores
+  report; NY note added to Parcel Scout. **Flag, not a score input** — laws
+  change fast, always verify with an attorney. Distribution across scored
+  counties: 939 clear · 444 mktg · 305 disclosure · 285 license · 38 register.
