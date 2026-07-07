@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal Dossier 001 — ~42 ac assemblage, Middle TN growth corridor</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2129;--panel2:#222c36;--line:#2e3a46;--text:#e6edf3;
+    --muted:#8b9bab;--accent:#58a6ff;--good:#3fb950;--warn:#d29922;--bad:#f85149}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{padding:26px 24px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#161d24,#0f1419)}
+  header h1{margin:0;font-size:23px}
+  header .sub{color:var(--muted);font-size:13.5px;margin-top:6px}
+  .wrap{max-width:920px;margin:0 auto;padding:8px 24px 90px}
+  nav{position:sticky;top:0;background:rgba(15,20,25,.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);padding:11px 24px;font-size:13px;z-index:10;
+    display:flex;gap:16px;flex-wrap:wrap}
+  nav a{color:var(--muted);text-decoration:none}nav a:hover{color:var(--accent)}
+  h2{font-size:19px;margin:38px 0 6px;padding-top:10px;border-top:1px solid var(--line)}
+  h3{font-size:15px;margin:22px 0 6px;color:var(--accent)}
+  p{margin:8px 0}
+  code,.f{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .f{display:block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;margin:12px 0;font-size:13.5px;color:#cfe1ff;white-space:pre-wrap;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;background:#161d24}
+  td.n,th.n{text-align:right;font-family:ui-monospace,monospace;white-space:nowrap}
+  .good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+  .muted{color:var(--muted)}
+  .callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:8px;padding:12px 16px;margin:16px 0;font-size:14px}
+  .callout.good{border-left-color:var(--good)}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout.bad{border-left-color:var(--bad)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;vertical-align:middle}
+  .pill.warn{background:rgba(210,153,34,.15);color:var(--warn)}
+  a{color:var(--accent)}
+  ul,ol{margin:8px 0;padding-left:24px}
+  li{margin:5px 0}
+  .check{list-style:none;padding-left:4px}
+  .check li{padding-left:26px;position:relative}
+  .check li::before{content:"☐";position:absolute;left:2px;color:var(--accent)}
+  .foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 Deal Dossier 001 — ~42-acre assemblage, Middle Tennessee growth corridor</h1>
+  <div class="sub">Inbound seller lead · desktop research as of 2026-07-07 · identifying details redacted (public repo)
+    &nbsp;·&nbsp; Status: <span class="pill warn">FACT-FINDING — no offer made</span></div>
+</header>
+<nav>
+  <a href="#verdict">Verdict</a>
+  <a href="#property">Property</a>
+  <a href="#market">Market</a>
+  <a href="#strategy">Why this deal is different</a>
+  <a href="#call">Callback plan</a>
+  <a href="#homework">Homework</a>
+  <a href="#risks">Risks &amp; flags</a>
+</nav>
+<div class="wrap">
+
+<div class="callout">
+  <b>Redaction note:</b> this is a live negotiation, so the address, parcel numbers, coordinates,
+  road name, and owner details are kept in a local-only copy (never committed — same policy as the
+  Parcel Scout PII outputs). Everything below is the case study with identifiers removed.
+</div>
+
+<h2 id="verdict">Snapshot verdict</h2>
+<div class="callout good">
+  <b>This is not a cheap-dirt wholesale lead — it's a potential developer-grade deal.</b>
+  An owner responded to outreach offering to sell ~42 acres total: an ~9-acre home parcel
+  (house built early 1970s) plus an adjacent ~33-acre vacant lot, fronting a US highway in a
+  fast-growing corridor between two booming Middle Tennessee towns (major master-planned
+  communities breaking ground nearby). Even at conservative rural land values the assemblage
+  is plausibly worth <b>$800K–$1.5M+ before counting the house</b>. Handle with the big-deal
+  playbook: no blind lowball, longer diligence, developer buyer pool, attorney before contract.
+</div>
+
+<h2 id="property">1 · What we know</h2>
+<table>
+  <tr><th>Item</th><th>Finding</th><th>Confidence / source</th></tr>
+  <tr><td>Location</td><td>US-highway frontage in the growth corridor between two rapidly expanding Middle TN towns (~1 hr from Nashville).</td><td>Geocoded; seller-stated</td></tr>
+  <tr><td>Home parcel</td><td>~9 acres <b>with a house</b> (built early 1970s). Last sale mid-2010s at roughly the mid-$200Ks; records conflict on year — verify at assessor.</td><td>Third-party property records</td></tr>
+  <tr><td>Adjacent lot</td><td><b>Vacant, no street address</b> (normal for raw land — it's identified by parcel number). ~33 acres by subtraction. APN not yet known — find on the county parcel map by matching owner name, or ask seller to read it off the tax bill.</td><td>Seller-stated; unverified</td></tr>
+  <tr><td>Seller intent</td><td>“Interested in selling all my land, including an adjacent lot — 42 acres total.” Motivation, timeline, price anchor: <b>unknown — the callback's job.</b></td><td>Seller message</td></tr>
+</table>
+
+<h2 id="market">2 · Market context (county-level, mid-2026)</h2>
+<table>
+  <tr><th>Signal</th><th class="n">Value</th><th>Note</th></tr>
+  <tr><td>Rural county — avg asking</td><td class="n">~$29K/acre</td><td>LandSearch, 170+ rural listings</td></tr>
+  <tr><td>County overall — avg asking</td><td class="n">~$46K/acre</td><td>Land.com market page</td></tr>
+  <tr><td>Nearest city — avg asking</td><td class="n">~$88K/acre</td><td>Skewed by small development lots</td></tr>
+  <tr><td>Corridor dev land w/ utilities</td><td class="n">$100K+/acre ask</td><td>e.g. a 13.5 ac listing at $2.5M with sewer</td></tr>
+  <tr><td>Historic sales, same road (2012–2017)</td><td class="n">~$8–11K/acre</td><td>Three 30–50 ac sales; corridor has exploded since</td></tr>
+</table>
+<div class="f">Rough value bands for ~42 ac here (asks, not solds — refine with real comps):
+  Conservative rural resale ....... 42 × $20–25K  ≈ $840K–$1.05M
+  Corridor / path-of-growth ....... 42 × $30–45K  ≈ $1.26M–$1.9M
+  Frontage + utilities (dev play) . far higher, frontage-dependent
+  + the ~1970s house on ~9 ac ..... separate value, condition unknown</div>
+<p class="muted">Asking ≠ sold — the Deal Analyzer comp set (sold 25–60 ac parcels, last 12–18 months) is the real number.</p>
+
+<h2 id="strategy">3 · Why this deal is different (big-deal playbook)</h2>
+<ul>
+  <li><b>No blind lowball.</b> A 30%-of-value opener on a $1M+ property ends the relationship. Anchor with facts and comps instead.</li>
+  <li><b>The buyer is a developer/builder or land fund,</b> not a $20K recreational-lot investor. Thinner buyer pool, much bigger fee potential.</li>
+  <li><b>Structure matters:</b> consider a longer inspection period or an <b>option agreement</b> to shop it to developers. Spend the $300 on a TN real-estate attorney <i>before</i> signing anything.</li>
+  <li><b>Tennessee wholesaling rules:</b> market your contractual interest only, never the property as if you own it (playbook §10).</li>
+  <li><b>House complicates it:</b> land-only vs house-included changes value, buyer type, and possibly your exit. First question of the callback.</li>
+</ul>
+
+<h2 id="call">4 · Callback plan — questions in order</h2>
+<ol>
+  <li><b>House included, or land only?</b></li>
+  <li><b>Parcel numbers</b> — “The back lot has no address; can you grab the parcel number off the tax bill? Or I can find it on the county map if you tell me where it sits.”</li>
+  <li><b>Same name on both deeds?</b> (Spouse / estate / trust — everyone signs.)</li>
+  <li><b>Why selling, what timeline?</b> Motivation = discount room.</li>
+  <li><b>Access &amp; utilities</b> — does the vacant lot touch the highway or any road itself, or only connect through the house parcel? Well/septic or city water/sewer?</li>
+  <li><b>Mortgage, liens, back taxes</b> on either parcel?</li>
+  <li><b>Price anchors</b> — “Had it appraised? Gotten offers before? What number makes it worth selling?” (Developers likely already mailed them.)</li>
+  <li><b>Close:</b> schedule a specific callback day. No number quoted until Deal Analyzer MAO exists.</li>
+</ol>
+
+<h2 id="homework">5 · Homework before the offer call</h2>
+<ul class="check">
+  <li>State property viewer (<a href="https://tnmap.tn.gov/assessment/">tnmap.tn.gov/assessment</a>): look up the home parcel, then click neighboring parcels to find the vacant lot by matching owner name. Record both APNs, acreage, assessed values. <span class="muted">(Site blocks robots — manual, ~5 min.)</span></li>
+  <li>Check if the vacant lot touches a road on its own — an interior parcel that only connects through the house parcel prices very differently and can't be split off cleanly.</li>
+  <li>Check <b>greenbelt</b> enrollment on the vacant lot (common for 30+ ac in TN). Rollback taxes (~2 yrs post-2023 law; generally buyer's responsibility since 2016, but negotiable) — price into any developer exit.</li>
+  <li>Assessor gaps → call the county assessor's office.</li>
+  <li>Pull <b>sold</b> comps 25–60 ac in the corridor (LandSearch, Zillow sold filter, AcreValue) → Deal Analyzer → OPEN + MAO.</li>
+  <li>FEMA flood + USFWS wetlands + slope on both parcels (Checklist stage B).</li>
+  <li>One conversation with a TN real-estate attorney / title company about assignment vs option at this deal size.</li>
+</ul>
+
+<h2 id="risks">6 · Risks &amp; open flags</h2>
+<table>
+  <tr><th>Flag</th><th>Why it matters</th></tr>
+  <tr><td class="warn">Third-party records conflict (acreage, sale year, parcel # variants)</td><td>Data scrapers are stale — trust only the assessor/recorder.</td></tr>
+  <tr><td class="warn">Vacant lot ownership unverified</td><td>Could be estate/trust/family-titled → probate or extra signers.</td></tr>
+  <tr><td class="warn">Access of the back lot unknown</td><td>Interior parcel with no frontage prices very differently.</td></tr>
+  <tr><td class="warn">Greenbelt rollback possible</td><td>A surprise tax bill at change-of-use; negotiate in contract.</td></tr>
+  <tr><td class="warn">Thin buyer pool at $1M+</td><td>Dispo takes longer — structure the contract window accordingly.</td></tr>
+  <tr><td class="bad">Seller motivation unknown</td><td>Without discount tolerance there is no wholesale deal, however nice the dirt.</td></tr>
+</table>
+
+<div class="foot">
+  Research notes for an active lead — third-party data, unverified against county records; not an appraisal,
+  not legal or financial advice. Verify everything at the assessor/recorder and with a Tennessee real-estate
+  attorney or title company before contracting. Process: <code>study/03-wholesale-process-playbook.md</code> ·
+  Scripts: <code>study/04-seller-call-scripts.md</code>. Full-detail version of this dossier is local-only
+  (<code>deals/local-*</code>, gitignored).
+</div>
+</div>
+</body>
+</html>
