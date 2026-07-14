@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Land Lead Manager</title>
+<style>
+  :root {
+    --bg: #0f1419; --panel: #1a2129; --panel2: #222c36; --line: #2e3a46;
+    --text: #e6edf3; --muted: #8b9bab; --accent: #3fb950; --accent2: #58a6ff;
+    --warn: #d29922; --bad: #f85149; --good: #3fb950; --purple: #bc8cff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    padding: 14px 24px 0; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #161d24, #0f1419);
+  }
+  .head-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  header h1 { margin: 0; font-size: 20px; letter-spacing: .3px; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  nav { display: flex; gap: 4px; margin-top: 12px; flex-wrap: wrap; }
+  nav button {
+    background: none; border: none; border-bottom: 2px solid transparent; border-radius: 0;
+    color: var(--muted); padding: 8px 14px; font-size: 14px; cursor: pointer;
+  }
+  nav button.active { color: var(--text); border-bottom-color: var(--accent2); font-weight: 600; }
+  nav button:hover { color: var(--text); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 18px 24px 80px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin-bottom: 18px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 15px; text-transform: uppercase; letter-spacing: .8px; color: var(--accent2); }
+  .card .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
+  label { display: block; font-size: 12.5px; color: var(--muted); margin: 10px 0 4px; }
+  input, select, textarea {
+    width: 100%; padding: 9px 11px; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent2); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 130px; }
+  button {
+    background: var(--panel2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 14px; font-size: 14px; cursor: pointer;
+  }
+  button:hover { border-color: var(--accent2); }
+  button.primary { background: var(--accent); color: #06210d; border-color: var(--accent); font-weight: 600; }
+  button.danger { color: var(--bad); }
+  button.small { padding: 5px 10px; font-size: 12.5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  th, td { text-align: left; padding: 7px 8px; font-size: 13px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; white-space: nowrap; cursor: pointer; user-select: none; }
+  tbody tr:hover { background: rgba(88,166,255,.05); cursor: pointer; }
+  .muted { color: var(--muted); }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 700; white-space: nowrap; display: inline-block; }
+  .funnel { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 4px; padding-bottom: 14px; }
+  .funnel .fbox {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 14px; cursor: pointer; text-align: center; min-width: 74px;
+  }
+  .funnel .fbox:hover, .funnel .fbox.on { border-color: var(--accent2); }
+  .funnel .fbox .n { font-size: 19px; font-weight: 700; }
+  .funnel .fbox .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
+  .toolbar > div { min-width: 120px; }
+  .toolbar label { margin-top: 0; }
+  .phone-link { color: var(--accent2); text-decoration: none; white-space: nowrap; }
+  .phone-link:hover { text-decoration: underline; }
+  .fire { color: var(--warn); }
+  /* modal */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none;
+    align-items: flex-start; justify-content: center; padding: 30px 16px; overflow-y: auto; z-index: 50;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    width: 100%; max-width: 760px; padding: 22px;
+  }
+  .modal h3 { margin: 0 0 2px; font-size: 18px; }
+  .log { max-height: 200px; overflow-y: auto; font-size: 12.5px; margin-top: 6px; }
+  .log .li { padding: 5px 0; border-bottom: 1px dashed var(--line); }
+  .log .t { color: var(--muted); margin-right: 8px; font-size: 11.5px; }
+  /* call mode */
+  .call-card { max-width: 720px; margin: 0 auto; }
+  .call-card .owner-big { font-size: 26px; font-weight: 700; margin: 2px 0 8px; }
+  .callbtns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .callbtns button { font-size: 13.5px; }
+  .phones-big { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+  .phones-big a {
+    background: var(--panel2); border: 1px solid var(--accent2); color: var(--accent2);
+    padding: 10px 16px; border-radius: 10px; text-decoration: none; font-size: 17px; font-weight: 600;
+  }
+  .phones-big a.dead { border-color: var(--line); color: var(--muted); text-decoration: line-through; }
+  .scriptbox { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 14px; white-space: pre-wrap; font-size: 14.5px; }
+  .prog { color: var(--muted); font-size: 13px; }
+  .drop {
+    border: 2px dashed var(--line); border-radius: 12px; padding: 34px; text-align: center;
+    color: var(--muted); cursor: pointer; transition: border-color .15s;
+  }
+  .drop:hover, .drop.over { border-color: var(--accent2); color: var(--text); }
+  .mapping-table select { padding: 5px 8px; font-size: 13px; }
+  .banner { background: rgba(210,153,34,.1); border: 1px solid var(--warn); border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; }
+  .banner a { color: var(--accent2); }
+  .empty { text-align: center; color: var(--muted); padding: 40px 10px; }
+  .checkline { display: flex; align-items: center; gap: 8px; }
+  .checkline input { width: auto; }
+  .tag { font-size: 11px; background: var(--panel2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-top">
+    <div>
+      <h1>📇 Land Lead Manager</h1>
+      <div class="sub">Upload lists · Stack · Call · Track the pipeline to contract</div>
+    </div>
+    <div class="prog" id="storageInfo"></div>
+  </div>
+  <nav>
+    <button id="tabbtn-leads" class="active" onclick="showTab('leads')">📋 Leads</button>
+    <button id="tabbtn-call" onclick="showTab('call')">📞 Call Mode</button>
+    <button id="tabbtn-import" onclick="showTab('import')">📥 Import List</button>
+    <button id="tabbtn-data" onclick="showTab('data')">🗄️ Lists & Backup</button>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <div class="funnel" id="funnel"></div>
+
+  <!-- ============ LEADS TAB ============ -->
+  <div id="tab-leads">
+    <div class="card">
+      <div class="toolbar">
+        <div style="flex:2; min-width:200px;"><label>Search (owner, phone, county, APN…)</label>
+          <input id="fSearch" oninput="renderLeads()" placeholder="type to filter" /></div>
+        <div><label>Status</label><select id="fStatus" onchange="renderLeads()"><option value="">All</option></select></div>
+        <div><label>List</label><select id="fList" onchange="renderLeads()"><option value="">All</option></select></div>
+        <div><label>State</label><select id="fState" onchange="renderLeads()"><option value="">All</option></select></div>
+        <div class="checkline" style="padding-bottom:9px;"><input type="checkbox" id="fStacked" onchange="renderLeads()" /><label style="margin:0;">🔥 stacked only</label></div>
+        <div class="checkline" style="padding-bottom:9px;"><input type="checkbox" id="fDue" onchange="renderLeads()" /><label style="margin:0;">📅 due follow-up</label></div>
+        <div><button class="small" onclick="exportFilteredCSV()">⬇ Export CSV</button></div>
+      </div>
+      <div id="leadsTableWrap"></div>
+    </div>
+  </div>
+
+  <!-- ============ CALL MODE TAB ============ -->
+  <div id="tab-call" style="display:none;">
+    <div class="card call-card" id="callCard"></div>
+    <div class="card call-card">
+      <h2>Your script</h2>
+      <p class="hint">Placeholders auto-fill on the card above: {owner_first} {owner} {county} {state} {acres} {address}. Edits save automatically.</p>
+      <textarea id="scriptEdit" rows="7" oninput="saveScript()"></textarea>
+    </div>
+  </div>
+
+  <!-- ============ IMPORT TAB ============ -->
+  <div id="tab-import" style="display:none;">
+    <div class="card">
+      <h2>1 · Choose a CSV file</h2>
+      <p class="hint">Works with skip-traced phone lists (BatchSkipTracing, PropStream, DataTree…), Parcel Scout output
+        (<span class="tag">tools/output/parcels-*.csv</span>), or any spreadsheet exported as CSV.
+        Re-importing the same owner/parcel from another list <b>stacks</b> it (🔥) instead of duplicating — stacked leads are your hottest calls.</p>
+      <div class="drop" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        Drop a .csv file here, or click to browse
+      </div>
+      <input type="file" id="fileInput" accept=".csv,.txt,.tsv" style="display:none;" onchange="fileChosen(this.files[0])" />
+    </div>
+    <div class="card" id="mapCard" style="display:none;">
+      <h2>2 · Map the columns</h2>
+      <p class="hint">We guessed the mapping from the headers — fix anything that's wrong. Map every phone column to
+        <b>Phone</b> (a lead can hold many numbers). Columns set to <i>— ignore —</i> are skipped.</p>
+      <div class="row">
+        <div><label>List name (source tag)</label><input id="impListName" /></div>
+        <div><label>Default county (if file has none)</label><input id="impCounty" placeholder="e.g. Genesee" /></div>
+        <div><label>Default state (if file has none)</label><input id="impState" placeholder="e.g. NY" maxlength="2" /></div>
+      </div>
+      <div id="mapTableWrap" class="mapping-table" style="max-height:340px; overflow-y:auto; margin-top:12px;"></div>
+      <div class="row" style="margin-top:14px;">
+        <div><button class="primary" onclick="runImport()">📥 Import leads</button></div>
+        <div style="text-align:right;"><span class="muted" id="impPreviewInfo"></span></div>
+      </div>
+    </div>
+    <div class="card" id="impResultCard" style="display:none;"></div>
+  </div>
+
+  <!-- ============ DATA TAB ============ -->
+  <div id="tab-data" style="display:none;">
+    <div class="banner">⚖️ <b>Before any calling session:</b> scrub your numbers against the National Do-Not-Call
+      Registry (<a href="https://telemarketing.donotcall.gov" target="_blank">telemarketing.donotcall.gov</a>) at least every 31 days,
+      and honor your internal 🚫 DNC list forever. Leads marked DNC here are automatically excluded from Call Mode.</div>
+    <div class="card">
+      <h2>Imported lists</h2>
+      <p class="hint">Each import is tracked as a source list. Deleting a list removes leads that came <i>only</i> from it (stacked leads survive).</p>
+      <div id="listsWrap"></div>
+    </div>
+    <div class="card">
+      <h2>Backup & restore</h2>
+      <p class="hint">Everything lives in this browser on this Mac. Download a backup after big call sessions, or to move to another computer.</p>
+      <div class="row">
+        <div><button class="primary" onclick="backupJSON()">💾 Download backup (.json)</button></div>
+        <div><button onclick="document.getElementById('restoreInput').click()">📂 Restore from backup</button>
+          <input type="file" id="restoreInput" accept=".json" style="display:none;" onchange="restoreJSON(this.files[0])" /></div>
+        <div><button onclick="exportAllCSV()">⬇ Export ALL leads (.csv)</button></div>
+        <div><button class="danger" onclick="wipeAll()">🗑 Delete everything</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LEAD DETAIL MODAL ============ -->
+<div class="overlay" id="leadOverlay" onclick="if(event.target===this) closeLead()">
+  <div class="modal" id="leadModal"></div>
+</div>
+
+<script>
+/* ================= CORE (pure, DOM-free — also exercised by tests) ================= */
+const STATUSES = {
+  NEW:      { label: 'New',            color: '#8b9bab' },
+  ATTEMPT:  { label: 'Attempting',     color: '#58a6ff' },
+  CONTACT:  { label: 'Contacted',      color: '#58a6ff' },
+  WARM:     { label: '⭐ Warm',         color: '#d29922' },
+  OFFER:    { label: 'Offer made',     color: '#e3854a' },
+  CONTRACT: { label: 'Under contract', color: '#bc8cff' },
+  WON:      { label: '✅ Sold',         color: '#3fb950' },
+  DEAD:     { label: 'Dead',           color: '#5a6672' },
+  BAD:      { label: 'Bad data',       color: '#a04440' },
+  DNC:      { label: '🚫 DNC',          color: '#f85149' },
+};
+const CALLABLE = ['NEW','ATTEMPT','CONTACT','WARM','OFFER'];   // statuses Call Mode will queue
+
+function sniffDelim(line) {
+  let counts = { ',': 0, ';': 0, '\t': 0, '|': 0 }, inQ = false;
+  for (const ch of line) {
+    if (ch === '"') inQ = !inQ;
+    else if (!inQ && ch in counts) counts[ch]++;
+  }
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][1] > 0
+    ? Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0] : ',';
+}
+
+function parseCSV(text) {
+  text = text.replace(/^﻿/, '');
+  const firstLine = text.slice(0, text.indexOf('\n') === -1 ? text.length : text.indexOf('\n'));
+  const d = sniffDelim(firstLine);
+  const rows = []; let row = [], cell = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else inQ = false; }
+      else cell += ch;
+    } else if (ch === '"') inQ = true;
+    else if (ch === d) { row.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); cell = '';
+      if (row.length > 1 || row[0].trim() !== '') rows.push(row);
+      row = [];
+    } else cell += ch;
+  }
+  row.push(cell);
+  if (row.length > 1 || row[0].trim() !== '') rows.push(row);
+  return rows;
+}
+
+const FIELDS = {
+  ignore:      '— ignore —',
+  owner:       'Owner (full name)',
+  first:       'First name',
+  last:        'Last name',
+  phone:       'Phone',
+  email:       'Email',
+  mail_street: 'Mailing street',
+  mail_city:   'Mailing city',
+  mail_state:  'Mailing state',
+  mail_zip:    'Mailing zip',
+  prop_address:'Property address / road',
+  prop_muni:   'Property town / muni',
+  prop_county: 'Property county',
+  prop_state:  'Property state',
+  apn:         'APN / parcel #',
+  acres:       'Acres',
+  value:       'Assessed / market value ($)',
+  score:       'Lead score',
+  notes:       'Notes',
+};
+
+function guessField(header) {
+  const h = header.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const tests = [
+    ['phone',       /phone|mobile|cell|landline|telefone/],
+    ['email',       /e_?mail/],
+    ['mail_street', /mail(ing)?_?(street|addr)|owner_?address|mail_?pobox/],
+    ['mail_city',   /mail(ing)?_?city/],
+    ['mail_state',  /mail(ing)?_?state/],
+    ['mail_zip',    /mail(ing)?_?(zip|postal)/],
+    ['apn',         /^apn|parcel_?(id|num)|print_?key/],
+    ['acres',       /^acres?$|acreage|lot_?size/],
+    ['score',       /^lead$|score/],
+    ['value',       /^fmv$|^value$|assessed|market_?value|^price$|amount/],
+    ['prop_county', /county/],
+    ['prop_muni',   /^muni|city_town|township/],
+    ['prop_state',  /^(situs|prop(erty)?)_?state$|^state$/],
+    ['prop_address',/^address$|^situs|prop(erty)?_?(address|street)|^street$/],
+    ['first',       /first_?name/],
+    ['last',        /last_?name|surname/],
+    ['owner',       /owner(?!_?type)|^name$|full_?name|contact/],
+    ['notes',       /note|comment/],
+  ];
+  for (const [f, re] of tests) if (re.test(h)) return f;
+  return 'ignore';
+}
+
+function normPhone(v) {
+  let d = String(v || '').replace(/\D/g, '');
+  if (d.length === 11 && d[0] === '1') d = d.slice(1);
+  return d.length === 10 ? d : '';
+}
+function fmtPhone(d) { return d ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : ''; }
+
+function leadKey(l) {
+  const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  // APN keeps punctuation (only spaces/case removed): '8.-1-44' and '8.-14-4' are different parcels
+  if (l.apn) return 'apn:' + String(l.apn).toLowerCase().replace(/\s/g, '') + ':' + norm(l.county || l.muni || '');
+  if (l.owner && (l.mail_street || l.prop_address))
+    return 'oa:' + norm(l.owner) + ':' + norm(l.mail_street || l.prop_address);
+  if (l.phones.length) return 'ph:' + l.phones[0].n + ':' + norm(l.owner);
+  return 'ow:' + norm(l.owner) + ':' + norm(l.county) + ':' + (l.acres || '');
+}
+
+function rowToLead(headers, mapping, row, defaults) {
+  const l = { owner:'', first:'', last:'', phones:[], email:'', mail_street:'', mail_city:'',
+              mail_state:'', mail_zip:'', prop_address:'', muni:'', county: defaults.county || '',
+              state: defaults.state || '', apn:'', acres:'', value:'', score:'', notes:'' };
+  headers.forEach((h, i) => {
+    const f = mapping[i], v = (row[i] || '').trim();
+    if (!v || f === 'ignore') return;
+    if (f === 'phone') { const p = normPhone(v); if (p && !l.phones.some(x => x.n === p)) l.phones.push({ n: p, label: h, status: 'unknown' }); }
+    else if (f === 'owner') l.owner = l.owner ? l.owner + ' & ' + v : v;   // co-owner columns append
+    else if (f === 'prop_address') l.prop_address = l.prop_address ? l.prop_address + ' ' + v : v;
+    else if (f === 'prop_muni') l.muni = v;
+    else if (f === 'prop_county') l.county = v;
+    else if (f === 'prop_state') l.state = v.toUpperCase().slice(0, 2);
+    else if (f === 'mail_street') l.mail_street = l.mail_street ? l.mail_street + ' ' + v : v;
+    else if (f === 'notes') l.notes = (l.notes ? l.notes + ' | ' : '') + v;
+    else if (f in l) l[f] = v;
+  });
+  if (!l.owner && (l.first || l.last)) l.owner = (l.first + ' ' + l.last).trim();
+  return l;
+}
+
+function mergeLead(existing, incoming, listName, now) {
+  for (const p of incoming.phones)
+    if (!existing.phones.some(x => x.n === p.n)) existing.phones.push(p);
+  for (const k of ['owner','email','mail_street','mail_city','mail_state','mail_zip',
+                   'prop_address','muni','county','state','apn','acres','value','score'])
+    if (!existing[k] && incoming[k]) existing[k] = incoming[k];
+  if (incoming.notes && !(existing.notes || '').includes(incoming.notes))
+    existing.notes = (existing.notes ? existing.notes + '\n' : '') + incoming.notes;
+  if (!existing.stack.includes(listName)) {
+    existing.stack.push(listName);
+    existing.log.push({ t: now, text: `🔥 Stacked: also on list “${listName}”` });
+  }
+  existing.updated = now;
+}
+/* ================= END CORE ================= */
+
+const LS_KEY = 'landcrm_v1';
+const DEFAULT_SCRIPT =
+`Hi, is this {owner_first}? My name is ___ — I'm a local land buyer.
+The reason I'm calling: you own about {acres} acres on {address} in {county} County, {state}, and I'd love to make you a cash offer for it.
+Have you ever thought about selling that property?
+(If yes → "Great — is there anything about the land I should know? Access, wetness, back taxes?" → get price expectation → "Let me run my numbers and I'll call you back with a written offer.")
+(If no → "No problem — if I sent you a written offer anyway, what's the best mailing address?")`;
+
+let S = { leads: [], lists: {}, script: DEFAULT_SCRIPT, seq: 1 };
+let callQueue = [], callIdx = 0, openLeadId = null, sortCol = 'updated', sortDir = -1;
+let pendingImport = null;
+
+function load() {
+  try { const raw = localStorage.getItem(LS_KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+  if (!S.script) S.script = DEFAULT_SCRIPT;
+}
+function persist() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); }
+  catch (e) { alert('⚠️ Could not save — storage is full. Download a backup and delete old lists.'); }
+  const kb = Math.round((localStorage.getItem(LS_KEY) || '').length / 1024);
+  document.getElementById('storageInfo').textContent = `${S.leads.length} leads · ${kb} KB used`;
+}
+const byId = id => S.leads.find(l => l.id === id);
+const today = () => new Date().toISOString().slice(0, 10);
+const nowIso = () => new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+/* ---------- tabs ---------- */
+function showTab(t) {
+  for (const x of ['leads', 'call', 'import', 'data']) {
+    document.getElementById('tab-' + x).style.display = x === t ? '' : 'none';
+    document.getElementById('tabbtn-' + x).classList.toggle('active', x === t);
+  }
+  if (t === 'call') buildQueue();
+  if (t === 'data') renderLists();
+}
+
+/* ---------- funnel ---------- */
+function renderFunnel() {
+  const counts = {}; for (const k in STATUSES) counts[k] = 0;
+  let due = 0;
+  for (const l of S.leads) { counts[l.status] = (counts[l.status] || 0) + 1; if (l.followUp && l.followUp <= today() && !['WON','DEAD','DNC','BAD'].includes(l.status)) due++; }
+  const cur = document.getElementById('fStatus').value;
+  let html = '';
+  for (const k of ['NEW','ATTEMPT','CONTACT','WARM','OFFER','CONTRACT','WON','DEAD','BAD','DNC']) {
+    html += `<div class="fbox ${cur === k ? 'on' : ''}" onclick="filterStatus('${k}')">
+      <div class="n" style="color:${STATUSES[k].color}">${counts[k]}</div><div class="l">${STATUSES[k].label}</div></div>`;
+  }
+  html += `<div class="fbox" onclick="document.getElementById('fDue').checked=true; showTab('leads'); renderLeads();">
+      <div class="n" style="color:var(--warn)">${due}</div><div class="l">📅 Due</div></div>`;
+  document.getElementById('funnel').innerHTML = html;
+}
+function filterStatus(k) {
+  const sel = document.getElementById('fStatus');
+  sel.value = sel.value === k ? '' : k;
+  showTab('leads'); renderLeads();
+}
+
+/* ---------- leads table ---------- */
+function fillFilterSelects() {
+  const st = document.getElementById('fStatus');
+  if (st.options.length === 1)
+    for (const k in STATUSES) st.add(new Option(STATUSES[k].label, k));
+  const lists = [...new Set(S.leads.flatMap(l => l.stack))].sort();
+  const fl = document.getElementById('fList'); const cur = fl.value;
+  fl.innerHTML = '<option value="">All</option>';
+  lists.forEach(n => fl.add(new Option(n, n)));
+  fl.value = cur;
+  const states = [...new Set(S.leads.map(l => l.state).filter(Boolean))].sort();
+  const fs = document.getElementById('fState'); const cs = fs.value;
+  fs.innerHTML = '<option value="">All</option>';
+  states.forEach(n => fs.add(new Option(n, n)));
+  fs.value = cs;
+}
+
+function filteredLeads() {
+  const q = document.getElementById('fSearch').value.toLowerCase().trim();
+  const st = document.getElementById('fStatus').value;
+  const li = document.getElementById('fList').value;
+  const sta = document.getElementById('fState').value;
+  const stacked = document.getElementById('fStacked').checked;
+  const due = document.getElementById('fDue').checked;
+  return S.leads.filter(l => {
+    if (st && l.status !== st) return false;
+    if (li && !l.stack.includes(li)) return false;
+    if (sta && l.state !== sta) return false;
+    if (stacked && l.stack.length < 2) return false;
+    if (due && !(l.followUp && l.followUp <= today())) return false;
+    if (q) {
+      const hay = [l.owner, l.county, l.muni, l.apn, l.prop_address, l.mail_city, l.mail_state,
+                   ...l.phones.map(p => p.n)].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = col === 'owner' ? 1 : -1; }
+  renderLeads();
+}
+
+function renderLeads() {
+  fillFilterSelects(); renderFunnel();
+  const rows = filteredLeads();
+  const val = (l, c) => c === 'owner' ? (l.owner || '').toLowerCase()
+    : c === 'score' ? parseFloat(l.score) || 0
+    : c === 'acres' ? parseFloat(l.acres) || 0
+    : c === 'stack' ? l.stack.length
+    : c === 'followUp' ? (l.followUp || '9999')
+    : l.updated || '';
+  rows.sort((a, b) => (val(a, sortCol) > val(b, sortCol) ? 1 : val(a, sortCol) < val(b, sortCol) ? -1 : 0) * sortDir);
+  const arrow = c => sortCol === c ? (sortDir > 0 ? ' ▲' : ' ▼') : '';
+  if (!S.leads.length) {
+    document.getElementById('leadsTableWrap').innerHTML =
+      `<div class="empty">No leads yet.<br><br><button class="primary" onclick="showTab('import')">📥 Import your first list</button></div>`;
+    return;
+  }
+  let html = `<div class="muted" style="font-size:12.5px; margin-bottom:4px;">${rows.length} of ${S.leads.length} leads</div>
+  <div style="overflow-x:auto;"><table><thead><tr>
+    <th onclick="sortBy('owner')">Owner${arrow('owner')}</th><th>Phones</th>
+    <th>Property</th><th onclick="sortBy('acres')">Acres${arrow('acres')}</th>
+    <th onclick="sortBy('score')">Score${arrow('score')}</th>
+    <th onclick="sortBy('stack')">Lists${arrow('stack')}</th><th>Status</th>
+    <th onclick="sortBy('followUp')">Follow-up${arrow('followUp')}</th>
+    <th onclick="sortBy('updated')">Updated${arrow('updated')}</th></tr></thead><tbody>`;
+  for (const l of rows.slice(0, 500)) {
+    const st = STATUSES[l.status] || STATUSES.NEW;
+    const ph = l.phones.length
+      ? fmtPhone(l.phones[0].n) + (l.phones.length > 1 ? ` <span class="muted">+${l.phones.length - 1}</span>` : '')
+      : '<span class="muted">— none —</span>';
+    const overdue = l.followUp && l.followUp <= today();
+    html += `<tr onclick="openLead(${l.id})">
+      <td><b>${esc(l.owner) || '(no name)'}</b>${l.stack.length > 1 ? ' <span class="fire">🔥×' + l.stack.length + '</span>' : ''}</td>
+      <td>${ph}</td>
+      <td>${esc([l.prop_address, l.muni, l.county && l.county + ' Co', l.state].filter(Boolean).join(', '))}</td>
+      <td>${esc(l.acres)}</td><td>${esc(l.score)}</td>
+      <td>${l.stack.map(s => `<span class="tag">${esc(s)}</span>`).join(' ')}</td>
+      <td><span class="pill" style="background:${st.color}22; color:${st.color}">${st.label}</span></td>
+      <td style="${overdue ? 'color:var(--warn); font-weight:600;' : ''}">${l.followUp || ''}</td>
+      <td class="muted">${(l.updated || '').slice(0, 10)}</td></tr>`;
+  }
+  html += '</tbody></table></div>';
+  if (rows.length > 500) html += `<div class="muted" style="margin-top:8px;">Showing first 500 — refine the filters to see the rest.</div>`;
+  document.getElementById('leadsTableWrap').innerHTML = html;
+}
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- lead detail modal ---------- */
+function openLead(id) {
+  openLeadId = id; const l = byId(id); if (!l) return;
+  const st = STATUSES[l.status];
+  let phonesHtml = l.phones.map((p, i) => `
+    <div class="row" style="align-items:center; margin-bottom:6px;">
+      <div style="flex:0 0 auto;"><a class="phone-link" style="font-size:16px;" href="tel:+1${p.n}">${fmtPhone(p.n)}</a>
+        <span class="muted" style="font-size:11.5px;">${esc(p.label || '')}</span></div>
+      <div style="flex:0 0 150px;"><select onchange="setPhoneStatus(${i}, this.value)">
+        ${['unknown','good','bad','dnc'].map(x => `<option value="${x}" ${p.status === x ? 'selected' : ''}>${x === 'dnc' ? '🚫 DNC' : x}</option>`).join('')}
+      </select></div>
+    </div>`).join('') || '<div class="muted">No phone numbers — skip trace this owner to get them.</div>';
+
+  document.getElementById('leadModal').innerHTML = `
+    <div class="row" style="justify-content:space-between; align-items:start;">
+      <div><h3>${esc(l.owner) || '(no name)'} ${l.stack.length > 1 ? '<span class="fire">🔥×' + l.stack.length + '</span>' : ''}</h3>
+        <div class="muted" style="font-size:13px;">${l.stack.map(s => `<span class="tag">${esc(s)}</span>`).join(' ')}</div></div>
+      <button class="small" onclick="closeLead()">✕ Close</button>
+    </div>
+    <div class="row" style="margin-top:12px;">
+      <div><label>Status</label><select id="mStatus" onchange="setLeadField('status', this.value)">
+        ${Object.keys(STATUSES).map(k => `<option value="${k}" ${l.status === k ? 'selected' : ''}>${STATUSES[k].label}</option>`).join('')}</select></div>
+      <div><label>Follow-up date</label><input type="date" id="mFollow" value="${l.followUp || ''}" onchange="setLeadField('followUp', this.value)" /></div>
+      <div><label>Offer sent ($)</label><input type="number" value="${esc(l.offer || '')}" onchange="setLeadField('offer', this.value)" /></div>
+    </div>
+    <label>Phones <span class="muted">(click to call from your Mac/iPhone)</span></label>
+    ${phonesHtml}
+    <div class="row">
+      <div><label>Property</label><div style="font-size:13.5px;">${esc([l.prop_address, l.muni, l.county && l.county + ' County', l.state].filter(Boolean).join(', ')) || '<span class="muted">—</span>'}<br>
+        <span class="muted">APN ${esc(l.apn) || '—'} · ${esc(l.acres) || '?'} ac · value $${esc(l.value) || '?'} · score ${esc(l.score) || '—'}</span>
+        ${mapLink(l)}</div></div>
+      <div><label>Mailing address (direct mail)</label><div style="font-size:13.5px;">${esc([l.mail_street, l.mail_city, l.mail_state, l.mail_zip].filter(Boolean).join(', ')) || '<span class="muted">—</span>'}</div></div>
+    </div>
+    <label>Notes</label>
+    <textarea rows="3" onchange="setLeadField('notes', this.value)">${esc(l.notes || '')}</textarea>
+    <div class="row" style="margin-top:8px; align-items:end;">
+      <div style="flex:3;"><label>Add activity note</label><input id="mNewNote" placeholder="e.g. spoke with wife, call back Tuesday" onkeydown="if(event.key==='Enter')addNote()" /></div>
+      <div><button class="small" onclick="addNote()">＋ Log</button></div>
+    </div>
+    <label>Activity log</label>
+    <div class="log">${(l.log || []).slice().reverse().map(e => `<div class="li"><span class="t">${e.t}</span>${esc(e.text)}</div>`).join('') || '<span class="muted">nothing yet</span>'}</div>
+    <div style="margin-top:16px; text-align:right;">
+      <button class="danger small" onclick="deleteLead()">🗑 Delete lead</button>
+    </div>`;
+  document.getElementById('leadOverlay').classList.add('open');
+}
+function mapLink(l) {
+  const q = l.prop_address ? `${l.prop_address}, ${l.muni || ''} ${l.county || ''} County ${l.state || ''}` : '';
+  return q ? ` · <a class="phone-link" target="_blank" href="https://www.google.com/maps/search/${encodeURIComponent(q)}">🗺 map</a>` : '';
+}
+function closeLead() { document.getElementById('leadOverlay').classList.remove('open'); openLeadId = null; renderLeads(); }
+function setLeadField(f, v) {
+  const l = byId(openLeadId); if (!l) return;
+  const old = l[f]; l[f] = v; l.updated = nowIso();
+  if (f === 'status' && old !== v) l.log.push({ t: nowIso(), text: `Status: ${STATUSES[old]?.label || old} → ${STATUSES[v].label}` });
+  if (f === 'offer' && v) l.log.push({ t: nowIso(), text: `Offer recorded: $${Number(v).toLocaleString()}` });
+  persist(); renderFunnel();
+}
+function setPhoneStatus(i, v) {
+  const l = byId(openLeadId); if (!l) return;
+  l.phones[i].status = v; l.updated = nowIso();
+  if (v === 'dnc') { l.status = 'DNC'; l.log.push({ t: nowIso(), text: `🚫 ${fmtPhone(l.phones[i].n)} marked DNC — lead moved to internal DNC list` }); }
+  persist(); openLead(openLeadId);
+}
+function addNote() {
+  const l = byId(openLeadId); const inp = document.getElementById('mNewNote');
+  if (!l || !inp.value.trim()) return;
+  l.log.push({ t: nowIso(), text: inp.value.trim() }); l.updated = nowIso();
+  inp.value = ''; persist(); openLead(openLeadId);
+}
+function deleteLead() {
+  if (!confirm('Delete this lead permanently?')) return;
+  S.leads = S.leads.filter(l => l.id !== openLeadId);
+  persist(); closeLead();
+}
+
+/* ---------- import ---------- */
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files[0]) fileChosen(e.dataTransfer.files[0]); });
+
+function fileChosen(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const rows = parseCSV(reader.result);
+    if (rows.length < 2) { alert('That file looks empty (needs a header row + data rows).'); return; }
+    const headers = rows[0].map(h => h.trim());
+    const mapping = headers.map(guessField);
+    pendingImport = { headers, mapping, rows: rows.slice(1), fileName: file.name };
+    document.getElementById('impListName').value = file.name.replace(/\.(csv|txt|tsv)$/i, '');
+    const m = file.name.match(/parcels-([A-Za-z ]+)/); // Parcel Scout convention
+    if (m) { document.getElementById('impCounty').value = m[1]; document.getElementById('impState').value = 'NY'; }
+    renderMapTable();
+    document.getElementById('mapCard').style.display = '';
+    document.getElementById('impResultCard').style.display = 'none';
+    document.getElementById('impPreviewInfo').textContent = `${pendingImport.rows.length} data rows detected`;
+  };
+  reader.readAsText(file);
+}
+
+function renderMapTable() {
+  const { headers, mapping, rows } = pendingImport;
+  const sample = rows[0] || [];
+  let html = '<table><thead><tr><th>Column in your file</th><th>First row (example)</th><th>Import as…</th></tr></thead><tbody>';
+  headers.forEach((h, i) => {
+    html += `<tr><td><b>${esc(h)}</b></td><td class="muted">${esc(String(sample[i] || '').slice(0, 40))}</td>
+      <td><select onchange="pendingImport.mapping[${i}]=this.value">
+      ${Object.entries(FIELDS).map(([k, v]) => `<option value="${k}" ${mapping[i] === k ? 'selected' : ''}>${v}</option>`).join('')}
+      </select></td></tr>`;
+  });
+  document.getElementById('mapTableWrap').innerHTML = html + '</tbody></table>';
+}
+
+function runImport() {
+  const { headers, mapping, rows } = pendingImport;
+  const listName = document.getElementById('impListName').value.trim() || 'unnamed list';
+  const defaults = { county: document.getElementById('impCounty').value.trim(),
+                     state: document.getElementById('impState').value.trim().toUpperCase() };
+  const keyMap = {}; S.leads.forEach(l => keyMap[leadKey(l)] = l);
+  let added = 0, stacked = 0, skipped = 0;
+  const now = nowIso();
+  for (const row of rows) {
+    const inc = rowToLead(headers, mapping, row, defaults);
+    if (!inc.owner && !inc.phones.length && !inc.apn) { skipped++; continue; }
+    const key = leadKey(inc);
+    if (keyMap[key]) {
+      const ex = keyMap[key];
+      if (ex.stack.includes(listName)) { skipped++; continue; }  // same list re-imported
+      mergeLead(ex, inc, listName, now); stacked++;
+    } else {
+      const lead = Object.assign(inc, {
+        id: S.seq++, status: 'NEW', followUp: '', offer: '', stack: [listName],
+        log: [{ t: now, text: `Imported from “${listName}”` }], created: now, updated: now,
+      });
+      S.leads.push(lead); keyMap[key] = lead; added++;
+    }
+  }
+  S.lists[listName] = { imported: now, rows: rows.length };
+  persist();
+  document.getElementById('mapCard').style.display = 'none';
+  document.getElementById('impResultCard').style.display = '';
+  document.getElementById('impResultCard').innerHTML = `
+    <h2>✅ Import finished</h2>
+    <div class="stat" style="font-size:15px; padding:12px 0;">
+      <b>${added}</b>&nbsp;new leads added · <b class="fire">${stacked}</b>&nbsp;stacked onto existing leads 🔥 · <b>${skipped}</b>&nbsp;skipped (empty or already on this list)
+    </div>
+    <p class="hint">Stacked leads appear on more than one list — statistically they convert several times better. Filter with the 🔥 checkbox on the Leads tab and call those first.</p>
+    <button class="primary" onclick="showTab('leads')">📋 Go to leads</button>`;
+  renderLeads();
+}
+
+/* ---------- call mode ---------- */
+function buildQueue() {
+  callQueue = S.leads.filter(l =>
+    CALLABLE.includes(l.status) &&
+    l.phones.some(p => p.status !== 'bad' && p.status !== 'dnc'))
+    .sort((a, b) => {
+      const dueA = a.followUp && a.followUp <= today() ? 0 : 1;
+      const dueB = b.followUp && b.followUp <= today() ? 0 : 1;
+      if (dueA !== dueB) return dueA - dueB;
+      if (b.stack.length !== a.stack.length) return b.stack.length - a.stack.length;
+      return (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0);
+    });
+  callIdx = 0;
+  document.getElementById('scriptEdit').value = S.script;
+  renderCall();
+}
+
+function renderCall() {
+  const el = document.getElementById('callCard');
+  if (!callQueue.length || callIdx >= callQueue.length) {
+    el.innerHTML = `<div class="empty">🎉 Queue is empty.<br><span class="muted" style="font-size:13px;">
+      Call Mode queues every lead with a usable phone whose status is New / Attempting / Contacted / Warm / Offer —
+      due follow-ups first, then 🔥 stacked, then score.</span><br><br>
+      <button onclick="showTab('import')">📥 Import a list</button></div>`;
+    return;
+  }
+  const l = callQueue[callIdx];
+  const first = (l.owner || '').split(/[\s,]+/).filter(Boolean);
+  const firstName = l.owner && l.owner.includes(',') ? (first[1] || first[0]) : (first[0] || 'there');
+  const script = esc(S.script)
+    .replaceAll('{owner_first}', `<b>${esc(firstName)}</b>`)
+    .replaceAll('{owner}', `<b>${esc(l.owner)}</b>`)
+    .replaceAll('{county}', `<b>${esc(l.county || '?')}</b>`)
+    .replaceAll('{state}', `<b>${esc(l.state || '?')}</b>`)
+    .replaceAll('{acres}', `<b>${esc(l.acres || '?')}</b>`)
+    .replaceAll('{address}', `<b>${esc(l.prop_address || l.muni || 'the property')}</b>`);
+  const due = l.followUp && l.followUp <= today();
+  el.innerHTML = `
+    <div class="row" style="justify-content:space-between;">
+      <span class="prog">Lead ${callIdx + 1} of ${callQueue.length} ${due ? '· <b class="fire">📅 follow-up due</b>' : ''}</span>
+      <span>${l.stack.map(s => `<span class="tag">${esc(s)}</span>`).join(' ')} ${l.stack.length > 1 ? '<span class="fire">🔥×' + l.stack.length + '</span>' : ''}</span>
+    </div>
+    <div class="owner-big">${esc(l.owner) || '(no name)'}</div>
+    <div class="muted">${esc([l.prop_address, l.muni, l.county && l.county + ' County', l.state].filter(Boolean).join(', '))}
+      · ${esc(l.acres) || '?'} ac · value $${esc(l.value) || '?'} · score ${esc(l.score) || '—'} ${mapLink(l)}</div>
+    <div class="phones-big">
+      ${l.phones.map(p => `<a href="tel:+1${p.n}" class="${p.status === 'bad' || p.status === 'dnc' ? 'dead' : ''}">📞 ${fmtPhone(p.n)}</a>`).join('')}
+    </div>
+    <div class="scriptbox">${script}</div>
+    <label>Quick note for this call</label>
+    <input id="callNote" placeholder="anything they said…" />
+    <div class="callbtns">
+      <button onclick="dispo('noanswer')">📵 No answer</button>
+      <button onclick="dispo('voicemail')">🗣 Left voicemail</button>
+      <button onclick="dispo('wrong')">❌ Wrong number</button>
+      <button onclick="dispo('notint')">🙅 Not interested</button>
+      <button onclick="dispo('callback')">📅 Callback…</button>
+      <button class="primary" onclick="dispo('interested')">⭐ Interested!</button>
+      <button onclick="dispo('offer')">💰 Offer made</button>
+      <button class="danger" onclick="dispo('dnc')">🚫 DNC</button>
+      <button onclick="callIdx++; renderCall();">Skip ›</button>
+    </div>
+    <div style="margin-top:10px;"><button class="small" onclick="openLead(${l.id})">Open full lead ↗</button></div>`;
+}
+
+function dispo(kind) {
+  const l = callQueue[callIdx]; if (!l) return;
+  const note = (document.getElementById('callNote') || {}).value?.trim();
+  const now = nowIso(); let text = '', advance = true;
+  const attempts = (l.log || []).filter(e => /call:/i.test(e.text)).length + 1;
+  switch (kind) {
+    case 'noanswer':  l.status = l.status === 'NEW' ? 'ATTEMPT' : l.status; text = `Call: no answer (attempt #${attempts})`; break;
+    case 'voicemail': l.status = l.status === 'NEW' ? 'ATTEMPT' : l.status; text = `Call: left voicemail (attempt #${attempts})`; break;
+    case 'wrong': {
+      const good = l.phones.filter(p => p.status !== 'bad' && p.status !== 'dnc');
+      if (good.length) good[0].status = 'bad';
+      const left = l.phones.some(p => p.status !== 'bad' && p.status !== 'dnc');
+      if (!left) l.status = 'BAD';
+      text = `Call: wrong number${left ? ' — trying next number' : ' — no numbers left, needs re-skip-trace'}`;
+      advance = !left ? true : false; break;
+    }
+    case 'notint': l.status = 'DEAD'; text = 'Call: spoke — not interested'; break;
+    case 'callback': {
+      const d = prompt('Call back on which date? (YYYY-MM-DD)', addDays(2));
+      if (d === null) return;
+      l.followUp = d; l.status = 'CONTACT'; text = `Call: asked for callback on ${d}`; break;
+    }
+    case 'interested': {
+      l.status = 'WARM';
+      const d = prompt('⭐ Nice! Follow-up date to send/discuss the offer? (YYYY-MM-DD)', addDays(1));
+      if (d) l.followUp = d;
+      text = 'Call: INTERESTED — wants an offer'; break;
+    }
+    case 'offer': {
+      l.status = 'OFFER';
+      const amt = prompt('Offer amount ($)? (leave blank to skip)');
+      if (amt) l.offer = amt;
+      text = 'Call: offer made' + (amt ? ` — $${Number(amt).toLocaleString()}` : ''); break;
+    }
+    case 'dnc':
+      l.status = 'DNC'; l.phones.forEach(p => p.status = 'dnc');
+      text = 'Call: asked not to be contacted — added to internal DNC list'; break;
+  }
+  if (note) text += ` · “${note}”`;
+  l.log.push({ t: now, text }); l.updated = now;
+  persist(); renderFunnel();
+  if (advance) {
+    if (!CALLABLE.includes(l.status) || !l.phones.some(p => p.status !== 'bad' && p.status !== 'dnc'))
+      callQueue.splice(callIdx, 1);
+    else callIdx++;
+  }
+  renderCall();
+}
+function addDays(n) { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
+function saveScript() { S.script = document.getElementById('scriptEdit').value; persist(); }
+
+/* ---------- lists & backup ---------- */
+function renderLists() {
+  const names = [...new Set([...Object.keys(S.lists), ...S.leads.flatMap(l => l.stack)])].sort();
+  if (!names.length) { document.getElementById('listsWrap').innerHTML = '<div class="empty">No lists imported yet.</div>'; return; }
+  let html = '<table><thead><tr><th>List</th><th>Imported</th><th>Leads on it</th><th></th></tr></thead><tbody>';
+  for (const n of names) {
+    const count = S.leads.filter(l => l.stack.includes(n)).length;
+    html += `<tr style="cursor:default;"><td><b>${esc(n)}</b></td>
+      <td class="muted">${esc(S.lists[n]?.imported || '')}</td><td>${count}</td>
+      <td><button class="small danger" onclick="deleteList('${esc(n).replace(/'/g, "\\'")}')">🗑 Delete list</button></td></tr>`;
+  }
+  document.getElementById('listsWrap').innerHTML = html + '</tbody></table>';
+}
+function deleteList(name) {
+  const only = S.leads.filter(l => l.stack.length === 1 && l.stack[0] === name).length;
+  if (!confirm(`Delete list “${name}”?\n\n${only} leads exist ONLY on this list and will be removed.\nStacked leads stay (the tag is just removed).`)) return;
+  S.leads = S.leads.filter(l => !(l.stack.length === 1 && l.stack[0] === name));
+  S.leads.forEach(l => { l.stack = l.stack.filter(s => s !== name); });
+  delete S.lists[name];
+  persist(); renderLists(); renderLeads();
+}
+function backupJSON() {
+  download(`land-leads-backup-${today()}.json`, JSON.stringify(S, null, 1), 'application/json');
+}
+function restoreJSON(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const data = JSON.parse(r.result);
+      if (!Array.isArray(data.leads)) throw new Error('not a backup');
+      if (!confirm(`Backup contains ${data.leads.length} leads. Replace what's currently here (${S.leads.length} leads)?`)) return;
+      S = data; persist(); renderLeads(); renderLists(); alert('✅ Restored.');
+    } catch (e) { alert('That file is not a valid backup.'); }
+  };
+  r.readAsText(file);
+}
+function csvOf(leads) {
+  const cols = ['owner','phones','email','status','followUp','offer','stack','prop_address','muni','county','state','apn','acres','value','score','mail_street','mail_city','mail_state','mail_zip','notes','updated'];
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const lines = [cols.join(',')];
+  for (const l of leads)
+    lines.push(cols.map(c =>
+      c === 'phones' ? q(l.phones.map(p => fmtPhone(p.n) + (p.status !== 'unknown' ? ` [${p.status}]` : '')).join(' | '))
+      : c === 'stack' ? q(l.stack.join(' | '))
+      : c === 'status' ? q(STATUSES[l.status]?.label || l.status)
+      : q(l[c])).join(','));
+  return lines.join('\n');
+}
+function exportFilteredCSV() { download(`leads-filtered-${today()}.csv`, csvOf(filteredLeads()), 'text/csv'); }
+function exportAllCSV() { download(`leads-all-${today()}.csv`, csvOf(S.leads), 'text/csv'); }
+function download(name, content, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+function wipeAll() {
+  if (!confirm('Delete ALL leads, lists and history? This cannot be undone.')) return;
+  if (!confirm('Really sure? Consider downloading a backup first.')) return;
+  S = { leads: [], lists: {}, script: DEFAULT_SCRIPT, seq: 1 };
+  persist(); renderLeads(); renderLists();
+}
+
+/* ---------- boot ---------- */
+load(); persist(); renderLeads();
+</script>
+</body>
+</html>

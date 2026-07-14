@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Land Offer Engine</title>
+<style>
+  :root {
+    --bg: #0f1419; --panel: #1a2129; --panel2: #222c36; --line: #2e3a46;
+    --text: #e6edf3; --muted: #8b9bab; --accent: #3fb950; --accent2: #58a6ff;
+    --warn: #d29922; --bad: #f85149; --good: #3fb950;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 18px 24px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #161d24, #0f1419); }
+  header h1 { margin: 0; font-size: 20px; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 24px 80px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 4px; font-size: 15px; text-transform: uppercase; letter-spacing: .8px; color: var(--accent2); }
+  .card .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
+  label { display: block; font-size: 12.5px; color: var(--muted); margin: 10px 0 4px; }
+  input, select { width: 100%; padding: 9px 11px; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+  input:focus, select:focus { outline: none; border-color: var(--accent2); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 120px; }
+  button { background: var(--panel2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 14px; font-size: 14px; cursor: pointer; }
+  button:hover { border-color: var(--accent2); }
+  button.primary { background: var(--accent); color: #06210d; border-color: var(--accent); font-weight: 600; }
+  button.small { padding: 5px 10px; font-size: 12.5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  th, td { text-align: left; padding: 6px 8px; font-size: 13px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  .muted { color: var(--muted); }
+  .match { cursor: pointer; }
+  .match:hover { background: rgba(88,166,255,.07); }
+  .imgwrap { position: relative; max-width: 480px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .imgwrap img { width: 100%; display: block; }
+  .imgwrap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stat { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+  .stat .v { font-weight: 600; }
+  .bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); margin: 6px 0 2px; }
+  .bar div { height: 100%; }
+  .links a { color: var(--accent2); text-decoration: none; font-size: 13px; margin-right: 14px; }
+  .links a:hover { text-decoration: underline; }
+  .offers { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px; }
+  .obox { border: 1px solid var(--line); border-radius: 12px; padding: 14px; text-align: center; }
+  .obox .t { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .obox .n { font-size: 24px; font-weight: 800; margin-top: 4px; }
+  .obox.open { border-color: var(--accent2); } .obox.open .n { color: var(--accent2); }
+  .obox.target { border-color: var(--good); } .obox.target .n { color: var(--good); }
+  .obox.walk { border-color: var(--bad); } .obox.walk .n { color: var(--bad); }
+  .verdict { margin-top: 12px; padding: 12px 16px; border-radius: 10px; font-weight: 700; display: none; }
+  .verdict.pursue { display: block; background: rgba(63,185,80,.12); color: var(--good); border: 1px solid var(--good); }
+  .verdict.negotiate { display: block; background: rgba(210,153,34,.12); color: var(--warn); border: 1px solid var(--warn); }
+  .verdict.walk { display: block; background: rgba(248,81,73,.12); color: var(--bad); border: 1px solid var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+  .checkline { display: flex; align-items: center; gap: 8px; font-size: 13.5px; padding: 4px 0; }
+  .checkline input { width: auto; }
+  .hist { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .hist .m { flex: 1; }
+  .spin { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚖️ Land Offer Engine</h1>
+  <div class="sub">Seller texted back? Address → parcel & satellite → value → your three numbers.</div>
+</header>
+<div class="wrap">
+
+  <!-- 1 · FIND -->
+  <div class="card">
+    <h2>1 · Find the parcel</h2>
+    <p class="hint">Pick the state, type what the seller gave you (address, their name, or APN) and hit Search.
+      County narrows it down but is optional. No state service? Use <b>Manual</b> and type the acreage yourself.</p>
+    <div class="row">
+      <div style="max-width:150px;"><label>State</label>
+        <select id="fState" onchange="stateChanged()">
+          <option value="TN">Tennessee</option>
+          <option value="NY">New York</option>
+          <option value="MANUAL">Manual (any state)</option>
+        </select></div>
+      <div style="max-width:170px;"><label>County (optional)</label><input id="fCounty" placeholder="e.g. Maury" /></div>
+      <div style="max-width:150px;"><label>Search by</label>
+        <select id="fBy"><option value="address">Address</option><option value="owner">Owner name</option><option value="apn">APN / parcel #</option></select></div>
+      <div><label>Search text</label><input id="fText" placeholder="e.g. 2039 Nashville Hwy" onkeydown="if(event.key==='Enter')doSearch()" /></div>
+      <div style="max-width:110px; align-self:end;"><button class="primary" style="width:100%;" onclick="doSearch()">🔎 Search</button></div>
+    </div>
+    <div id="manualBox" style="display:none;">
+      <div class="row">
+        <div><label>Nickname / address</label><input id="mName" placeholder="12 ac off CR-40, Ellis Co TX" /></div>
+        <div style="max-width:140px;"><label>Acres</label><input id="mAcres" type="number" step="0.01" /></div>
+        <div style="max-width:170px; align-self:end;"><button onclick="useManual()">Use these values →</button></div>
+      </div>
+    </div>
+    <div id="results"></div>
+  </div>
+
+  <!-- 2 · PARCEL -->
+  <div class="card" id="parcelCard" style="display:none;">
+    <h2>2 · The parcel</h2>
+    <div class="grid2">
+      <div>
+        <div class="imgwrap" id="imgwrap"><div class="spin" style="padding:40px;">loading satellite…</div></div>
+        <div class="links" style="margin-top:8px;" id="parcelLinks"></div>
+      </div>
+      <div id="parcelStats"></div>
+    </div>
+  </div>
+
+  <!-- 3 · VALUE -->
+  <div class="card" id="valueCard" style="display:none;">
+    <h2>3 · What is it worth?</h2>
+    <p class="hint">Two ways — comps win when you have them.
+      <b>A (2 min):</b> open the comp links, eyeball the typical asking $/acre and typical size for similar land, type them in.
+      <b>B (better):</b> enter 2–6 real comps (sold if you can find them, asking otherwise) — the engine fits the
+      <b>acreage decay curve</b> and re-prices them to your parcel's size.</p>
+    <div class="links" id="compLinks"></div>
+    <div class="grid2" style="margin-top:10px;">
+      <div>
+        <b style="font-size:13.5px;">A · Quick $/acre</b>
+        <div class="row">
+          <div><label>Typical asking $/acre</label><input id="qPPA" type="number" oninput="recalc()" placeholder="60000" /></div>
+          <div><label>…for a typical size of (ac)</label><input id="qSize" type="number" value="5" oninput="recalc()" /></div>
+        </div>
+      </div>
+      <div>
+        <b style="font-size:13.5px;">B · Comps (used when ≥2)</b>
+        <table><thead><tr><th>Price $</th><th>Acres</th><th>Sold?</th><th></th></tr></thead><tbody id="compsBody"></tbody></table>
+        <button class="small" onclick="addComp()">＋ Add comp</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px;">
+      <div><label>Ask → sold discount %</label><input id="askDisc" type="number" value="12" oninput="recalc()" /></div>
+      <div><label>Decay exponent b</label><input id="decayB" type="number" step="0.05" value="-0.35" oninput="recalc()" /></div>
+      <div style="flex:2;"><label>&nbsp;</label><div class="stat" style="border:none;"><span>Estimated market value (FMV)</span>
+        <span class="v" id="fmvOut" style="font-size:20px;">—</span></div></div>
+    </div>
+    <div class="muted" id="fmvExplain" style="font-size:12.5px;"></div>
+  </div>
+
+  <!-- 4 · OFFER -->
+  <div class="card" id="offerCard" style="display:none;">
+    <h2>4 · Your three numbers</h2>
+    <div class="grid2">
+      <div>
+        <label>Costs to sell (closing, title, marketing) %</label><input id="sellCosts" type="number" value="8" oninput="recalc()" />
+        <label>Your minimum profit / assignment fee ($)</label><input id="profit" type="number" value="15000" oninput="recalc()" />
+      </div>
+      <div>
+        <label>Discount boosters (each pushes the opening offer lower)</label>
+        <div class="checkline"><input type="checkbox" id="dTax" onchange="recalc()" /> Back taxes / liens mentioned</div>
+        <div class="checkline"><input type="checkbox" id="dAbsentee" onchange="recalc()" /> Out-of-state / inherited / never seen it</div>
+        <div class="checkline"><input type="checkbox" id="dListed" onchange="recalc()" /> Was listed &amp; expired (tired seller)</div>
+        <div class="checkline"><input type="checkbox" id="dProblem" onchange="recalc()" /> Access / wet / odd shape issues</div>
+      </div>
+    </div>
+    <div class="offers">
+      <div class="obox open"><div class="t">🎯 Opening offer</div><div class="n" id="oOpen">—</div><div class="muted" id="oOpenPct" style="font-size:12px;"></div></div>
+      <div class="obox target"><div class="t">✅ Happy to close at</div><div class="n" id="oTarget">—</div><div class="muted" style="font-size:12px;">your negotiation zone</div></div>
+      <div class="obox walk"><div class="t">🛑 Walk away above</div><div class="n" id="oWalk">—</div><div class="muted" style="font-size:12px;">MAO — your ceiling</div></div>
+    </div>
+    <div class="row" style="margin-top:14px; align-items:end;">
+      <div><label>Seller wants ($) — leave blank if unknown</label><input id="sellerAsk" type="number" oninput="recalc()" placeholder="they said a number?" /></div>
+      <div style="flex:2;"><div class="verdict" id="verdict"></div></div>
+    </div>
+    <div style="margin-top:14px;">
+      <button class="primary" onclick="saveEval()">💾 Save</button>
+      <button onclick="copySummary()">📋 Copy summary (paste into Lead Manager)</button>
+    </div>
+  </div>
+
+  <div class="card" id="histCard" style="display:none;">
+    <h2>Saved evaluations</h2>
+    <div id="histList"></div>
+  </div>
+</div>
+
+<script>
+/* ================= CORE (pure, DOM-free — exercised by tests) ================= */
+const STATES = {
+  TN: {
+    url: "https://services1.arcgis.com/YuVBSS7Y1of2Qud1/arcgis/rest/services/Tennessee_Property_Boundaries_Public_Use/FeatureServer/0/query",
+    fields: { owner: "OWNER", owner2: "OWNER2", addr: "ADDRESS", apn: "PARCELID",
+              county: "COUNTY_NAME", acres: "DEEDAC", extra: "LINK_TPAD" },
+    outFields: "OBJECTID,OWNER,OWNER2,ADDRESS,PARCELID,COUNTY_NAME,DEEDAC,LINK_TPAD",
+    // TN writes addresses street-first: "NASHVILLE HWY 2049"
+    addrWhere(tokens) {
+      return tokens.map(t => `UPPER(ADDRESS) LIKE '%${t}%'`).join(" AND ");
+    },
+  },
+  NY: {
+    url: "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/FeatureServer/1/query",
+    fields: { owner: "PRIMARY_OWNER", owner2: "ADD_OWNER", addr: "PARCEL_ADDR", apn: "PRINT_KEY",
+              county: "COUNTY_NAME", acres: "ACRES", fmv: "FULL_MARKET_VAL" },
+    outFields: "OBJECTID,PRIMARY_OWNER,ADD_OWNER,PARCEL_ADDR,PRINT_KEY,COUNTY_NAME,MUNI_NAME,ACRES,FULL_MARKET_VAL",
+    addrWhere(tokens) {
+      return tokens.map(t => `UPPER(PARCEL_ADDR) LIKE '%${t}%'`).join(" AND ");
+    },
+  },
+};
+
+function buildWhere(stateKey, by, text, county, opts) {
+  const S = STATES[stateKey], f = S.fields;
+  const esc = s => s.toUpperCase().replace(/'/g, "''").trim();
+  const parts = [];
+  if (county) parts.push(`UPPER(${f.county}) LIKE '${esc(county)}%'`);
+  let tokens = esc(text).split(/[\s,]+/).filter(Boolean);
+  if (opts && opts.noNumbers) tokens = tokens.filter(t => !/^\d+$/.test(t));
+  if (by === "address") parts.push(S.addrWhere(tokens));
+  else if (by === "owner") parts.push(tokens.map(t => `UPPER(${f.owner}) LIKE '%${t}%'`).join(" AND "));
+  else parts.push(`${f.apn} LIKE '%${esc(text)}%'`);
+  return parts.filter(Boolean).join(" AND ");
+}
+
+// rank address matches: rows whose address contains the house number come first
+function rankMatches(rows, text, addrKey) {
+  const nums = (text.match(/\d+/g) || []);
+  return rows.map(r => {
+    const addr = String(r[addrKey] || "");
+    const hit = nums.some(n => new RegExp(`(^|\\D)${n}(\\D|$)`).test(addr)) ? 0 : 1;
+    return { r, hit };
+  }).sort((a, b) => a.hit - b.hit).map(x => x.r);
+}
+
+function ringAcres(outer) {
+  const lat0 = outer.reduce((s, p) => s + p[1], 0) / outer.length;
+  const kx = 111320 * Math.cos(lat0 * Math.PI / 180), ky = 110540;
+  let s = 0;
+  for (let i = 0; i < outer.length - 1; i++)
+    s += outer[i][0] * kx * outer[i + 1][1] * ky - outer[i + 1][0] * kx * outer[i][1] * ky;
+  return Math.abs(s) / 2 / 4046.86;
+}
+
+// log-log least squares fit of PPA = a·acres^b  (same model as the Deal Analyzer)
+function fitDecay(comps, fallbackB) {
+  const pts = comps.filter(c => c.price > 0 && c.acres > 0)
+    .map(c => ({ x: Math.log(c.acres), y: Math.log(c.price / c.acres) }));
+  if (pts.length < 2) return null;
+  const n = pts.length;
+  const mx = pts.reduce((s, p) => s + p.x, 0) / n, my = pts.reduce((s, p) => s + p.y, 0) / n;
+  let num = 0, den = 0;
+  for (const p of pts) { num += (p.x - mx) * (p.y - my); den += (p.x - mx) ** 2; }
+  let b = den > 1e-9 ? num / den : fallbackB;
+  if (!isFinite(b) || den <= 1e-9 || b > 0.05 || b < -1.2) b = fallbackB;  // insane fits → fallback
+  const lnA = my - b * mx;
+  return { a: Math.exp(lnA), b };
+}
+
+function valueFromComps(comps, subjectAcres, askDiscPct, fallbackB) {
+  const adj = comps.map(c => ({ price: c.sold ? c.price : c.price * (1 - askDiscPct / 100), acres: c.acres }));
+  const fit = fitDecay(adj, fallbackB);
+  if (!fit) return null;
+  const ppa = fit.a * Math.pow(subjectAcres, fit.b);
+  return { fmv: ppa * subjectAcres, ppa, b: fit.b, n: adj.length };
+}
+
+function valueFromQuick(ppaTypical, typicalAcres, subjectAcres, askDiscPct, b) {
+  if (!(ppaTypical > 0) || !(subjectAcres > 0)) return null;
+  const soldPPA = ppaTypical * (1 - askDiscPct / 100);
+  const ppa = soldPPA * Math.pow(subjectAcres / Math.max(0.1, typicalAcres || 5), b);
+  return { fmv: ppa * subjectAcres, ppa, b };
+}
+
+// blind-offer discount: base 32%, size tier and distress adjust, clamped 25–40%
+function blindDiscount(acres, boosters) {
+  let d = 32;
+  if (acres > 20) d += 3; else if (acres < 2) d -= 3;
+  d += 3 * boosters;
+  return Math.min(40, Math.max(25, d));
+}
+
+function offers(fmv, acres, boosters, sellCostsPct, profit) {
+  const disc = blindDiscount(acres, boosters);
+  const open = fmv * (1 - disc / 100);
+  const mao = fmv * (1 - sellCostsPct / 100) - profit;
+  return { open: Math.min(open, mao), target: Math.min(fmv * (1 - (disc - 6) / 100), mao), mao, disc };
+}
+
+// parcel outer ring → WKT polygon for USDA Soil Data Access (cap vertices, lon lat order)
+function ringToWkt(outer, maxPts) {
+  const step = Math.max(1, Math.ceil(outer.length / (maxPts || 80)));
+  const pts = outer.filter((_, i) => i % step === 0);
+  if (pts[0][0] !== pts[pts.length - 1][0] || pts[0][1] !== pts[pts.length - 1][1]) pts.push(pts[0]);
+  return "POLYGON((" + pts.map(p => p[0].toFixed(6) + " " + p[1].toFixed(6)).join(",") + "))";
+}
+
+function septicSQL(wkt) {
+  return `SELECT DISTINCT mu.muname, ci.interphrc FROM mapunit mu
+JOIN component c ON c.mukey=mu.mukey AND c.majcompflag='Yes'
+JOIN cointerp ci ON ci.cokey=c.cokey AND ci.mrulename='ENG - Septic Tank Absorption Fields' AND ci.ruledepth=0
+WHERE mu.mukey IN (SELECT * FROM SDA_Get_Mukey_from_intersection_with_WktWgs84('${wkt}'))`;
+}
+
+// worst-first ordering of SSURGO septic ratings
+const SEPTIC_RANK = ["Very limited", "Somewhat limited", "Not limited"];
+function septicSummary(rows) {
+  if (!rows || !rows.length) return null;
+  const ratings = rows.map(r => r[1]);
+  const worst = SEPTIC_RANK.find(x => ratings.includes(x)) || ratings[0];
+  const allBad = ratings.every(r => r === "Very limited");
+  return { worst, allBad, mixed: new Set(ratings).size > 1,
+           names: [...new Set(rows.map(r => `${r[0].split(",")[0]} (${r[1]})`))].slice(0, 3) };
+}
+
+// slope (deg) from a 4-point elevation cross ~110 m around the centroid
+function slopeFromCross(n, s, e, w, latDeg) {
+  const dz1 = (n - s) / 111.0, dz2 = (e - w) / (111.0 * Math.max(0.2, Math.cos(latDeg * Math.PI / 180)));
+  return Math.atan(Math.hypot(dz1, dz2)) * 180 / Math.PI;
+}
+
+// TPAD (TN deed records) pre-filled sold search: county Jur code = first 3 chars of PARCELID
+function tpadSoldUrl(apn, monthsBack) {
+  const jur = String(apn || "").slice(0, 3);
+  if (!/^\d{3}$/.test(jur)) return null;
+  const d = new Date(); d.setMonth(d.getMonth() - (monthsBack || 18));
+  const from = `${String(d.getMonth() + 1).padStart(2, "0")}/01/${d.getFullYear()}`;
+  const p = { Jur: jur, PropertyAddress: "", SubdivisionName: "", Query: "", Owner: "",
+              PropertyType: "", SortBy: "SaleDate", SaleDateRangeStart: from, SaleDateRangeEnd: "",
+              ControlMap: "", MapGroup: "", ParcelNumber: "", GISLink: "" };
+  return "https://assessment.cot.tn.gov/TPAD/Search?serializedParameters=" +
+         encodeURIComponent(JSON.stringify(p));
+}
+
+function verdictFor(ask, o) {
+  if (!(ask > 0)) return null;
+  if (ask <= o.mao) return { cls: "pursue", txt: `PURSUE — their number is under your ceiling. Lock it in near $${fmt(ask)}.` };
+  if (ask <= o.mao * 1.35) return { cls: "negotiate", txt: `NEGOTIATE — ${Math.round((ask / o.mao - 1) * 100)}% above your ceiling. Counter at $${fmt(o.target)} and hold.` };
+  return { cls: "walk", txt: `WALK — they want ${(ask / o.mao).toFixed(1)}× your ceiling. Polite no + follow-up in 6 months.` };
+}
+const fmt = n => isFinite(n) ? Math.round(n).toLocaleString("en-US") : "—";
+/* ================= END CORE ================= */
+
+const R_MERC = 20037508.342789244;
+const merc = (lon, lat) => [lon * R_MERC / 180,
+  Math.log(Math.tan((90 + lat) * Math.PI / 360)) * R_MERC / Math.PI];
+
+let sel = null;   // { state, name, owner, mail, county, apn, acres, gisAcres, geom, links, lc, road }
+let comps = [];
+const LS = "offer_engine_v1";
+let hist = [];
+try { hist = JSON.parse(localStorage.getItem(LS) || "[]"); } catch (e) {}
+
+async function gj(url, params) {
+  const r = await fetch(url + "?" + new URLSearchParams(params));
+  return r.json();
+}
+
+function stateChanged() {
+  const manual = document.getElementById("fState").value === "MANUAL";
+  document.getElementById("manualBox").style.display = manual ? "" : "none";
+}
+
+/* ---------- search ---------- */
+async function doSearch() {
+  const st = document.getElementById("fState").value;
+  if (st === "MANUAL") { document.getElementById("manualBox").style.display = ""; return; }
+  const S = STATES[st];
+  const by = document.getElementById("fBy").value;
+  const text = document.getElementById("fText").value.trim();
+  const county = document.getElementById("fCounty").value.trim();
+  if (!text) return;
+  document.getElementById("results").innerHTML = '<div class="spin">searching…</div>';
+  try {
+    const where = buildWhere(st, by, text, county);
+    let d = await gj(S.url, { where, outFields: S.outFields, returnGeometry: "false",
+                              resultRecordCount: 50, f: "json" });
+    // exact address (with house number) found nothing → retry on street name alone
+    if (!(d.features || []).length && by === "address" && /\d/.test(text))
+      d = await gj(S.url, { where: buildWhere(st, by, text, county, { noNumbers: true }),
+                            outFields: S.outFields, returnGeometry: "false",
+                            resultRecordCount: 50, f: "json" });
+    let rows = (d.features || []).map(f => f.attributes);
+    rows = rankMatches(rows, text, S.fields.addr);
+    if (!rows.length) {
+      document.getElementById("results").innerHTML =
+        '<div class="spin">Nothing found. Try fewer words (street name only), check the county spelling, or search by owner name.</div>';
+      return;
+    }
+    let html = '<table><thead><tr><th>Address</th><th>Owner</th><th>County</th><th>Acres</th><th>APN</th></tr></thead><tbody>';
+    for (const r of rows.slice(0, 15)) {
+      const f = S.fields;
+      html += `<tr class="match" onclick='pick(${JSON.stringify(JSON.stringify(r))})'>
+        <td>${esc(r[f.addr])}</td><td>${esc(r[f.owner])}</td><td>${esc(r[f.county])}</td>
+        <td>${r[f.acres] || "?"}</td><td class="muted">${esc(r[f.apn])}</td></tr>`;
+    }
+    document.getElementById("results").innerHTML = html + "</tbody></table>" +
+      (rows.length > 15 ? `<div class="muted" style="font-size:12px;">…and ${rows.length - 15} more — refine the search.</div>` : "");
+  } catch (e) {
+    document.getElementById("results").innerHTML = `<div class="spin">Search failed (${esc(e.message)}). Are you online?</div>`;
+  }
+}
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------- pick a parcel ---------- */
+async function pick(rowJson) {
+  const r = JSON.parse(rowJson);
+  const st = document.getElementById("fState").value, S = STATES[st], f = S.fields;
+  sel = { state: st, apn: r[f.apn], county: r[f.county], name: `${r[f.addr] || "(no address)"} — ${r[f.county]} Co, ${st}`,
+          owner: [r[f.owner], r[f.owner2]].filter(x => x && x.trim()).join(" & "),
+          acres: parseFloat(r[f.acres]) || null, fmvAssessed: r[f.fmv] || null, tpad: r[f.extra] || null, geom: null };
+  document.getElementById("parcelCard").style.display = "";
+  document.getElementById("valueCard").style.display = "";
+  document.getElementById("offerCard").style.display = "";
+  document.getElementById("imgwrap").innerHTML = '<div class="spin" style="padding:40px;">loading satellite…</div>';
+  renderStats("loading parcel geometry…");
+  try {
+    const d = await gj(S.url, { where: `${f.apn}='${String(sel.apn).replace(/'/g, "''")}'`,
+      outFields: f.apn, returnGeometry: "true", returnCentroid: "true", outSR: "4326", f: "json" });
+    const feat = d.features[0];
+    const rings = feat.geometry.rings, outer = rings.reduce((a, b) => b.length > a.length ? b : a);
+    const xs = outer.map(p => p[0]), ys = outer.map(p => p[1]);
+    const c = feat.centroid || {};
+    sel.geom = { rings, outer, cx: c.x || xs.reduce((a, b) => a + b) / xs.length,
+                 cy: c.y || ys.reduce((a, b) => a + b) / ys.length,
+                 bbox: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] };
+    sel.gisAcres = ringAcres(outer);
+    if (!sel.acres) sel.acres = Math.round(sel.gisAcres * 100) / 100;
+    renderImage(); renderStats(); renderLinks();
+    landCover(); roadAccess(); septicCheck(); wetlandCheck(); slopeCheck(); floodCheck();
+  } catch (e) { renderStats("could not load geometry — use links below to check it manually"); renderLinks(); }
+  recalc();
+  window.scrollTo({ top: document.getElementById("parcelCard").offsetTop - 10, behavior: "smooth" });
+}
+
+function useManual() {
+  sel = { state: "MANUAL", name: document.getElementById("mName").value || "manual parcel",
+          owner: "", county: "", apn: "", acres: parseFloat(document.getElementById("mAcres").value) || 0, geom: null };
+  document.getElementById("parcelCard").style.display = "";
+  document.getElementById("valueCard").style.display = "";
+  document.getElementById("offerCard").style.display = "";
+  document.getElementById("imgwrap").innerHTML = '<div class="spin" style="padding:40px;">no parcel service for this state — use the map links</div>';
+  renderStats(); renderLinks(); recalc();
+}
+
+function renderImage() {
+  const g = sel.geom, px = 480;
+  const [x0, y0] = merc(g.bbox[0], g.bbox[1]), [x1, y1] = merc(g.bbox[2], g.bbox[3]);
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const half = Math.max(x1 - x0, y1 - y0) / 2 * 1.45 + 30;
+  const bb = [cx - half, cy - half, cx + half, cy + half];
+  const url = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?" +
+    new URLSearchParams({ bbox: bb.join(","), bboxSR: "3857", imageSR: "3857", size: `${px},${px}`, format: "jpg", f: "image" });
+  let polys = "";
+  for (const ring of g.rings) {
+    const pts = ring.map(([lon, lat]) => {
+      const [mx, my] = merc(lon, lat);
+      return `${((mx - bb[0]) / (bb[2] - bb[0]) * px).toFixed(1)},${((bb[3] - my) / (bb[3] - bb[1]) * px).toFixed(1)}`;
+    }).join(" ");
+    polys += `<polygon points="${pts}" fill="rgba(63,185,80,.08)" stroke="#3fb950" stroke-width="2.5"/>`;
+  }
+  document.getElementById("imgwrap").innerHTML =
+    `<img src="${url}"><svg viewBox="0 0 ${px} ${px}" preserveAspectRatio="none">${polys}</svg>`;
+}
+
+function renderStats(msg) {
+  let h = "";
+  const s = (l, v) => `<div class="stat"><span>${l}</span><span class="v">${v}</span></div>`;
+  h += s("Owner", esc(sel.owner) || "—");
+  h += s("APN", esc(sel.apn) || "—");
+  h += s("County", esc(sel.county) + ", " + sel.state);
+  h += s("Deed acres", sel.acres ?? "?");
+  if (sel.gisAcres) h += s("GIS-measured acres", sel.gisAcres.toFixed(2));
+  if (sel.fmvAssessed) h += s("Assessed full market value", "$" + fmt(sel.fmvAssessed));
+  h += `<div id="lcRow"></div><div id="roadRow"></div><div id="septicRow"></div><div id="wetRow"></div><div id="slopeRow"></div><div id="floodRow"></div>`;
+  if (msg) h += `<div class="spin" style="margin-top:8px;">${esc(msg)}</div>`;
+  document.getElementById("parcelStats").innerHTML = h;
+}
+
+function renderLinks() {
+  const g = sel.geom;
+  const gm = g ? `https://www.google.com/maps/@${g.cy},${g.cx},600m/data=!3m1!1e3`
+    : `https://www.google.com/maps/search/${encodeURIComponent(sel.name)}`;
+  const county = encodeURIComponent((sel.county || "").toLowerCase().replace(/\s+/g, "-"));
+  const stateName = { TN: "tennessee", NY: "new-york" }[sel.state] || "";
+  let links = `<a href="${gm}" target="_blank">🗺 Google satellite</a>
+    <a href="https://msc.fema.gov/portal/search" target="_blank">🌊 FEMA flood map</a>`;
+  if (sel.tpad) links += ` <a href="${sel.tpad}" target="_blank">🏛 Assessor (TPAD)</a>`;
+  document.getElementById("parcelLinks").innerHTML = links;
+  const zstate = stateName.replace("new-york", "ny").replace("tennessee", "tn");
+  const tpadSold = sel.state === "TN" ? tpadSoldUrl(sel.apn, 18) : null;
+  document.getElementById("compLinks").innerHTML = sel.state === "MANUAL" ? "" : `
+    ${tpadSold ? `<a href="${tpadSold}" target="_blank"><b>🏛 SOLD — deed records, last 18 mo (TPAD) ↗</b></a>` : ""}
+    <a href="https://www.landwatch.com/${stateName}-land-for-sale/${county}-county/available/under-contract/sold" target="_blank">LandWatch SOLD ↗</a>
+    <a href="https://www.zillow.com/${county}-county-${zstate}/sold/" target="_blank">Zillow sold ↗</a>
+    <a href="https://www.landsearch.com/properties/${county}-county-${stateName}" target="_blank">LandSearch asking ↗</a>
+    <a href="https://www.zillow.com/${county}-county-${zstate}/land/" target="_blank">Zillow asking ↗</a>
+    <a href="https://www.landwatch.com/${stateName}-land-for-sale/${county}-county" target="_blank">LandWatch asking ↗</a>`;
+}
+
+/* ---------- enrichment ---------- */
+async function landCover() {
+  const g = sel.geom; if (!g) return;
+  const el = () => document.getElementById("lcRow");
+  el().innerHTML = '<div class="spin">sampling land cover…</div>';
+  const inRing = (x, y, ring) => {
+    let ins = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ins = !ins;
+    }
+    return ins;
+  };
+  const pts = [];
+  if (inRing(g.cx, g.cy, g.outer)) pts.push([g.cx, g.cy]);
+  for (const fy of [0.3, 0.7]) for (const fx of [0.3, 0.7]) {
+    const px = g.bbox[0] + fx * (g.bbox[2] - g.bbox[0]), py = g.bbox[1] + fy * (g.bbox[3] - g.bbox[1]);
+    if (inRing(px, py, g.outer)) pts.push([px, py]);
+  }
+  const CLS = { "1": "water", "2": "trees", "4": "wet", "5": "open", "7": "built", "8": "open", "11": "open" };
+  const counts = {};
+  for (const [lon, lat] of pts.slice(0, 5)) {
+    try {
+      const d = await gj("https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer/identify", {
+        geometry: JSON.stringify({ x: lon, y: lat, spatialReference: { wkid: 4326 } }),
+        geometryType: "esriGeometryPoint",
+        mosaicRule: JSON.stringify({ mosaicMethod: "esriMosaicAttribute", where: "Year = 2023" }),
+        returnGeometry: "false", returnCatalogItems: "false", f: "json" });
+      const c = CLS[String(d.value).trim()]; if (c) counts[c] = (counts[c] || 0) + 1;
+    } catch (e) {}
+  }
+  const n = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (!n) { el().innerHTML = '<div class="stat"><span>Land cover</span><span class="muted">n/a</span></div>'; return; }
+  const pc = k => (counts[k] || 0) / n;
+  el().innerHTML = `<div class="stat" style="border-bottom:none;"><span>Land cover (Sentinel-2)</span>
+    <span class="v">🌾 ${Math.round(pc("open") * 100)}% · 🌲 ${Math.round(pc("trees") * 100)}% · 💧 ${Math.round((pc("wet") + pc("water")) * 100)}%${counts.built ? " · 🏠 structure?" : ""}</span></div>
+    <div class="bar"><div style="width:${pc("open") * 100}%;background:#8fbf4d"></div><div style="width:${pc("trees") * 100}%;background:#2e6b3a"></div>
+    <div style="width:${(pc("wet") + pc("water")) * 100}%;background:#3d7dd6"></div><div style="width:${pc("built") * 100}%;background:#c4281b"></div></div>`;
+}
+
+async function roadAccess() {
+  const g = sel.geom; if (!g) return;
+  const el = () => document.getElementById("roadRow");
+  el().innerHTML = '<div class="spin">checking road access…</div>';
+  try {
+    const d = await gj("https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Transportation/MapServer/8/query", {
+      geometry: JSON.stringify({ xmin: g.bbox[0], ymin: g.bbox[1], xmax: g.bbox[2], ymax: g.bbox[3], spatialReference: { wkid: 4326 } }),
+      geometryType: "esriGeometryEnvelope", inSR: "4326", spatialRel: "esriSpatialRelIntersects",
+      outFields: "NAME", returnGeometry: "false", f: "json" });
+    const feats = d.features || [];
+    el().innerHTML = `<div class="stat"><span>Road access</span><span class="v">${
+      feats.length ? "🛣 frontage: " + esc(feats[0].attributes.NAME || "unnamed road")
+                   : "🚫 no local road touches it — check access!"}</span></div>`;
+  } catch (e) { el().innerHTML = ""; }
+}
+
+async function septicCheck() {
+  const g = sel.geom; if (!g) return;
+  const el = () => document.getElementById("septicRow");
+  el().innerHTML = '<div class="spin">checking soil / septic suitability…</div>';
+  try {
+    const r = await fetch("https://sdmdataaccess.sc.egov.usda.gov/Tabular/post.rest", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: septicSQL(ringToWkt(g.outer)), format: "JSON" }) });
+    const d = await r.json();
+    const s = septicSummary(d.Table || []);
+    if (!s) { el().innerHTML = '<div class="stat"><span>Septic suitability (USDA soil)</span><span class="muted">no data</span></div>'; return; }
+    const color = s.allBad ? "var(--bad)" : s.worst === "Very limited" ? "var(--warn)" : "var(--good)";
+    const label = s.allBad ? "⚠️ Very limited everywhere — needs perc test / sewer"
+      : s.mixed ? `mixed — worst: ${s.worst}` : s.worst;
+    el().innerHTML = `<div class="stat"><span>Septic suitability (USDA soil)</span>
+      <span class="v" style="color:${color}">${esc(label)}</span></div>
+      <div class="muted" style="font-size:11.5px;">${esc(s.names.join(" · "))}</div>`;
+  } catch (e) { el().innerHTML = ""; }
+}
+
+async function wetlandCheck() {
+  const g = sel.geom; if (!g) return;
+  const el = () => document.getElementById("wetRow");
+  el().innerHTML = '<div class="spin">checking mapped wetlands…</div>';
+  try {
+    const d = await gj("https://fwspublicservices.wim.usgs.gov/wetlandsmapservice/rest/services/Wetlands/MapServer/0/query", {
+      geometry: g.bbox.join(","), geometryType: "esriGeometryEnvelope", inSR: "4326",
+      spatialRel: "esriSpatialRelIntersects",
+      outFields: "Wetlands.WETLAND_TYPE", returnGeometry: "false", f: "json" });
+    const types = [...new Set((d.features || []).map(f => f.attributes["Wetlands.WETLAND_TYPE"] || f.attributes.WETLAND_TYPE))];
+    el().innerHTML = `<div class="stat"><span>Mapped wetlands (USFWS)</span><span class="v" style="color:${types.length ? "var(--warn)" : "var(--good)"}">${
+      types.length ? "💧 " + esc(types.join(", ")) + " on/near parcel" : "none mapped"}</span></div>`;
+  } catch (e) { el().innerHTML = ""; }
+}
+
+async function slopeCheck() {
+  const g = sel.geom; if (!g) return;
+  const el = () => document.getElementById("slopeRow");
+  el().innerHTML = '<div class="spin">checking slope…</div>';
+  try {
+    const dlat = 0.0005, dlon = 0.0005 / Math.max(0.2, Math.cos(g.cy * Math.PI / 180));
+    const elev = (x, y) => gj("https://epqs.nationalmap.gov/v1/json", { x, y, units: "Meters", wkid: "4326" })
+      .then(d => parseFloat(d.value));
+    const [n, s, e, w] = await Promise.all([
+      elev(g.cx, g.cy + dlat), elev(g.cx, g.cy - dlat), elev(g.cx + dlon, g.cy), elev(g.cx - dlon, g.cy)]);
+    if ([n, s, e, w].some(v => !isFinite(v))) { el().innerHTML = ""; return; }
+    const deg = slopeFromCross(n, s, e, w, g.cy);
+    el().innerHTML = `<div class="stat"><span>Slope at center (USGS)</span><span class="v" style="color:${
+      deg >= 12 ? "var(--bad)" : deg >= 6 ? "var(--warn)" : "var(--good)"}">${deg.toFixed(1)}°${deg >= 12 ? " — steep!" : ""}</span></div>`;
+  } catch (e) { el().innerHTML = ""; }
+}
+
+async function floodCheck() {
+  const g = sel.geom; if (!g) return;
+  const el = () => document.getElementById("floodRow");
+  try {
+    const d = await gj("https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/28/query", {
+      geometry: `${g.cx},${g.cy}`, geometryType: "esriGeometryPoint", inSR: "4326",
+      spatialRel: "esriSpatialRelIntersects", outFields: "FLD_ZONE", returnGeometry: "false", f: "json" });
+    const z = [...new Set((d.features || []).map(f => f.attributes.FLD_ZONE))];
+    const bad = z.some(x => !["X", "AREA NOT INCLUDED"].includes(x));
+    el().innerHTML = `<div class="stat"><span>FEMA flood zone</span><span class="v" style="color:${bad ? "var(--bad)" : "var(--good)"}">${
+      z.length ? esc(z.join(", ")) : "none mapped"}</span></div>`;
+  } catch (e) {
+    el().innerHTML = `<div class="stat"><span>FEMA flood zone</span><span class="muted">service offline — use the 🌊 link</span></div>`;
+  }
+}
+
+/* ---------- valuation + offers ---------- */
+function addComp(price, acres, sold) {
+  comps.push({ price: price || "", acres: acres || "", sold: !!sold });
+  renderComps();
+}
+function renderComps() {
+  document.getElementById("compsBody").innerHTML = comps.map((c, i) => `<tr>
+    <td><input type="number" value="${c.price}" oninput="comps[${i}].price=parseFloat(this.value)||0; recalc()" style="padding:5px 8px;"></td>
+    <td><input type="number" value="${c.acres}" oninput="comps[${i}].acres=parseFloat(this.value)||0; recalc()" style="padding:5px 8px;"></td>
+    <td style="text-align:center;"><input type="checkbox" ${c.sold ? "checked" : ""} onchange="comps[${i}].sold=this.checked; recalc()"></td>
+    <td><button class="small" onclick="comps.splice(${i},1); renderComps(); recalc()">✕</button></td></tr>`).join("");
+}
+
+function recalc() {
+  if (!sel) return;
+  const acres = sel.acres || 0;
+  const askDisc = parseFloat(document.getElementById("askDisc").value) || 0;
+  const b = parseFloat(document.getElementById("decayB").value) || -0.35;
+  const live = comps.filter(c => c.price > 0 && c.acres > 0);
+  let v = null, how = "";
+  if (live.length >= 2) {
+    v = valueFromComps(live, acres, askDisc, b);
+    if (v) how = `from ${v.n} comps · fitted decay b=${v.b.toFixed(2)} · $${fmt(v.ppa)}/acre at ${acres} ac`;
+  }
+  if (!v) {
+    v = valueFromQuick(parseFloat(document.getElementById("qPPA").value),
+      parseFloat(document.getElementById("qSize").value), acres, askDisc, b);
+    if (v) how = `quick mode · $${fmt(v.ppa)}/acre after size-decay & ${askDisc}% ask→sold`;
+  }
+  document.getElementById("fmvOut").textContent = v ? "$" + fmt(v.fmv) : "—";
+  document.getElementById("fmvExplain").textContent = v ? how : "enter a $/acre or at least 2 comps";
+  if (!v) return;
+  const boosters = ["dTax", "dAbsentee", "dListed", "dProblem"].filter(id => document.getElementById(id).checked).length;
+  const o = offers(v.fmv, acres,
+    boosters, parseFloat(document.getElementById("sellCosts").value) || 0,
+    parseFloat(document.getElementById("profit").value) || 0);
+  document.getElementById("oOpen").textContent = "$" + fmt(o.open);
+  document.getElementById("oOpenPct").textContent = `${o.disc}% below market`;
+  document.getElementById("oTarget").textContent = "$" + fmt(o.target);
+  document.getElementById("oWalk").textContent = "$" + fmt(o.mao);
+  const ask = parseFloat(document.getElementById("sellerAsk").value);
+  const vd = verdictFor(ask, o), vEl = document.getElementById("verdict");
+  vEl.className = "verdict" + (vd ? " " + vd.cls : "");
+  vEl.textContent = vd ? vd.txt : "";
+  sel._calc = { fmv: v.fmv, ...o, ask: ask || null };
+}
+
+function summaryText() {
+  const c = sel._calc || {};
+  return `OFFER ENGINE — ${sel.name}
+Owner: ${sel.owner} | APN ${sel.apn} | ${sel.acres} ac
+FMV est: $${fmt(c.fmv)} | Opening: $${fmt(c.open)} | Target: $${fmt(c.target)} | Ceiling (MAO): $${fmt(c.mao)}${c.ask ? ` | Seller wants: $${fmt(c.ask)}` : ""}
+${new Date().toISOString().slice(0, 10)}`;
+}
+function copySummary() {
+  if (!sel || !sel._calc) return;
+  navigator.clipboard.writeText(summaryText());
+  alert("Copied — paste it into the lead's notes in the Lead Manager.");
+}
+function saveEval() {
+  if (!sel || !sel._calc) return;
+  hist.unshift({ t: new Date().toISOString().slice(0, 16).replace("T", " "), name: sel.name,
+                 owner: sel.owner, acres: sel.acres, ...sel._calc });
+  hist = hist.slice(0, 100);
+  localStorage.setItem(LS, JSON.stringify(hist));
+  renderHist();
+}
+function renderHist() {
+  document.getElementById("histCard").style.display = hist.length ? "" : "none";
+  document.getElementById("histList").innerHTML = hist.map((h, i) => `<div class="hist">
+    <div class="m"><b>${esc(h.name)}</b> — ${esc(h.owner)} · ${h.acres} ac<br>
+      <span class="muted">FMV $${fmt(h.fmv)} · open $${fmt(h.open)} · ceiling $${fmt(h.mao)}${h.ask ? ` · they want $${fmt(h.ask)}` : ""} · ${h.t}</span></div>
+    <button class="small" onclick="hist.splice(${i},1); localStorage.setItem(LS, JSON.stringify(hist)); renderHist()">✕</button></div>`).join("");
+}
+
+addComp(); addComp(); addComp();
+renderHist();
+</script>
+</body>
+</html>

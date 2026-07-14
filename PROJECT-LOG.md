@@ -1,7 +1,7 @@
 # Land Flipping — Project Log & Documentation
 
 > Complete record of what we've built, the data behind it, what we've learned,
-> and where it goes next. Last updated: **2026-06-17**.
+> and where it goes next. Last updated: **2026-07-06**.
 > Companion docs: [README.md](README.md) (hub), [deep research.md](deep%20research.md)
 > (external platform blueprint), [study/](study/) (operator knowledge).
 
@@ -88,6 +88,47 @@ CSV of pre-screened leads ready for the Deal Analyzer. This is the free,
 per-county version of research Modules 3–4. *Verified live: 2,058 vacant parcels
 in Genesee Co, 1,468 absentee-owned.* (Full methodology in
 [METHODOLOGY.md](METHODOLOGY.md).)
+
+### 2.5 Satellite Scout (`tools/satellite_scout.py`) — Engine 4 (added 2026-07-06)
+Vets the top Parcel Scout leads **from the sky**, free and keyless. Per parcel:
+pulls the polygon from the NYS parcel service; samples the **Esri/Impact
+Observatory Sentinel-2 10 m land-cover** raster at interior points (→ % open /
+trees / wet / built); measures **road access** against TIGERweb local roads
+(bbox-intersect = frontage, else distance to nearest segment — a free
+landlocked proxy); downloads an **Esri World Imagery** close-up and draws the
+parcel boundary on it (SVG overlay, Web-Mercator math); blends everything
+(+ the flood/wetland/slope gates already in the CSV) into an **EYEBALL score
+0–100**. Output: `satellite-review-<County>.html`, a keep/reject photo gallery
+whose keepers export as CSV → skip trace → Lead Manager. *Verified live on
+Genesee top-12: scores 32–100, road frontage & wet ground correctly detected.*
+
+### 2.6 Lead Manager (`app/lead-manager.html`) — the CRM (added 2026-07-06)
+Single-file CRM modeled on what land-specific tools (Pebble, REsimpli, REISift)
+do: **CSV import with auto column-mapping** (understands Parcel Scout files and
+skip-trace exports), **dedupe + list stacking** (same owner/APN on several lists
+= 🔥, called first), a 10-stage pipeline (New → … → Under contract → Sold),
+**Call Mode** (queue ordered by due follow-ups → stack depth → lead score, with
+one-tap dispositions, auto-logged activity, editable script with merge fields),
+per-phone status tracking, an **internal DNC list** (DNC leads excluded from
+the queue), follow-up dates, CSV export and JSON backup/restore. Data lives in
+browser localStorage. Core logic (parser/mapper/dedupe) has a Node test
+harness — 45 assertions passing against the real Genesee CSV.
+
+### 2.7 Offer Engine (`app/offer-engine.html`) — added 2026-07-13
+Single-file valuation & offer calculator for the **mass-texting workflow**
+(text lists → positive reply → need a number fast). Searches the **free
+statewide parcel services** (TN: `services1.arcgis.com` Tennessee Property
+Boundaries; NY: NYS Tax Parcels) by address / owner / APN — with house-number
+server-side filtering and street-name fallback — then pulls geometry (GIS
+acreage via shoelace when deed acres are missing), satellite image with SVG
+boundary overlay, Sentinel-2 land cover, TIGER road frontage. Valuation:
+quick $/acre mode or comp mode (log-log decay fit, ask→sold discount), then
+the offer stack: opening (25–40% dynamic discount), target, MAO ceiling, and
+a PURSUE / NEGOTIATE / WALK verdict against the seller's ask. History in
+localStorage. Core logic node-tested (15 assertions incl. live TN/NY queries —
+the real Maury Co lead resolves to the correct parcel). Manual mode covers
+states without a free service. First real-world validation: reproduced the
+manual valuation of the 22-ac Nashville Hwy lead ($692k vs $500–900k range).
 
 ### 2.4 Study material (`study/`)
 - **Operator Playbook** — 3 exit strategies (wholesale/flip/seller-finance), the

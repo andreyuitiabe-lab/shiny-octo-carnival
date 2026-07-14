@@ -1,9 +1,11 @@
 # Large cached downloads — re-downloaded by the tools on demand (232 MB)
 tools/data/
 
-# Parcel Scout output contains REAL owner names + home mailing addresses (PII).
-# Never publish this. It stays only on your Mac.
+# Parcel Scout / Satellite Scout output contains REAL owner names + home mailing
+# addresses (PII) and live-negotiation targets. Never publish. Stays on your Mac.
 tools/output/parcels-*
+tools/output/satellite-review-*
+tools/output/satellite/
 
 # Deal dossiers with real addresses / owner details from live negotiations.
 # Only anonymized versions get committed; the full-detail copies stay local.
