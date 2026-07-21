@@ -97,3 +97,31 @@ Tudo com dados mock, estado só local do React — nenhuma persistência real ai
 bloqueado por Andre: conectar o repo na Vercel + env vars pra validar o Cloudflare, depois o
 backend (Supabase, auth, webhook). O motor de negociação via Gemini continua fora de escopo
 (decisão 0003) — o dossiê é sempre pull manual, negociação é digitada pelos humanos.
+
+## 2026-07-21 — Polimento de UI + filtros funcionais + schema do Supabase pronto
+
+Iterando sobre a UI com Andre (tudo em `platform/`, ainda com dados mock):
+
+1. **Tela de conversas com proporções melhores** — as 3 barras empilhadas (header + wait +
+   estágio) viraram header enxuto + uma faixa de controle; mensagens agora numa coluna central
+   de ~860px (estilo Telegram/iMessage). Andre tinha achado a área de conversa pequena demais.
+2. **Clicar num card do Kanban abre a conversa** daquela pessoa (`/conversations?lead=<id>`),
+   distinguindo clique de arraste pelo movimento do ponteiro.
+3. **Filtros funcionais nas 3 telas** — eram placeholders visuais. Novo componente compartilhado
+   `FilterDropdown` + `lib/filters.ts`. Depois, a pedido do Andre, convertidos pra
+   **multi-seleção** (checkboxes): dá pra puxar "todos os não-descartados" marcando várias
+   classificações de uma vez. Dentro de um filtro os valores somam (OR), entre filtros cruzam
+   (AND). Sort continua seleção única.
+4. **Correções de hidratação** — timestamps relativos passaram a usar um `REFERENCE_NOW` fixo
+   (`lib/now.ts`) e formatação com timezone UTC pinada; o card do Kanban usa `useHydrated()`
+   (`useSyncExternalStore`) pra só aplicar os atributos do dnd-kit depois da hidratação. Sem
+   isso, o dnd-kit e os horários causavam mismatch servidor/cliente.
+5. **Schema do Supabase pronto** (`platform/supabase/schema.sql` + README) — tabelas contacts/
+   stage_history/notes/drafts/messages espelhando `crm_db.py`/`lib/types.ts`, com enums, índices,
+   trigger de updated_at, e RLS (workspace compartilhado, 2 operadores, sem signup público).
+   Adiantado agora porque é idêntico independente do resultado do Cloudflare; só não rodou ainda
+   (depende de Andre criar os 2 projetos dev/prod).
+
+Continua bloqueado no mesmo ponto: Andre precisa fazer o deploy na Vercel (Root Directory
+`platform` + as 2 env vars do GHL) pra eu validar `/api/cloudflare-check`. Só depois disso o
+mecanismo de sync (webhook vs polling) é decidido e construído.

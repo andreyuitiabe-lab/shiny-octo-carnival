@@ -64,11 +64,16 @@
 - [ ] **Validar o Cloudflare na Vercel** — a rota `/api/cloudflare-check` existe e funciona
       local, mas o teste que importa (o `fetch` serverless da Vercel é bloqueado como o Python
       urllib?) só vale rodado na Vercel de verdade. **Bloqueante** pra qualquer código da
-      plataforma que fale com o GHL. Depende de Andre conectar o repo na Vercel + setar as env
-      vars `GHL_API_TOKEN`/`GHL_LOCATION_ID`.
-- [ ] **Backend da plataforma** — Supabase (schema já desenhado em 0004), auth dos 2 usuários,
-      porta de `triage_rules.py` pra TypeScript, webhook do GHL. Nada disso feito; as telas hoje
-      mutam só estado local do React.
+      plataforma que fale com o GHL. Depende de Andre conectar o repo na Vercel (Root Directory
+      `platform`) + setar as env vars `GHL_API_TOKEN`/`GHL_LOCATION_ID`. (Em andamento — Andre
+      está fazendo o deploy.)
+- [ ] **Backend da plataforma** — auth dos 2 usuários no Supabase, porta de `triage_rules.py`
+      pra TypeScript, mecanismo de sync (webhook vs polling — decidido após o Cloudflare). O
+      **schema do Supabase já está pronto** (`platform/supabase/schema.sql` + README), só falta
+      Andre criar os 2 projetos (dev/prod) e rodar. As telas hoje mutam só estado local do React.
+- [ ] **UI da plataforma** (feito nesta sessão, mas ainda com dados mock): 3 telas + dossiê +
+      filtros multi-seleção funcionais + navegação Kanban→conversa. Falta só ligar em dados reais
+      quando o backend existir.
 - [ ] **Rodar `/triage-inbox` num dia real de respostas** e comparar contra o julgamento manual
       de Andre — depende de respostas novas chegarem.
 - [ ] Rotina agendada (schedule skill) — deliberadamente adiada até `/triage-inbox` e
