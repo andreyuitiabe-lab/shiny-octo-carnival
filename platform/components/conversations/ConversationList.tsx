@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { Lead } from "@/lib/types";
 import { badgeForBucket } from "@/lib/types";
 import { waitInfo } from "@/lib/wait";
+import { REFERENCE_NOW } from "@/lib/now";
 import { Badge } from "@/components/Badge";
 import { SENDER_LABEL, SENDER_LABEL_COLOR } from "./senderMeta";
 import styles from "./ConversationList.module.css";
@@ -11,7 +12,7 @@ import styles from "./ConversationList.module.css";
 type Tab = "needsReply" | "all" | "unread";
 
 function timeLabel(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime();
+  const ms = REFERENCE_NOW - new Date(iso).getTime();
   const min = Math.round(ms / 60000);
   if (min < 1) return "now";
   if (min < 60) return `${min}m`;

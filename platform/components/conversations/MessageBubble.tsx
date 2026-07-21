@@ -1,4 +1,5 @@
 import type { Message, SystemNote } from "@/lib/types";
+import { REFERENCE_NOW } from "@/lib/now";
 import { SENDER_EDGE_COLOR, SENDER_LABEL, SENDER_LABEL_COLOR } from "./senderMeta";
 import styles from "./MessageBubble.module.css";
 
@@ -10,15 +11,20 @@ export type TimelineItem =
   | ({ kind: "message" } & Message)
   | ({ kind: "note" } & SystemNote);
 
+// Formats against the fixed REFERENCE_NOW and pins the timezone to UTC so the
+// server and client produce byte-identical strings (locale/tz-dependent output
+// otherwise mismatches on hydration: server runs in UTC, browser in local time).
 function formatTime(iso: string): string {
   const d = new Date(iso);
-  const now = new Date();
+  const now = new Date(REFERENCE_NOW);
   const sameDay =
-    d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+    d.getUTCFullYear() === now.getUTCFullYear() &&
+    d.getUTCMonth() === now.getUTCMonth() &&
+    d.getUTCDate() === now.getUTCDate();
   if (sameDay) {
-    return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
   }
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
 export function MessageBubble({ item }: { item: TimelineItem }) {

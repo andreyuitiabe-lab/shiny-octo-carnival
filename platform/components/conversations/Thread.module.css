@@ -6,9 +6,10 @@
   height: 100%;
 }
 
+/* ── Header: one clean row (messaging-app style — name + a couple controls). ── */
 .header {
   flex: 0 0 auto;
-  padding: 14px 22px;
+  padding: 13px 24px;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -29,16 +30,6 @@
   align-items: center;
   gap: 10px;
 }
-.lastLabel {
-  font-size: 11px;
-  color: var(--text-dim);
-}
-.lastSender {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
 .dossierBtn {
   height: 30px;
   padding: 0 12px;
@@ -48,7 +39,6 @@
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-  margin-left: 4px;
 }
 .dossierBtn:hover {
   border-color: var(--line-strong);
@@ -58,39 +48,14 @@
   color: var(--brand-bright);
 }
 
-.waitBar {
+/* ── Control strip: stage selector + wait status, merged into ONE slim row
+   (was two separate bars — reclaims vertical space for the conversation). ── */
+.controlStrip {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 8px 22px;
-  border-bottom: 1px solid var(--line);
-  background: var(--bg);
-}
-.waitPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.waitDot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 auto;
-}
-.waitTimers {
-  margin-left: auto;
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.stageBar {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 22px;
+  padding: 8px 24px;
   border-bottom: 2px solid var(--line-strong);
   background: var(--chrome);
 }
@@ -108,14 +73,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 224px;
-  height: 32px;
+  min-width: 208px;
+  height: 30px;
   padding: 0 12px;
   background: var(--bg);
   border: 1px solid var(--line);
   color: var(--text);
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -128,9 +93,34 @@
   color: var(--text-dim);
 }
 
+/* wait status pushed to the right of the same strip */
+.waitInline {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.waitPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.waitDot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+}
+.waitTimers {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
 .stagePopover {
   position: absolute;
-  top: 36px;
+  top: 34px;
   left: 0;
   z-index: 20;
   min-width: 248px;
@@ -163,12 +153,19 @@
   color: var(--sem-green-lt);
 }
 
+/* ── Messages: a centered reading column, not edge-to-edge — the messaging-app
+   feel (Telegram/iMessage) where the thread has a comfortable canvas. ── */
 .messages {
   flex: 1;
   overflow-y: auto;
-  padding: 22px;
+  padding: 26px 24px;
+  background: var(--bg);
+}
+.messagesInner {
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: var(--bg);
+  gap: 16px;
 }

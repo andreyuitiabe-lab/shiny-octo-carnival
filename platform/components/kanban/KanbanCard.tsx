@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { Lead } from "@/lib/types";
@@ -9,11 +11,19 @@ import { colorForBadge } from "./kanban-helpers";
 import styles from "./KanbanCard.module.css";
 
 /** One draggable Kanban card. Drag identity is the lead id; KanbanBoard resolves
- * the drop target (a lane id) and updates the lead's stage. */
+ * the drop target (a lane id) and updates the lead's stage. A plain click (no
+ * drag) deep-links to that lead's conversation. */
 export function KanbanCard({ lead }: { lead: Lead }) {
+  const router = useRouter();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: lead.id,
   });
+
+  // Distinguish a click from a drag: capture the pointer-down position (in the
+  // capture phase, so we only read it and don't interfere with dnd-kit's own
+  // pointer handling), then on click compare how far the pointer moved. Under
+  // the board's 4px drag-activation threshold → it's a real click → navigate.
+  const downPos = useRef<{ x: number; y: number } | null>(null);
 
   const badgeKind = badgeForBucket(lead.triageBucket);
   const arrow = lead.lastMessageDirection === "inbound" ? "↩" : "↪"; // ↩ / ↪
@@ -28,6 +38,15 @@ export function KanbanCard({ lead }: { lead: Lead }) {
       ref={setNodeRef}
       className={`${styles.card} ${isDragging ? styles.dragging : ""}`}
       style={style}
+      onPointerDownCapture={(e) => {
+        downPos.current = { x: e.clientX, y: e.clientY };
+      }}
+      onClick={(e) => {
+        const start = downPos.current;
+        if (!start) return;
+        const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y);
+        if (moved < 5) router.push(`/conversations?lead=${lead.id}`);
+      }}
       {...listeners}
       {...attributes}
     >

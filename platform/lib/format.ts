@@ -27,5 +27,12 @@ export function assignedToLabel(lead: Lead): string {
 
 export function formatDate(iso?: string): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  // timeZone pinned to UTC so prerendered (server, UTC) and hydrated (browser,
+  // local) output match — otherwise a near-midnight date flips a day on hydration.
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }

@@ -4,16 +4,16 @@ import { useMemo, useState } from "react";
 import type { Lead, Stage } from "@/lib/types";
 import { badgeForBucket, laneForStage } from "@/lib/types";
 import { waitInfo } from "@/lib/wait";
+import { REFERENCE_NOW } from "@/lib/now";
 import { ALL_STAGES } from "@/lib/stages";
 import { Badge } from "@/components/Badge";
-import { SENDER_LABEL, SENDER_LABEL_COLOR } from "./senderMeta";
 import { MessageBubble, type TimelineItem } from "./MessageBubble";
 import { Composer } from "./Composer";
 import styles from "./Thread.module.css";
 
 function ageLabel(iso: string | undefined): string {
   if (!iso) return "—";
-  const ms = Date.now() - new Date(iso).getTime();
+  const ms = REFERENCE_NOW - new Date(iso).getTime();
   const min = Math.round(ms / 60000);
   if (min < 1) return "just now";
   if (min < 60) return `${min}m`;
@@ -58,9 +58,6 @@ export function Thread({
     () => [...lead.messages].reverse().find((m) => m.direction === "outbound"),
     [lead.messages],
   );
-  const lastMessage = lead.messages[lead.messages.length - 1];
-  const lastSender = lastMessage?.direction === "inbound" ? null : lastMessage?.sender ?? "automation";
-
   return (
     <div className={styles.thread}>
       <div className={styles.header}>
@@ -72,10 +69,6 @@ export function Thread({
         </div>
         <div className={styles.headerRight}>
           {badgeKind ? <Badge kind={badgeKind} /> : null}
-          <span className={styles.lastLabel}>Last:</span>
-          <span className={styles.lastSender} style={{ color: lastSender ? SENDER_LABEL_COLOR[lastSender] : "var(--sem-blue-lt)" }}>
-            {lastSender ? SENDER_LABEL[lastSender] : "Seller"}
-          </span>
           <button
             className={`${styles.dossierBtn} ${dossierOpen ? styles.dossierBtnActive : ""}`}
             onClick={onToggleDossier}
@@ -85,17 +78,7 @@ export function Thread({
         </div>
       </div>
 
-      <div className={styles.waitBar}>
-        <span className={styles.waitPill} style={{ color: wi.color }}>
-          <span className={styles.waitDot} style={{ background: wi.dot }} />
-          {wi.label}
-        </span>
-        <span className={`${styles.waitTimers} tnum`}>
-          Seller replied {ageLabel(lastInbound?.at)} ago · you replied {ageLabel(lastOutbound?.at)} ago
-        </span>
-      </div>
-
-      <div className={styles.stageBar}>
+      <div className={styles.controlStrip}>
         <span className={styles.stageKicker}>Stage</span>
         <div className={styles.stageMenuWrap}>
           <button className={styles.stageBtn} onClick={() => setStageMenuOpen((v) => !v)}>
@@ -132,12 +115,24 @@ export function Thread({
             </div>
           ) : null}
         </div>
+
+        <div className={styles.waitInline}>
+          <span className={styles.waitPill} style={{ color: wi.color }}>
+            <span className={styles.waitDot} style={{ background: wi.dot }} />
+            {wi.label}
+          </span>
+          <span className={`${styles.waitTimers} tnum`}>
+            Seller replied {ageLabel(lastInbound?.at)} ago · you replied {ageLabel(lastOutbound?.at)} ago
+          </span>
+        </div>
       </div>
 
       <div className={`${styles.messages} scry`}>
-        {timeline.map((item) => (
-          <MessageBubble key={`${item.kind}-${item.id}`} item={item} />
-        ))}
+        <div className={styles.messagesInner}>
+          {timeline.map((item) => (
+            <MessageBubble key={`${item.kind}-${item.id}`} item={item} />
+          ))}
+        </div>
       </div>
 
       <Composer drafts={lead.drafts} onSend={onSend} onAddNote={onAddNote} />

@@ -1,6 +1,7 @@
 // "Who is waiting on whom" — derived purely from the direction of the last message.
 // See design_handoff_parcel_crm/README.md, "Follow-up / wait indicator (explicit requirement)".
 import type { Lead } from "./types";
+import { REFERENCE_NOW } from "./now";
 
 export type WaitInfo = {
   owe: "you" | "them";
@@ -13,7 +14,7 @@ export type WaitInfo = {
 const FOLLOW_UP_SLA_MS = 2.5 * 24 * 60 * 60 * 1000; // ~2.5 days, per design's "in days" note
 
 export function timeAgo(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime();
+  const ms = REFERENCE_NOW - new Date(iso).getTime();
   const min = Math.round(ms / 60000);
   if (min < 1) return "just now";
   if (min < 60) return `${min}m`;
@@ -32,7 +33,7 @@ export function agoLabel(iso: string): string {
 
 export function waitInfo(lead: Lead): WaitInfo {
   const owe: "you" | "them" = lead.lastMessageDirection === "inbound" ? "you" : "them";
-  const ageMs = Date.now() - new Date(lead.lastMessageAt).getTime();
+  const ageMs = REFERENCE_NOW - new Date(lead.lastMessageAt).getTime();
   const label = timeAgo(lead.lastMessageAt);
 
   if (owe === "you") {

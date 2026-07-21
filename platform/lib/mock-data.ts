@@ -4,8 +4,9 @@
 // renders sensible values. Replace with real data once wired to Supabase/GHL.
 
 import type { Draft, Lead, Message, SystemNote } from "./types";
+import { REFERENCE_NOW } from "./now";
 
-const NOW = Date.now();
+const NOW = REFERENCE_NOW;
 const MIN = 60_000;
 const HOUR = 60 * MIN;
 const DAY = 24 * HOUR;
