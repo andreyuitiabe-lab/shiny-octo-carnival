@@ -101,7 +101,7 @@ export default function LeadsPage() {
   // Leads uses County + Stage + Classification; Stage lives outside the shared
   // Filters type (it's the funnel enum, not a triage axis), so it's its own state.
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  const [stageFilter, setStageFilter] = useState<string | null>(null);
+  const [stageFilter, setStageFilter] = useState<string[]>([]);
 
   const allCount = useMemo(() => LEADS.filter((l) => !isDncStage(l.stage)).length, []);
   const dncCount = useMemo(() => LEADS.filter((l) => isDncStage(l.stage)).length, []);
@@ -113,7 +113,7 @@ export default function LeadsPage() {
     () =>
       LEADS.filter((l) => (tab === "dnc" ? isDncStage(l.stage) : !isDncStage(l.stage)))
         .filter((l) => matchesFilters(l, filters))
-        .filter((l) => (stageFilter ? l.stage === stageFilter : true)),
+        .filter((l) => (stageFilter.length ? stageFilter.includes(l.stage) : true)),
     [tab, filters, stageFilter]
   );
 
@@ -208,21 +208,21 @@ export default function LeadsPage() {
             <FilterDropdown
               label="County"
               options={counties}
-              value={filters.county}
+              values={filters.county}
               onChange={(v) => setFilters((f) => ({ ...f, county: v }))}
             />
             <FilterDropdown
               label="Stage"
               allLabel="All stages"
               options={stageOptions}
-              value={stageFilter}
+              values={stageFilter}
               onChange={setStageFilter}
             />
             <FilterDropdown
               label="Classification"
               allLabel="All classifications"
               options={CLASSIFICATION_OPTIONS}
-              value={filters.classification}
+              values={filters.classification}
               onChange={(v) => setFilters((f) => ({ ...f, classification: v }))}
             />
           </div>

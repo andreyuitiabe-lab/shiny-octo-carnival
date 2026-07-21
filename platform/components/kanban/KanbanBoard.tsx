@@ -70,28 +70,28 @@ export function KanbanBoard() {
         <FilterDropdown
           label="County"
           options={counties}
-          value={filters.county}
+          values={filters.county}
           onChange={(v) => setFilters((f) => ({ ...f, county: v }))}
         />
         <FilterDropdown
           label="Classification"
           allLabel="All classifications"
           options={CLASSIFICATION_OPTIONS}
-          value={filters.classification}
+          values={filters.classification}
           onChange={(v) => setFilters((f) => ({ ...f, classification: v }))}
         />
         <FilterDropdown
           label="Assigned"
           allLabel="Anyone"
           options={ASSIGNED_OPTIONS}
-          value={filters.assigned}
+          values={filters.assigned}
           onChange={(v) => setFilters((f) => ({ ...f, assigned: v }))}
         />
         <FilterDropdown
           label="Waiting"
           allLabel="Any status"
           options={WAITING_OPTIONS}
-          value={filters.waiting}
+          values={filters.waiting}
           onChange={(v) => setFilters((f) => ({ ...f, waiting: v }))}
         />
       </div>

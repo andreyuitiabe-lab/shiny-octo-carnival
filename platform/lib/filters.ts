@@ -5,18 +5,21 @@ import { badgeForBucket } from "./types";
 import { waitInfo } from "./wait";
 import type { FilterOption } from "@/components/FilterDropdown";
 
+// Each filter is a list of accepted values; an empty list means "no filter"
+// (accept all). Multi-select — e.g. pick several classifications at once to pull
+// "everything not discarded".
 export type Filters = {
-  county: string | null;
-  classification: string | null; // a BadgeKind value, or null
-  assigned: string | null; // "a" | "b" | "unassigned" | null
-  waiting: string | null; // "you" | "them" | "overdue" | null
+  county: string[];
+  classification: string[]; // BadgeKind values
+  assigned: string[]; // "a" | "b" | "unassigned"
+  waiting: string[]; // "you" | "them" | "overdue"
 };
 
 export const EMPTY_FILTERS: Filters = {
-  county: null,
-  classification: null,
-  assigned: null,
-  waiting: null,
+  county: [],
+  classification: [],
+  assigned: [],
+  waiting: [],
 };
 
 /** Distinct counties present in the data, alphabetized. */
@@ -52,24 +55,36 @@ function classificationValue(lead: Lead): BadgeKind {
   return badgeForBucket(lead.triageBucket);
 }
 
-/** True if the lead passes ALL active filters (null = filter not applied). */
+// Within one filter, values are OR'd (any match passes); across filters they're
+// AND'd (must pass every active filter). An empty list = that filter is inactive.
+function matchesWaiting(lead: Lead, accepted: string[]): boolean {
+  if (accepted.length === 0) return true;
+  const wi = waitInfo(lead);
+  return accepted.some((w) => {
+    if (w === "you") return wi.owe === "you";
+    if (w === "them") return wi.owe === "them";
+    if (w === "overdue") return wi.overdue;
+    return false;
+  });
+}
+
+function matchesAssigned(lead: Lead, accepted: string[]): boolean {
+  if (accepted.length === 0) return true;
+  return accepted.some((a) => (a === "unassigned" ? lead.assignedTo === null : lead.assignedTo === a));
+}
+
+/** True if the lead passes ALL active filters (empty list = filter not applied). */
 export function matchesFilters(lead: Lead, f: Filters): boolean {
-  if (f.county && lead.county !== f.county) return false;
-  if (f.classification && classificationValue(lead) !== f.classification) return false;
-  if (f.assigned) {
-    if (f.assigned === "unassigned" ? lead.assignedTo !== null : lead.assignedTo !== f.assigned) {
-      return false;
-    }
+  if (f.county.length && !f.county.includes(lead.county)) return false;
+  if (f.classification.length) {
+    const kind = classificationValue(lead);
+    if (!kind || !f.classification.includes(kind)) return false;
   }
-  if (f.waiting) {
-    const wi = waitInfo(lead);
-    if (f.waiting === "you" && wi.owe !== "you") return false;
-    if (f.waiting === "them" && wi.owe !== "them") return false;
-    if (f.waiting === "overdue" && !wi.overdue) return false;
-  }
+  if (!matchesAssigned(lead, f.assigned)) return false;
+  if (!matchesWaiting(lead, f.waiting)) return false;
   return true;
 }
 
 export function hasActiveFilters(f: Filters): boolean {
-  return f.county !== null || f.classification !== null || f.assigned !== null || f.waiting !== null;
+  return f.county.length > 0 || f.classification.length > 0 || f.assigned.length > 0 || f.waiting.length > 0;
 }

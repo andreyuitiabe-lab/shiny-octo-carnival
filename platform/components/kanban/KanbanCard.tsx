@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { Lead } from "@/lib/types";
 import { badgeForBucket } from "@/lib/types";
+import { useHydrated } from "@/lib/use-hydrated";
 import { Badge } from "@/components/Badge";
 import { colorForBadge } from "./kanban-helpers";
 import styles from "./KanbanCard.module.css";
@@ -21,11 +22,10 @@ export function KanbanCard({ lead }: { lead: Lead }) {
 
   // dnd-kit adds client-generated attributes (e.g. a non-SSR-safe aria-describedby
   // id) that differ between the prerendered HTML and the client, causing a
-  // hydration mismatch. Apply the drag attributes/listeners only after mount, so
-  // the server render and first client render are identical (a plain card), then
-  // dnd-kit's props attach on the post-mount re-render.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  // hydration mismatch. Apply the drag attributes/listeners only after hydration,
+  // so the server render and first client render are identical (a plain card),
+  // then dnd-kit's props attach on the post-hydration re-render.
+  const mounted = useHydrated();
 
   // Distinguish a click from a drag: capture the pointer-down position (in the
   // capture phase, so we only read it and don't interfere with dnd-kit's own

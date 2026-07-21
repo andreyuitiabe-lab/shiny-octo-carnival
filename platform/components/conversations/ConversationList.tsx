@@ -48,7 +48,7 @@ export function ConversationList({
 }) {
   const [tab, setTab] = useState<Tab>("all");
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  const [sort, setSort] = useState<string | null>(null);
+  const [sort, setSort] = useState<string[]>([]);
 
   const counties = useMemo(() => countyOptions(leads), [leads]);
 
@@ -59,7 +59,7 @@ export function ConversationList({
 
   const visible = useMemo(() => {
     const filtered = byTab.filter((l) => matchesFilters(l, filters));
-    const key = (sort ?? "recent") as SortKey;
+    const key = (sort[0] ?? "recent") as SortKey;
     const sorted = [...filtered];
     sorted.sort((a, b) => {
       if (key === "name") return a.name.localeCompare(b.name);
@@ -96,24 +96,31 @@ export function ConversationList({
         <FilterDropdown
           label="County"
           options={counties}
-          value={filters.county}
+          values={filters.county}
           onChange={(v) => setFilters((f) => ({ ...f, county: v }))}
         />
         <FilterDropdown
           label="Classification"
           allLabel="All classifications"
           options={CLASSIFICATION_OPTIONS}
-          value={filters.classification}
+          values={filters.classification}
           onChange={(v) => setFilters((f) => ({ ...f, classification: v }))}
         />
         <FilterDropdown
           label="Assigned"
           allLabel="Anyone"
           options={ASSIGNED_OPTIONS}
-          value={filters.assigned}
+          values={filters.assigned}
           onChange={(v) => setFilters((f) => ({ ...f, assigned: v }))}
         />
-        <FilterDropdown label="Sort" allLabel="Most recent" options={SORT_OPTIONS} value={sort} onChange={setSort} />
+        <FilterDropdown
+          label="Sort"
+          allLabel="Most recent"
+          options={SORT_OPTIONS}
+          values={sort}
+          onChange={setSort}
+          multiple={false}
+        />
       </div>
 
       {visible.map((lead) => {
