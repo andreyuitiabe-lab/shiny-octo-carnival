@@ -1,0 +1,99 @@
+# Log — registro cronológico (append-only)
+
+> Nunca editar uma entrada antiga. Se algo mudou, adicione uma entrada nova referenciando a
+> anterior. Formato: `## AAAA-MM-DD — título curto`.
+
+## 2026-07-20 — Wiki criada; consolidação de tudo construído desde 18/07
+
+Sessão longa cobrindo desde o design inicial do CRM até a decisão final de escopo da IA.
+Sequência real de decisões (ver `decisions/` pra detalhe de cada uma):
+
+1. Design inicial de um CRM local (`tools/crm_db.py`, `crm_sync.py`, `crm_write.py`,
+   `app/crm-kanban.html`, skills `/triage-inbox`, `/lead-agent`, `/send-approved`) — GHL como
+   fonte de verdade no começo, depois migrado pra banco local próprio quando ficou claro que
+   Andre queria "usar o SwiftScale só como ferramenta de enviar/receber". Ver
+   `decisions/0001-swiftscale-transport-only.md`.
+2. `/lead-agent` testado contra um lead real (Grigorios Miaris, negociação de lote em Vonore) —
+   funcionou, mas revelou um bug (rascunho saiu em português por engano) corrigido na hora.
+3. Pedido de virar uma **plataforma hospedada** (Vercel + Supabase + Gemini) pro Andre e o sócio
+   acessarem juntos — planejado em detalhe (webhook em vez de polling, banco dev/prod separado,
+   segurança, gatilhos de escalonamento) mas **pausado** depois que a auditoria de conversas
+   mudou o escopo do que a IA deveria fazer. Ver `decisions/0004-plataforma-pausada.md`.
+4. `/audit-conversations` criada e rodada contra as 80 conversas reais do SwiftScale (677
+   mensagens) — achou que ~1/4 das conversas não se encaixava nos 8 rumos originais (A-H).
+   Rumos novos I/J/K/L/M/Q/P documentados. Ver `audits/2026-07-20-conversation-audit.md`.
+5. **Decisão final de escopo**: a IA só abre a conversa (roteiro de 4 passos condicionais,
+   `architecture/conversation-flow.md`) e faz a triagem gratuita — negociar e fechar fica 100%
+   humano (Andre/sócio). Isso simplificou drasticamente o design (não precisa mais de um "agente
+   de negociação autônomo"). Ver `decisions/0003-ia-abre-humano-negocia.md`.
+6. `/lead-agent` reescrita de "negociador autônomo" pra "redator sob demanda" — Andre dá a
+   intenção, a skill escreve o texto usando a conversa real + o guia de voz.
+7. Guia de voz (playbook §6b) extraído de 420 mensagens reais realmente enviadas — dois
+   registros (reconhecimento curto / negociação estruturada) + lista de "sinais de artificialidade"
+   a evitar.
+8. Diagrama do fluxo publicado como artifact (kanban → conversa → roteiro de abertura → handoff
+   humano) — atualizado 2x conforme o design mudou.
+9. Esta wiki criada, seguindo o padrão de [Karpathy](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+   + [ADRs](https://adr.github.io/), pra não perder esse contexto entre sessões.
+
+## 2026-07-20 — Fase 1 do plano de implementação: 3 de 5 itens fechados
+
+Plano de implementação em 2 fases aprovado (Fase 1 local, Fase 2 plataforma revisada — ver
+`status.md` e o histórico do plano). Trabalho delegado a 3 subagentes em paralelo; 1 completou
+sozinho, 2 travaram no meio (sem progresso por 10 min) e foram finalizados manualmente a partir
+do que já tinham produzido:
+
+1. **`tools/triage_rules.py` corrigido** — novo bucket `possible_rumo_j`: preço extremo (≥$1M)
+   ou com frase de dispensa explícita ("walk away", "never pay") não vira mais sinal quente
+   automático, mas também nunca auto-descarta — só sinaliza pra revisão humana. Self-test
+   passando (incluindo os casos reais Ray Mccord/Carl Katims que motivaram a correção).
+2. **Skill `/opening-script` criada** — a peça que faltava pra tornar o roteiro §1c executável
+   de verdade (antes só existia como desenho no playbook). É a única automação do sistema
+   inteiro com permissão de enviar SMS sem aprovação humana por mensagem — limite estrito, para
+   no primeiro sinal de negociação. Linkada de dentro do `/triage-inbox`.
+3. **Instrução de delegação Haiku corrigida** — um subagente dedicado auditou a seção "Cost
+   note" de `/triage-inbox` e achou duas lacunas reais: faltava `run_in_background: false`
+   (risco de seguir pro relatório sem esperar o resultado) e a exigência de o prompt do
+   sub-agente ser autocontido (ele nasce sem memória da sessão). Corrigido.
+
+Ainda pendente da Fase 1: testar `/send-approved` com envio real (bloqueado — falta o telefone
+do Andre) e validar `/triage-inbox`/`/opening-script` contra respostas reais de um dia (depende
+de disparo novo). Pergunta lateral sobre usar n8n como camada de notificação (não decidida, não
+construída — ver `status.md`).
+
+## 2026-07-20 — `/send-approved` validado com envio real (item 1.3 fechado)
+
+Andre passou o número (+19712669323) e pediu pra testar o envio de verdade. Primeira tentativa:
+`401 "The token is not authorized for this scope"` — o token do GHL só tinha escopos de leitura
+(configurados no setup original, `swiftscale-api-guide.html`), nunca teve escrita de mensagem.
+Andre adicionou a permissão faltante direto no painel (Private Integrations) sem precisar gerar
+token novo — segunda tentativa retornou sucesso (`conversationId`/`messageId`, sem erro), e Andre confirmou o
+recebimento real no celular. Esse é o primeiro envio ponta a ponta confirmado desde que o
+pipeline foi desenhado — **item 1.3 do plano de implementação fechado por completo.** Da Fase 1
+só resta o item 1.4 (validar `/triage-inbox`/`/opening-script` contra um dia real de respostas),
+que depende só de tempo/disparo novo, não de nenhuma decisão pendente.
+
+## 2026-07-20 — Plataforma retomada; UI completa das 3 telas construída (frontend-first)
+
+Andre pediu o design inicial via Claude Design e recebeu um handoff de alta fidelidade
+(`design_handoff_parcel_crm/`). Com contas Vercel/Supabase já existentes e o repo no GitHub
+(`andreyuitiabe-lab/shiny-octo-carnival`), retomamos a plataforma que estava pausada — decisão
+registrada em `decisions/0005-plataforma-frontend-first.md` (continua a 0004). Construído nesta
+sessão:
+
+1. Scaffold Next.js 16 (App Router, TS) em `platform/` + rota de diagnóstico
+   `/api/cloudflare-check` (o risco do Cloudflare no serverless ainda precisa ser validado na
+   Vercel de verdade — bloqueante pra backend).
+2. Fundação compartilhada: design tokens da Claude Design em `globals.css`, `lib/types.ts`
+   espelhando `crm_db.py`, `lib/mock-data.ts` (14 leads traduzidos do protótipo), `AppShell`,
+   `Badge`, `SellerDossierPanel`, `lib/wait.ts` (indicador "quem deve resposta").
+3. As 3 telas, construídas por 3 subagentes em paralelo (worktrees isolados, uma rota cada),
+   mescladas uma a uma com build verde e revisadas por screenshot: **Kanban** (7 lanes,
+   drag-and-drop dnd-kit, "Ready for Research" destacada), **Conversations** (inbox 3 colunas,
+   3 estilos de mensagem, seletor de estágio, dossiê togglável), **Leads** (tabela mestra
+   ordenável, stats, tabs All/DNC, bulk actions, CSV export, detail drawer).
+
+Tudo com dados mock, estado só local do React — nenhuma persistência real ainda. Próximo passo
+bloqueado por Andre: conectar o repo na Vercel + env vars pra validar o Cloudflare, depois o
+backend (Supabase, auth, webhook). O motor de negociação via Gemini continua fora de escopo
+(decisão 0003) — o dossiê é sempre pull manual, negociação é digitada pelos humanos.
