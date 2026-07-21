@@ -9,6 +9,14 @@ import { LeadsTable, type SortKey } from "@/components/leads/LeadsTable";
 import { DetailDrawer } from "@/components/leads/DetailDrawer";
 import { SellerDossierPanel } from "@/components/SellerDossierPanel";
 import { lastSenderLabel } from "@/lib/format";
+import { FilterDropdown } from "@/components/FilterDropdown";
+import {
+  CLASSIFICATION_OPTIONS,
+  countyOptions,
+  matchesFilters,
+  EMPTY_FILTERS,
+  type Filters,
+} from "@/lib/filters";
 import styles from "./page.module.css";
 
 // Canonical funnel order (lib/types.ts::Stage doc comment) — used to sort the
@@ -90,13 +98,23 @@ export default function LeadsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [openLeadId, setOpenLeadId] = useState<string | null>(null);
   const [dossierOpen, setDossierOpen] = useState(false);
+  // Leads uses County + Stage + Classification; Stage lives outside the shared
+  // Filters type (it's the funnel enum, not a triage axis), so it's its own state.
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [stageFilter, setStageFilter] = useState<string | null>(null);
 
   const allCount = useMemo(() => LEADS.filter((l) => !isDncStage(l.stage)).length, []);
   const dncCount = useMemo(() => LEADS.filter((l) => isDncStage(l.stage)).length, []);
 
+  const counties = useMemo(() => countyOptions(LEADS), []);
+  const stageOptions = useMemo(() => STAGE_ORDER.map((s) => ({ value: s, label: s })), []);
+
   const baseLeads = useMemo(
-    () => LEADS.filter((l) => (tab === "dnc" ? isDncStage(l.stage) : !isDncStage(l.stage))),
-    [tab]
+    () =>
+      LEADS.filter((l) => (tab === "dnc" ? isDncStage(l.stage) : !isDncStage(l.stage)))
+        .filter((l) => matchesFilters(l, filters))
+        .filter((l) => (stageFilter ? l.stage === stageFilter : true)),
+    [tab, filters, stageFilter]
   );
 
   const sortedLeads = useMemo(() => {
@@ -187,9 +205,26 @@ export default function LeadsPage() {
             </button>
           </div>
           <div className={styles.filters}>
-            <button className={styles.filterBtn}>County ▾</button>
-            <button className={styles.filterBtn}>Stage ▾</button>
-            <button className={styles.filterBtn}>Classification ▾</button>
+            <FilterDropdown
+              label="County"
+              options={counties}
+              value={filters.county}
+              onChange={(v) => setFilters((f) => ({ ...f, county: v }))}
+            />
+            <FilterDropdown
+              label="Stage"
+              allLabel="All stages"
+              options={stageOptions}
+              value={stageFilter}
+              onChange={setStageFilter}
+            />
+            <FilterDropdown
+              label="Classification"
+              allLabel="All classifications"
+              options={CLASSIFICATION_OPTIONS}
+              value={filters.classification}
+              onChange={(v) => setFilters((f) => ({ ...f, classification: v }))}
+            />
           </div>
         </div>
 

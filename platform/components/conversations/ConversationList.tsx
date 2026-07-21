@@ -6,10 +6,26 @@ import { badgeForBucket } from "@/lib/types";
 import { waitInfo } from "@/lib/wait";
 import { REFERENCE_NOW } from "@/lib/now";
 import { Badge } from "@/components/Badge";
+import { FilterDropdown } from "@/components/FilterDropdown";
+import {
+  ASSIGNED_OPTIONS,
+  CLASSIFICATION_OPTIONS,
+  EMPTY_FILTERS,
+  countyOptions,
+  matchesFilters,
+  type Filters,
+} from "@/lib/filters";
 import { SENDER_LABEL, SENDER_LABEL_COLOR } from "./senderMeta";
 import styles from "./ConversationList.module.css";
 
 type Tab = "needsReply" | "all" | "unread";
+type SortKey = "recent" | "oldest" | "name";
+
+const SORT_OPTIONS = [
+  { value: "recent", label: "Most recent" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "name", label: "Name (A–Z)" },
+];
 
 function timeLabel(iso: string): string {
   const ms = REFERENCE_NOW - new Date(iso).getTime();
@@ -31,11 +47,28 @@ export function ConversationList({
   onSelect: (id: string) => void;
 }) {
   const [tab, setTab] = useState<Tab>("all");
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [sort, setSort] = useState<string | null>(null);
+
+  const counties = useMemo(() => countyOptions(leads), [leads]);
 
   const needsReply = useMemo(() => leads.filter((l) => l.lastMessageDirection === "inbound"), [leads]);
   const unread = useMemo(() => leads.filter((l) => l.unreadCount > 0), [leads]);
 
-  const visible = tab === "needsReply" ? needsReply : tab === "unread" ? unread : leads;
+  const byTab = tab === "needsReply" ? needsReply : tab === "unread" ? unread : leads;
+
+  const visible = useMemo(() => {
+    const filtered = byTab.filter((l) => matchesFilters(l, filters));
+    const key = (sort ?? "recent") as SortKey;
+    const sorted = [...filtered];
+    sorted.sort((a, b) => {
+      if (key === "name") return a.name.localeCompare(b.name);
+      const at = new Date(a.lastMessageAt).getTime();
+      const bt = new Date(b.lastMessageAt).getTime();
+      return key === "oldest" ? at - bt : bt - at;
+    });
+    return sorted;
+  }, [byTab, filters, sort]);
 
   return (
     <div className={`${styles.list} scry`}>
@@ -60,10 +93,27 @@ export function ConversationList({
 
       <div className={styles.filterRow}>
         <span className={styles.filterKicker}>Filter</span>
-        <button className={styles.filterBtn}>County ▾</button>
-        <button className={styles.filterBtn}>Classification ▾</button>
-        <button className={styles.filterBtn}>Assigned ▾</button>
-        <button className={styles.filterBtn}>Sort ▾</button>
+        <FilterDropdown
+          label="County"
+          options={counties}
+          value={filters.county}
+          onChange={(v) => setFilters((f) => ({ ...f, county: v }))}
+        />
+        <FilterDropdown
+          label="Classification"
+          allLabel="All classifications"
+          options={CLASSIFICATION_OPTIONS}
+          value={filters.classification}
+          onChange={(v) => setFilters((f) => ({ ...f, classification: v }))}
+        />
+        <FilterDropdown
+          label="Assigned"
+          allLabel="Anyone"
+          options={ASSIGNED_OPTIONS}
+          value={filters.assigned}
+          onChange={(v) => setFilters((f) => ({ ...f, assigned: v }))}
+        />
+        <FilterDropdown label="Sort" allLabel="Most recent" options={SORT_OPTIONS} value={sort} onChange={setSort} />
       </div>
 
       {visible.map((lead) => {

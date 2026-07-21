@@ -1,0 +1,79 @@
+.wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.btn {
+  height: 30px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--chrome);
+  border: 1px solid var(--line);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+}
+.btn:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+/* active = a non-default value is selected */
+.btnActive {
+  border-color: var(--brand);
+  color: var(--text);
+}
+.caret {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.popover {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  z-index: 30;
+  min-width: 190px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-popover);
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-left: 2px solid transparent;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.option:hover {
+  background: var(--row-alt);
+}
+.optionActive {
+  background: var(--nav-active-bg);
+  border-left-color: var(--brand);
+  font-weight: 600;
+}
+.mark {
+  width: 12px;
+  display: inline-block;
+  color: var(--brand-bright);
+  flex: 0 0 auto;
+}
+.swatch {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+}

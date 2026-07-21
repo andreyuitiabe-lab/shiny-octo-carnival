@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -19,6 +19,14 @@ export function KanbanCard({ lead }: { lead: Lead }) {
     id: lead.id,
   });
 
+  // dnd-kit adds client-generated attributes (e.g. a non-SSR-safe aria-describedby
+  // id) that differ between the prerendered HTML and the client, causing a
+  // hydration mismatch. Apply the drag attributes/listeners only after mount, so
+  // the server render and first client render are identical (a plain card), then
+  // dnd-kit's props attach on the post-mount re-render.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   // Distinguish a click from a drag: capture the pointer-down position (in the
   // capture phase, so we only read it and don't interfere with dnd-kit's own
   // pointer handling), then on click compare how far the pointer moved. Under
@@ -30,7 +38,7 @@ export function KanbanCard({ lead }: { lead: Lead }) {
 
   const style: React.CSSProperties = {
     "--card-accent": colorForBadge(badgeKind),
-    transform: CSS.Translate.toString(transform),
+    transform: mounted ? CSS.Translate.toString(transform) : undefined,
   } as React.CSSProperties;
 
   return (
@@ -47,8 +55,8 @@ export function KanbanCard({ lead }: { lead: Lead }) {
         const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y);
         if (moved < 5) router.push(`/conversations?lead=${lead.id}`);
       }}
-      {...listeners}
-      {...attributes}
+      {...(mounted ? listeners : {})}
+      {...(mounted ? attributes : {})}
     >
       <div className={styles.row1}>
         <span className={styles.name}>{lead.name}</span>
