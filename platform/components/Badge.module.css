@@ -1,0 +1,59 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  border-left: 3px solid transparent;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.price {
+  background: var(--sem-green-tint);
+  border-left-color: var(--sem-green);
+  color: var(--sem-green-lt);
+}
+.price .dot {
+  background: var(--sem-green);
+}
+
+.triage {
+  background: var(--sem-blue-tint);
+  border-left-color: var(--sem-blue);
+  color: var(--sem-blue-lt);
+}
+.triage .dot {
+  background: var(--sem-blue);
+}
+
+.review {
+  background: var(--sem-amber-tint);
+  border-left-color: var(--sem-amber);
+  color: var(--sem-amber-lt);
+}
+.review .dot {
+  background: var(--sem-amber);
+}
+
+.discarded,
+.wrong,
+.dnc {
+  background: var(--sem-gray-tint);
+  border-left-color: var(--sem-gray);
+  color: var(--sem-gray-lt);
+}
+.discarded .dot,
+.wrong .dot,
+.dnc .dot {
+  background: var(--sem-gray);
+}

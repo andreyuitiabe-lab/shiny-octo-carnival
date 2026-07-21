@@ -1,49 +1,218 @@
+/* Design tokens — from design_handoff_parcel_crm/README.md (Claude Design handoff).
+   Dark is the default and primary target; light is supported but secondary for this
+   internal, hours-a-day operational tool. Never use --brand-* for classification —
+   that's what --sem-* is for. Font family comes from next/font (Archivo) applied via
+   className in app/layout.tsx, not a CSS variable here. */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* brand & surface (dark, default) */
+  --bg: #171513;
+  --panel: #201d1b;
+  --panel-2: #221f1d; /* cards, inbound bubbles */
+  --bubble-out: #2a2724;
+  --chrome: #1b1917; /* sidebar/header */
+  --row-alt: #1d1a18;
+  --line: #37322e;
+  --line-strong: #4a433d;
+  --row-selected: #231d1a;
+  --row-open: #231f1c;
+  --nav-active-bg: #26221f;
+
+  --text: #f2efec;
+  --text-muted: #a49a92;
+  --text-dim: #766e67;
+  --text-on-tint: #c9c0b9;
+
+  --brand: #ec3013;
+  --brand-bright: #f5512f;
+  --brand-tint: rgba(236, 48, 19, 0.14);
+  --link: #f5512f;
+  --link-hover: #ff6b47;
+  --selection: rgba(236, 48, 19, 0.35);
+
+  /* semantic state (never brand red) */
+  --sem-green: #4faa6e;
+  --sem-green-lt: #7fce9d;
+  --sem-green-tint: rgba(79, 170, 110, 0.15);
+  --sem-blue: #4f8fd0;
+  --sem-blue-lt: #9ecbf0;
+  --sem-blue-tint: rgba(79, 143, 208, 0.15);
+  --sem-amber: #d99a2b;
+  --sem-amber-lt: #e6b877;
+  --sem-amber-tint: rgba(217, 154, 43, 0.15);
+  --sem-gray: #8a817a;
+  --sem-gray-lt: #b3aaa2;
+  --sem-gray-tint: rgba(138, 129, 122, 0.14);
+
+  --shadow-popover: 0 10px 28px rgba(0, 0, 0, 0.55);
+
+  /* layout constants */
+  --w-sidebar: 232px;
+  --w-kanban-col: 236px;
+  --w-conv-list: 320px;
+  --w-dossier: 392px;
+  --w-leads-drawer: 330px;
+
+  --radius: 0; /* explicit: no border radius anywhere except circular dots/avatars */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Light theme override — same structure, re-tuned for contrast on a light ground
+   rather than a naive inversion. Applies when the OS prefers light AND the user
+   hasn't explicitly forced dark, OR when the user's toggle explicitly forces light. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f5f3f0;
+    --panel: #ffffff;
+    --panel-2: #ffffff;
+    --bubble-out: #f0e9e4;
+    --chrome: #ffffff;
+    --row-alt: #f7f5f2;
+    --line: #ded7cf;
+    --line-strong: #c7bdb2;
+    --row-selected: #fbe9e5;
+    --row-open: #fdf1ee;
+    --nav-active-bg: #fbe9e5;
+    --text: #201e1c;
+    --text-muted: #6f6459;
+    --text-dim: #948a7f;
+    --text-on-tint: #4a4137;
+    --brand: #d92a10;
+    --brand-bright: #c22509;
+    --brand-tint: rgba(217, 42, 16, 0.09);
+    --link: #c22509;
+    --link-hover: #a31e08;
+    --selection: rgba(217, 42, 16, 0.25);
+    --sem-green: #2f8452;
+    --sem-green-lt: #1f6b40;
+    --sem-green-tint: rgba(47, 132, 82, 0.12);
+    --sem-blue: #3573ad;
+    --sem-blue-lt: #285a8a;
+    --sem-blue-tint: rgba(53, 115, 173, 0.12);
+    --sem-amber: #a8730f;
+    --sem-amber-lt: #8a5e0c;
+    --sem-amber-tint: rgba(168, 115, 15, 0.13);
+    --sem-gray: #71685e;
+    --sem-gray-lt: #56504a;
+    --sem-gray-tint: rgba(113, 104, 94, 0.1);
+    --shadow-popover: 0 10px 28px rgba(0, 0, 0, 0.14);
   }
 }
 
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root[data-theme="light"] {
+  --bg: #f5f3f0;
+  --panel: #ffffff;
+  --panel-2: #ffffff;
+  --bubble-out: #f0e9e4;
+  --chrome: #ffffff;
+  --row-alt: #f7f5f2;
+  --line: #ded7cf;
+  --line-strong: #c7bdb2;
+  --row-selected: #fbe9e5;
+  --row-open: #fdf1ee;
+  --nav-active-bg: #fbe9e5;
+  --text: #201e1c;
+  --text-muted: #6f6459;
+  --text-dim: #948a7f;
+  --text-on-tint: #4a4137;
+  --brand: #d92a10;
+  --brand-bright: #c22509;
+  --brand-tint: rgba(217, 42, 16, 0.09);
+  --link: #c22509;
+  --link-hover: #a31e08;
+  --selection: rgba(217, 42, 16, 0.25);
+  --sem-green: #2f8452;
+  --sem-green-lt: #1f6b40;
+  --sem-green-tint: rgba(47, 132, 82, 0.12);
+  --sem-blue: #3573ad;
+  --sem-blue-lt: #285a8a;
+  --sem-blue-tint: rgba(53, 115, 173, 0.12);
+  --sem-amber: #a8730f;
+  --sem-amber-lt: #8a5e0c;
+  --sem-amber-tint: rgba(168, 115, 15, 0.13);
+  --sem-gray: #71685e;
+  --sem-gray-lt: #56504a;
+  --sem-gray-tint: rgba(113, 104, 94, 0.1);
+  --shadow-popover: 0 10px 28px rgba(0, 0, 0, 0.14);
 }
 
 * {
   box-sizing: border-box;
-  padding: 0;
+}
+
+html,
+body {
   margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+  line-height: 1.55;
 }
 
 a {
-  color: inherit;
+  color: var(--link);
   text-decoration: none;
 }
+a:hover {
+  color: var(--link-hover);
+}
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+::selection {
+  background: var(--selection);
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--sem-blue);
+  outline-offset: 1px;
+}
+
+/* tabular figures — phones, money, acreage, IDs, counts, timers */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* thin scrollbar, matches the design reference */
+.scry {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.scry::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.scry::-webkit-scrollbar-thumb {
+  background: var(--line);
+}
+.scry::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
