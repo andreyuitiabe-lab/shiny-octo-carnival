@@ -37,6 +37,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const head = HEADS[pathname] ?? HEADS["/kanban"];
   const replyCount = needsReplyCount();
 
+  // /login has no sidebar/nav — it's the one page a logged-out request can
+  // reach (proxy.ts gates everything else), and a sidebar full of links to
+  // pages you can't access yet would be confusing there.
+  if (pathname.startsWith("/login")) {
+    return <>{children}</>;
+  }
+
   return (
     <div className={styles.root}>
       <aside className={styles.sidebar}>
