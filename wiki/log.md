@@ -125,3 +125,13 @@ Iterando sobre a UI com Andre (tudo em `platform/`, ainda com dados mock):
 Continua bloqueado no mesmo ponto: Andre precisa fazer o deploy na Vercel (Root Directory
 `platform` + as 2 env vars do GHL) pra eu validar `/api/cloudflare-check`. Só depois disso o
 mecanismo de sync (webhook vs polling) é decidido e construído.
+
+## 2026-07-21 — Risco do Cloudflare descartado na Vercel (destrava o backend)
+
+Andre deployou a plataforma na Vercel (Root Directory `platform`, env vars `GHL_API_TOKEN`/
+`GHL_LOCATION_ID`, e desligou a Deployment Protection pra a rota ficar acessível). Rodei
+`/api/cloudflare-check` no deploy real → `ok: true`, JSON válido do GHL. **O `fetch` serverless
+da Vercel NAO e bloqueado pelo Cloudflare** (diferente do Python urllib/requests local). Isso
+resolve a unica incognita tecnica que travava toda a Fase 2 — o webhook e viavel, sem precisar
+de caminho alternativo de polling. Proximo: construir `/api/webhooks/ghl` + Supabase + auth dos
+2 usuarios. Ver `decisions/0002-webhook-vs-polling.md` (resolucao do risco aberto).

@@ -5,6 +5,11 @@
 
 ## ✅ Feito
 
+- [x] **Plataforma deployada na Vercel + risco do Cloudflare DESCARTADO** (21 jul 2026) — deploy
+      real da Vercel (Root Directory `platform`, env vars do GHL setadas, deployment protection
+      desligada), e a rota `/api/cloudflare-check` retornou `ok: true`: o `fetch` serverless da
+      Vercel fala com a API do GHL normalmente (ao contrário do Python urllib local). Webhook
+      viável, sem gambiarra de polling. Ver `decisions/0002-webhook-vs-polling.md` (resolução).
 - [x] Banco local próprio (`crm_db.py`/`crm_write.py`/`crm_sync.py`) — testado ponta a ponta
       contra a conta real do SwiftScale (71-80 contatos reais sincronizados).
 - [x] Filtro determinístico (`triage_rules.py`) — testado, resolve a maioria das respostas sem
@@ -61,12 +66,6 @@
       pra fazer isso, mas ainda não rodou uma segunda vez).
 
 ## ❌ Pendente / não iniciado
-- [ ] **Validar o Cloudflare na Vercel** — a rota `/api/cloudflare-check` existe e funciona
-      local, mas o teste que importa (o `fetch` serverless da Vercel é bloqueado como o Python
-      urllib?) só vale rodado na Vercel de verdade. **Bloqueante** pra qualquer código da
-      plataforma que fale com o GHL. Depende de Andre conectar o repo na Vercel (Root Directory
-      `platform`) + setar as env vars `GHL_API_TOKEN`/`GHL_LOCATION_ID`. (Em andamento — Andre
-      está fazendo o deploy.)
 - [ ] **Backend da plataforma** — auth dos 2 usuários no Supabase, porta de `triage_rules.py`
       pra TypeScript, mecanismo de sync (webhook vs polling — decidido após o Cloudflare). O
       **schema do Supabase já está pronto** (`platform/supabase/schema.sql` + README), só falta

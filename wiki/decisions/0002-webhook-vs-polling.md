@@ -27,3 +27,10 @@ como mecanismo principal.
 - A plataforma hospedada em si foi pausada ([0004](0004-plataforma-pausada.md)) antes de este
   desenho ser implementado — o webhook nunca chegou a ser construído, mas a decisão fica
   registrada pra quando (se) a plataforma for retomada.
+
+**Resolução do risco aberto (21 jul 2026):** o `fetch` serverless da Vercel **NÃO é bloqueado
+pelo Cloudflare** — testado ao vivo pela rota `/api/cloudflare-check` no deploy real da Vercel,
+retornou `ok: true` com JSON válido do GHL. Ou seja: diferente do Python urllib/requests (que é
+bloqueado localmente), o ambiente serverless da Vercel fala com a API do GHL normalmente. O
+webhook é viável e o desenho acima está confirmado — pode ser construído sem nenhum caminho
+alternativo de polling.
