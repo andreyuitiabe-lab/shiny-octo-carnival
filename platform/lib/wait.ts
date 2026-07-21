@@ -12,7 +12,7 @@ export type WaitInfo = {
 
 const FOLLOW_UP_SLA_MS = 2.5 * 24 * 60 * 60 * 1000; // ~2.5 days, per design's "in days" note
 
-function timeAgo(iso: string): string {
+export function timeAgo(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime();
   const min = Math.round(ms / 60000);
   if (min < 1) return "just now";
@@ -21,6 +21,13 @@ function timeAgo(iso: string): string {
   if (hr < 24) return `${hr}h`;
   const days = Math.round(hr / 24);
   return `${days}d`;
+}
+
+/** Same as timeAgo() but appends "ago" — used anywhere the raw duration needs
+ * to read as a sentence fragment ("2h ago" / "just now"). */
+export function agoLabel(iso: string): string {
+  const t = timeAgo(iso);
+  return t === "just now" ? t : `${t} ago`;
 }
 
 export function waitInfo(lead: Lead): WaitInfo {

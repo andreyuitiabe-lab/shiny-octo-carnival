@@ -1,0 +1,35 @@
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.cell {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--line-strong);
+  padding: 12px 16px;
+  min-width: 96px;
+}
+
+.highlight {
+  border-color: rgba(79, 170, 110, 0.4);
+  border-top-color: var(--sem-green);
+  background: color-mix(in srgb, var(--sem-green) 8%, var(--panel));
+}
+
+.n {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.label {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 5px;
+  white-space: nowrap;
+}
