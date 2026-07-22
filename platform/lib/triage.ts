@@ -60,8 +60,13 @@ const STOP_RE = /\bstop\b|\bunsubscribe\b/i;
 
 const WRONG_NUMBER_RE = /wrong number/i;
 
+// Deliberately does NOT include a bare "no"/"nope"/"no thanks" — those are too
+// often an ANSWER ("is it vacant?" → "No") rather than a rejection, and the
+// classifier sees one message with no thread context. Anything ambiguous with a
+// "no" falls through to needs_ai (a human/AI reads the full thread). Only
+// unambiguous declines auto-discard. (Conservative tuning, Andre 21 jul 2026.)
 const REJECT_RE =
-  /not interested|no thanks?\b|leave me alone|absolutely not|do ?n[o']?t contact|stop (?:texting|calling|messaging)|not selling|not for sale|go (?:to hell|fuck yourself)|fuck (?:you|off)|piss off/i;
+  /not interested|leave me alone|absolutely not|do ?n[o']?t contact|stop (?:texting|calling|messaging)|not selling|not for sale|go (?:to hell|fuck yourself)|fuck (?:you|off)|piss off/i;
 
 /**
  * Parse a token matched by PRICE_RE (e.g. "$25,000,000", "500k", "$3M") into a
