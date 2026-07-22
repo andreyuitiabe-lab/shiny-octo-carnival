@@ -3,6 +3,31 @@
 > Nunca editar uma entrada antiga. Se algo mudou, adicione uma entrada nova referenciando a
 > anterior. Formato: `## AAAA-MM-DD — título curto`.
 
+## 2026-07-21 — Backend da plataforma: auth, webhook, triagem em TS, telas em dados reais
+
+Sessão focada em tirar a plataforma do "frontend com mock" e ligá-la num backend real, na
+ordem de segurança correta (auth antes de qualquer dado de vendedor entrar).
+
+1. **Supabase dev + prod** criados por Andre; `schema.sql` rodado nos dois (5 tabelas + RLS).
+   Chaves passadas pelo chat só pra configurar; `.env.local` (dev) e Vercel (prod) guardam.
+2. **Auth dos 2 operadores**: `/login` (Supabase, sem signup público), clientes
+   browser/server/admin em `lib/supabase/`, e `proxy.ts` (Next 16 renomeou `middleware.ts`)
+   barrando tudo exceto `/login` e `/api/*`. Usuários reais criados por Andre.
+3. **`triage_rules.py` → `lib/triage.ts`** — porta fiel, 17/17 casos do self-test batendo.
+4. **Webhook `/api/webhooks/ghl`** — segredo compartilhado, idempotente por `ghl_message_id`,
+   upsert de contato + mensagem + triagem determinística. Conservador por design (ADR 0003):
+   nunca auto-negocia, só encaminha pra fila humana / descarta declínio / força DNC em opt-out.
+5. **3 telas ligadas ao Supabase** (`fetchLeads`, RLS-scoped) — mock-data aposentado como fonte.
+   RLS validado ponta a ponta (anônimo vê 0, logado vê 14). Banco dev semeado via
+   `scripts/seed-dev.mts` (com trava anti-prod).
+6. **Portão de QA leve** montado a pedido do Andre (referência: estrutura pm/dev/qa/tech-lead do
+   projeto Migaku), mas enxuto pro tamanho: subagente `code-reviewer` + `wiki/quality-gates.md`
+   + pointer no `AGENTS.md`. Rodado de verdade sobre o rewiring — pegou um bug de contagem
+   (badge vs. aba "needs reply" divergiam em contatos com direção nula), corrigido antes do push.
+
+Pendente do lado do Andre: env vars do Supabase na Vercel + Redeploy. Depois: escrita de volta
+(persistir estágio/atribuição/envio) e configurar o webhook no workflow do GHL.
+
 ## 2026-07-20 — Wiki criada; consolidação de tudo construído desde 18/07
 
 Sessão longa cobrindo desde o design inicial do CRM até a decisão final de escopo da IA.

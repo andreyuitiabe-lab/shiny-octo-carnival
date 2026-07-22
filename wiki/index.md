@@ -6,6 +6,7 @@
 - [overview.md](overview.md) — visão geral, comece aqui numa sessão nova
 - [status.md](status.md) — o que está feito, em andamento, pendente; perguntas em aberto
 - [log.md](log.md) — histórico cronológico append-only
+- [quality-gates.md](quality-gates.md) — portão de QA antes de todo push (subagente code-reviewer)
 
 ## Arquitetura
 - [architecture/crm-overview.md](architecture/crm-overview.md) — banco local, sync, kanban

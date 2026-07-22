@@ -50,6 +50,31 @@
       mensagem, corrigido por Andre direto no painel do GHL (Private Integrations). Pipeline de
       envio 100% confirmado, não só documentado.
 
+## ✅ Feito (backend da plataforma — sessão 21 jul 2026)
+
+- [x] **Supabase dev + prod criados e schema aplicado nos dois** — `schema.sql` rodado com
+      sucesso (contacts, stage_history, notes, drafts, messages + RLS "authenticated full
+      access"). Projetos separados dev/prod por segurança (um envio de teste nunca toca um
+      vendedor real).
+- [x] **Auth dos 2 operadores** — página `/login` (Supabase `signInWithPassword`, sem signup
+      público), clientes browser/server/admin (`lib/supabase/*`), e `proxy.ts` (Next 16, não
+      `middleware.ts`) barrando toda rota exceto `/login` e `/api/*`. Os 2 usuários reais já
+      criados por Andre no Supabase Auth.
+- [x] **`triage_rules.py` portado pra TypeScript** (`platform/lib/triage.ts`) — 17/17 casos do
+      self-test batendo, comportamento idêntico ao Python.
+- [x] **Webhook `/api/webhooks/ghl`** — segredo compartilhado (`x-webhook-secret`), idempotente
+      por `ghl_message_id`, upsert do contato + registro da mensagem + triagem determinística.
+      Conservador: nunca auto-negocia (ADR 0003), só encaminha pra fila humana, descarta
+      declínios claros, e força "Do Not Contact" em opt-out.
+- [x] **3 telas ligadas em dados reais do Supabase** — `fetchLeads` (client server-side com RLS)
+      substitui `mock-data.ts`; páginas viraram Server Components. **RLS validado ponta a ponta**:
+      anônimo vê 0 contatos, operador logado vê todos.
+- [x] **Banco dev semeado** com os 14 leads de exemplo (`scripts/seed-dev.mts`, com trava que
+      recusa rodar fora do projeto dev) — plataforma renderiza conteúdo real ponta a ponta.
+- [x] **Portão de QA leve (estilo Migaku, enxuto)** — subagente `code-reviewer`
+      (`.claude/agents/code-reviewer.md`) rodado antes de push, `wiki/quality-gates.md`, pointer no
+      `AGENTS.md`. Já pegou um bug real na 1ª execução (contagem do badge inconsistente com nulos).
+
 ## 🚧 Em andamento / parcialmente feito
 
 - [x] **Plataforma hospedada — RETOMADA, frontend-first com dados mock** (ver
@@ -66,13 +91,16 @@
       pra fazer isso, mas ainda não rodou uma segunda vez).
 
 ## ❌ Pendente / não iniciado
-- [ ] **Backend da plataforma** — auth dos 2 usuários no Supabase, porta de `triage_rules.py`
-      pra TypeScript, mecanismo de sync (webhook vs polling — decidido após o Cloudflare). O
-      **schema do Supabase já está pronto** (`platform/supabase/schema.sql` + README), só falta
-      Andre criar os 2 projetos (dev/prod) e rodar. As telas hoje mutam só estado local do React.
-- [ ] **UI da plataforma** (feito nesta sessão, mas ainda com dados mock): 3 telas + dossiê +
-      filtros multi-seleção funcionais + navegação Kanban→conversa. Falta só ligar em dados reais
-      quando o backend existir.
+- [ ] **Env vars do Supabase na Vercel** (bloqueante pro deploy ao vivo funcionar) — as 4 vars
+      (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
+      `GHL_WEBHOOK_SECRET`) com valores prod no ambiente Production e valores dev no
+      Preview/Development, + Redeploy. Depende de Andre (não tenho acesso ao painel da Vercel).
+- [ ] **Configurar o webhook no workflow do SwiftScale/GHL** — trigger "Customer Replied" →
+      ação Webhook (POST) pra `/api/webhooks/ghl` com header `x-webhook-secret`. Passo conjunto,
+      depois que a plataforma estiver no ar.
+- [ ] **Escrita de volta ao Supabase** — as telas ainda mutam só estado local do React (drag no
+      Kanban, mover pra DNC, etc. não persistem). Próximo bloco: rota de envio + persistir
+      mudanças de estágio/atribuição.
 - [ ] **Rodar `/triage-inbox` num dia real de respostas** e comparar contra o julgamento manual
       de Andre — depende de respostas novas chegarem.
 - [ ] Rotina agendada (schedule skill) — deliberadamente adiada até `/triage-inbox` e
@@ -84,7 +112,8 @@
 
 ## Perguntas em aberto pro Andre
 
-- Conectar o repo na Vercel (root directory `platform`) + setar `GHL_API_TOKEN`/`GHL_LOCATION_ID`
-  pra eu poder validar o Cloudflare de verdade — quando puder fazer isso?
-- Depois da UI validada, seguir pro backend (Supabase + auth + webhook) ou ajustar algo nas
-  telas primeiro?
+- **Setar as env vars do Supabase na Vercel + Redeploy** (único bloqueante do lado do Andre pra
+  o login + dados funcionarem ao vivo). Valores prod no Production, dev no Preview/Development.
+- Depois do deploy ao vivo validado: partir pra escrita de volta (persistir drag do Kanban,
+  atribuição, envio de mensagem) ou configurar primeiro o webhook no GHL pra ver resposta real
+  entrando na plataforma?
