@@ -37,29 +37,51 @@ export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
   );
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over) return;
 
     const leadId = String(active.id);
     const targetLaneKey = String(over.id);
 
+    const original = leads.find((l) => l.id === leadId);
+    if (!original || laneForStage(original.stage) === targetLaneKey) return;
+
+    const lane = KANBAN_LANES.find((l) => l.key === targetLaneKey);
+    if (!lane) return;
+    const nextStage = lane.stages[0];
+
+    // Optimistic move — snap the card immediately, then persist. If the save
+    // fails, revert to the original lead so the board never lies about state.
     setLeads((prev) =>
-      prev.map((lead) => {
-        if (lead.id !== leadId) return lead;
-        if (laneForStage(lead.stage) === targetLaneKey) return lead;
-
-        const lane = KANBAN_LANES.find((l) => l.key === targetLaneKey);
-        if (!lane) return lead;
-
-        const nextStage = lane.stages[0];
-        return {
-          ...lead,
-          stage: nextStage,
-          stageHistory: [...lead.stageHistory, { stage: nextStage, at: new Date().toISOString() }],
-        };
-      })
+      prev.map((lead) =>
+        lead.id === leadId
+          ? {
+              ...lead,
+              stage: nextStage,
+              stageHistory: [
+                ...lead.stageHistory,
+                { stage: nextStage, at: new Date().toISOString() },
+              ],
+            }
+          : lead
+      )
     );
+
+    try {
+      const res = await fetch(`/api/leads/${leadId}/stage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stage: nextStage }),
+      });
+      if (!res.ok) throw new Error(`save failed: ${res.status}`);
+      // NOTE: the response body carries { ghlSynced, ghlNote } — if the
+      // SwiftScale mirror failed but our save succeeded, we keep the move
+      // silently for now (Supabase is source of truth). Follow-up: surface a
+      // small "not synced to SwiftScale" indicator instead of ignoring it.
+    } catch {
+      setLeads((prev) => prev.map((lead) => (lead.id === leadId ? original : lead)));
+    }
   }
 
   return (
