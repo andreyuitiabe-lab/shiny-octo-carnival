@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classify } from "@/lib/triage";
-import type { Stage } from "@/lib/types";
+import { openingDecision } from "@/lib/opening-script";
+import type { Message, Stage } from "@/lib/types";
 
 // This route talks to Supabase with the service-role key and must never be
 // statically optimized or cached — it's a side-effecting POST handler.
@@ -90,22 +91,24 @@ function parsePayload(raw: unknown): Parsed | { error: string } {
   };
 }
 
-// Deterministic triage bucket → the stage the lead should sit in, IF it's still
-// in an auto-managed stage. Buckets that mean "a human should look" all land in
-// "Needs Triage"; clear declines are discarded; opt-out is handled separately
-// (forced regardless of current stage).
-function stageForBucket(bucket: string): Stage | null {
-  switch (bucket) {
-    case "cancelled":
-    case "cancelled_wrong_number":
-      return "Discarded";
-    case "hot_lead_candidate":
-    case "possible_rumo_j":
-    case "needs_ai":
-      return "Needs Triage";
-    default:
-      return null;
-  }
+// Load a contact's full thread (oldest first) so the opening script can see
+// what's already been asked/answered before deciding the next question.
+async function fetchThread(
+  db: ReturnType<typeof createAdminClient>,
+  contactId: string,
+): Promise<Message[]> {
+  const { data } = await db
+    .from("messages")
+    .select("id, direction, body, at, sender")
+    .eq("contact_id", contactId)
+    .order("at", { ascending: true });
+  return (data ?? []).map((m) => ({
+    id: String(m.id),
+    direction: m.direction as Message["direction"],
+    body: String(m.body ?? ""),
+    at: String(m.at),
+    sender: (m.sender as Message["sender"]) ?? undefined,
+  }));
 }
 
 export async function POST(req: NextRequest) {
@@ -219,10 +222,11 @@ export async function POST(req: NextRequest) {
   if (parsed.name && !found?.name) contactPatch.name = parsed.name;
   if (parsed.phone && !found?.phone) contactPatch.phone = parsed.phone;
 
-  // ── Triage (inbound only) ──────────────────────────────────────────────────
+  // ── Triage + opening script (inbound only) ─────────────────────────────────
   let triageBucket: string | null = null;
   let nextStage: Stage | null = null;
   let stageReason: string | null = null;
+  let openingDraft: { text: string; step: string } | null = null;
 
   if (parsed.direction === "inbound") {
     const result = classify(parsed.body);
@@ -237,14 +241,31 @@ export async function POST(req: NextRequest) {
       // Compliance opt-out — forced regardless of current stage.
       nextStage = "Do Not Contact";
       stageReason = "opt-out recebido (STOP) — webhook";
-    } else if (AUTO_STAGES.includes(currentStage)) {
-      // Only auto-move leads a human isn't already actively working.
-      const mapped = stageForBucket(result.bucket);
-      if (mapped && mapped !== currentStage) {
-        nextStage = mapped;
+    } else if (result.bucket === "cancelled" || result.bucket === "cancelled_wrong_number") {
+      // Unambiguous decline — discard, but only if a human isn't working it.
+      if (AUTO_STAGES.includes(currentStage)) {
+        nextStage = "Discarded";
         stageReason = `triagem automatica: ${result.bucket}`;
       }
+    } else if (AUTO_STAGES.includes(currentStage)) {
+      // Real engagement, lead still in the opening phase (no human on it yet):
+      // run the §1c opening script. SHADOW MODE — it only decides the reply;
+      // we save it as a pending draft below and never auto-send.
+      const thread = await fetchThread(db, contactRowId);
+      const decision = openingDecision(thread, result.bucket);
+      if (decision.action === "draft") {
+        openingDraft = { text: decision.text, step: decision.step };
+        if (currentStage !== "Engaging") {
+          nextStage = "Engaging";
+          stageReason = `IA abriu conversa (§1c: ${decision.step})`;
+        }
+      } else {
+        nextStage = "Needs Triage";
+        stageReason = decision.reason;
+      }
     }
+    // else: a human already owns this lead (stage past the opening) — just
+    // record the message; don't touch the stage.
   }
 
   if (nextStage) contactPatch.our_stage = nextStage;
@@ -254,7 +275,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: updErr.message }, { status: 500 });
   }
 
-  // ── Append stage history + a triage note (best-effort, non-fatal) ──────────
+  // ── Stage history, opening draft, and a note (best-effort, non-fatal) ──────
   if (nextStage) {
     await db.from("stage_history").insert({
       contact_id: contactRowId,
@@ -262,7 +283,20 @@ export async function POST(req: NextRequest) {
       reason: stageReason,
     });
   }
-  if (triageBucket) {
+  if (openingDraft) {
+    // SHADOW MODE: the AI's opening reply is stored as a PENDING draft for a
+    // human to approve & send — nothing goes to the seller automatically.
+    await db.from("drafts").insert({
+      contact_id: contactRowId,
+      text: openingDraft.text,
+      status: "pending",
+    });
+    await db.from("notes").insert({
+      contact_id: contactRowId,
+      author: "opening-script",
+      body: `IA redigiu abertura (§1c: ${openingDraft.step}) — revisar e enviar.`,
+    });
+  } else if (triageBucket) {
     await db.from("notes").insert({
       contact_id: contactRowId,
       author: "triage-webhook",
@@ -275,5 +309,6 @@ export async function POST(req: NextRequest) {
     contactId: contactRowId,
     bucket: triageBucket,
     stage: nextStage ?? currentStage,
+    drafted: openingDraft ? openingDraft.step : null,
   });
 }
