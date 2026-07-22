@@ -9,7 +9,6 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { KANBAN_LANES, laneForStage, type Lead } from "@/lib/types";
-import { LEADS } from "@/lib/mock-data";
 import { FilterDropdown } from "@/components/FilterDropdown";
 import {
   ASSIGNED_OPTIONS,
@@ -24,14 +23,14 @@ import { KanbanColumn } from "./KanbanColumn";
 import { LEGEND } from "./kanban-helpers";
 import styles from "./KanbanBoard.module.css";
 
-export function KanbanBoard() {
-  // Local-only state — no backend wired up yet. Dragging a card between lanes
-  // reassigns its `stage` to the target lane's first stage and appends a
-  // stage-history entry, same as a real stage-selector change would.
-  const [leads, setLeads] = useState<Lead[]>(LEADS);
+export function KanbanBoard({ initialLeads }: { initialLeads: Lead[] }) {
+  // Seeded from the server (Supabase). Dragging a card between lanes reassigns
+  // its `stage` to the target lane's first stage and appends a stage-history
+  // entry locally; persisting the move back to Supabase is a later step.
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
 
-  const counties = countyOptions(LEADS);
+  const counties = countyOptions(initialLeads);
   const visibleLeads = leads.filter((l) => matchesFilters(l, filters));
 
   const sensors = useSensors(

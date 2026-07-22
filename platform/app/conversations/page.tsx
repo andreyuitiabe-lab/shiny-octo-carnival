@@ -1,4 +1,5 @@
 import ConversationsClient from "@/components/conversations/ConversationsClient";
+import { fetchLeads } from "@/lib/leads-query";
 
 // Server component: reads the ?lead= deep-link param (a Kanban card click sends
 // the user here with a specific conversation pre-selected) and hands it to the
@@ -11,5 +12,6 @@ export default async function ConversationsPage({
 }) {
   const { lead } = await searchParams;
   const initialLeadId = Array.isArray(lead) ? lead[0] : lead;
-  return <ConversationsClient initialLeadId={initialLeadId} />;
+  const leads = await fetchLeads();
+  return <ConversationsClient initialLeads={leads} initialLeadId={initialLeadId} />;
 }

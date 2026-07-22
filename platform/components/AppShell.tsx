@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LEADS } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/client";
 import styles from "./AppShell.module.css";
 
 const NAV = [
@@ -26,21 +27,41 @@ const HEADS: Record<string, { title: string; sub: string }> = {
   },
 };
 
-// "Needs reply" = last message inbound = the seller is waiting on us. This is the
-// same definition used for the Conversations "Needs reply" tab and its nav badge.
-function needsReplyCount() {
-  return LEADS.filter((l) => l.lastMessageDirection === "inbound").length;
+// "Needs reply" = last message inbound = the seller is waiting on us. Same
+// definition as the Conversations "Needs reply" tab. Counted client-side against
+// Supabase on mount; refreshes on a full page load (fine for a 2-operator tool).
+function useNeedsReplyCount(enabled: boolean) {
+  const [count, setCount] = useState<number>(0);
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    const db = createClient();
+    db.from("contacts")
+      .select("id", { count: "exact", head: true })
+      // Match fetchLeads' null→inbound coercion so this badge and the
+      // Conversations "Needs reply" tab never disagree (a null direction means
+      // a contact with no message yet — treated as awaiting our reply).
+      .or("last_message_direction.eq.inbound,last_message_direction.is.null")
+      .then(({ count }) => {
+        if (!cancelled && typeof count === "number") setCount(count);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
+  return count;
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const head = HEADS[pathname] ?? HEADS["/kanban"];
-  const replyCount = needsReplyCount();
+  const isLogin = pathname.startsWith("/login");
+  const replyCount = useNeedsReplyCount(!isLogin);
 
   // /login has no sidebar/nav — it's the one page a logged-out request can
   // reach (proxy.ts gates everything else), and a sidebar full of links to
   // pages you can't access yet would be confusing there.
-  if (pathname.startsWith("/login")) {
+  if (isLogin) {
     return <>{children}</>;
   }
 
